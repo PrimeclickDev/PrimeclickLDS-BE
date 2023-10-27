@@ -12,19 +12,19 @@ phone_regex = RegexValidator(
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, phone_number, password=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError(
                 "Email field must be set.")
 
         # Normalize the email and phone number
         email = self.normalize_email(email) if email else None
-        phone_number = self.normalize_phone_number(
-            phone_number) if phone_number else None
+        # phone_number = self.normalize_phone_number(
+        #     phone_number) if phone_number else None
 
         # Create the user instance
         user = self.model(
-            email=email, phone_number=phone_number, **extra_fields)
+            email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
