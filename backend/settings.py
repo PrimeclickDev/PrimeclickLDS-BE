@@ -19,7 +19,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # DEBUG = config('DEBUG', cast=bool)
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os. getenv('ALLOWED_HOSTS')
 
 
 
