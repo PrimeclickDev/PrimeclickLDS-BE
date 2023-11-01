@@ -55,7 +55,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255, unique=True, validators=[email_validator])
     phone_number = models.CharField(
         max_length=30, unique=True, blank=True, null=True, validators=[phone_regex])
-    is_active = models.BooleanField(default=True)
+    business_name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
@@ -63,8 +64,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
-    def get_full_name(self):
-        return self.first_name
+    # def get_full_name(self):
+    #     return self.first_name
 
     def __str__(self):
         return self.first_name
+
+
+class Business(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
