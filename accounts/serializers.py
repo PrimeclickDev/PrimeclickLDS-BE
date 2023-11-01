@@ -83,7 +83,6 @@ class ForgotPasswordSerializer(serializers.Serializer):
     
     
 class ResetPassowrdOTPSerializer(serializers.Serializer):
-    # user_id = serializers.CharField(write_only=True, required=True)
     pass_otp = serializers.CharField(required=True)
     
     
