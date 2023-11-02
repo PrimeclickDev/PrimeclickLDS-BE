@@ -15,18 +15,19 @@ import random
 User = get_user_model()
 
 
-
 class WelcomeAPIView(APIView):
     permission_classes = [AllowAny,]
+
     def get(self, request):
         return Response({"message": "Welcome to PrimeClick's AutoLeads Application. We are still in development!"})
-    
+
 
 class NewAPIView(APIView):
     permission_classes = [IsAuthenticated,]
+
     def get(self, request):
         return Response({"message": "Testing New page!"})
-    
+
 
 class UserRegistrationAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -42,10 +43,9 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         otp = str(random.randint(100000, 999999))
         print(otp)
 
-        #Sending the OTP
-        
-        send_email(email, otp)
+        # Sending the OTP
 
+        send_email(email, otp)
 
         request.session['user_otp'] = otp
         user = serializer.save(is_active=False)
@@ -56,7 +56,6 @@ class UserRegistrationAPIView(generics.CreateAPIView):
             "message": "Your account activation OTP has been sent successfully"
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
-    
 
 
 class ActivationAPIView(APIView):
@@ -70,7 +69,8 @@ class ActivationAPIView(APIView):
         ses_otp = request.session.get('user_otp')
 
         if otp == ses_otp:
-            user = User.objects.filter(id=serializer.validated_data['user_id']).first()
+            user = User.objects.filter(
+                id=serializer.validated_data['user_id']).first()
             if user:
                 user.is_active = True
                 user.save()
@@ -78,12 +78,11 @@ class ActivationAPIView(APIView):
                 return Response({"detail": "Account activated successfully."}, status=status.HTTP_200_OK)
         return Response({"error": "Invalid OTP. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
 
-    
-    
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
-    
-    
+
+
 class UserLogoutAPIView(APIView):
     def post(self, request):
         refresh_token = request.data.get('refresh_token')
@@ -97,7 +96,7 @@ class UserLogoutAPIView(APIView):
                 return Response({"detail": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"detail": "No refresh token provided."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 class ForgotPasswordAPIView(APIView):
     permission_classes = [AllowAny]
@@ -124,15 +123,15 @@ class ForgotPasswordAPIView(APIView):
 
         # Save the OTP in the user's session
         request.session['reset_password_otp'] = otp
-        
+
         response_data = {
             "user_id": user.id,
             "message": "Your reset password OTP has been sent successfully"
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
-    
-    
+
+
 class VerifyPasswordOTPAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -141,17 +140,18 @@ class VerifyPasswordOTPAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         otp = serializer.validated_data['pass_otp']
+        print('tz')
         session_otp = request.session['reset_password_otp']
 
-        if otp !=session_otp:
+        if otp != session_otp:
             return Response({"message": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Save the verified OTP in the session
         request.session['verified_otp'] = session_otp
 
         return Response({"message": "OTP verified successfully."}, status=status.HTTP_200_OK)
-    
-    
+
+
 class NewPasswordAPIView(APIView):
     permission_classes = [AllowAny]
 
