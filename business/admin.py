@@ -7,12 +7,14 @@ class BusinessAdmin(admin.ModelAdmin):
 
 
 class CampaignAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'leads', 'type_of_campaign', 'converted')
+    list_display = ('id', 'title', 'leads',
+                    'type_of_campaign', 'created', 'converted')
     list_filter = ('type_of_campaign',)
 
 
 class LeadAdmin(admin.ModelAdmin):
-    list_display = ('campaign', 'full_name', 'email', 'phone_number', 'status')
+    list_display = ('campaign', 'full_name', 'email',
+                    'phone_number', 'created', 'status')
     list_filter = ('campaign', 'campaign', 'status')
 
 

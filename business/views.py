@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Lead, Campaign, Business
-from .serializers import CampaignUploadSerializer, LeadSerializer
+from .serializers import CampaignUploadSerializer, LeadFormSerializer, LeadListSerializer, LeadUploadSerializer
 import io
 import csv
 
@@ -56,3 +56,43 @@ class CampaignUploadView(generics.CreateAPIView):
         new_campaign.save()
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+
+
+class LeadFormAPIView(generics.CreateAPIView):
+    permission_classes = [AllowAny,]
+    serializer_class = LeadFormSerializer
+
+    def post(self, request, *args, **kwargs):
+        campaign_id = self.kwargs.get('campaign_id')
+        campaign = get_object_or_404(Campaign, id=campaign_id)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        full_name = serializer.validated_data['full_name']
+        email = serializer.validated_data['email']
+        phone_number = serializer.validated_data['phone_number']
+
+        lead = Lead.objects.create(
+            full_name=full_name,
+            email=email,
+            phone_number=phone_number,
+            campaign=campaign  # Set the campaign for the Lead instance
+        )
+        response_data = {"message": "Lead added successfully"}
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+class LeadListAPIView(generics.ListAPIView):
+    permission_classes = [AllowAny,]
+    serializer_class = LeadListSerializer
+
+    def get_queryset(self):
+        # Get the campaign_id from the URL
+        campaign_id = self.kwargs.get('campaign_id')
+
+        # Get the campaign and its related leads
+        campaign = get_object_or_404(Campaign, id=campaign_id)
+        leads = Lead.objects.filter(campaign=campaign)
+
+        return leads

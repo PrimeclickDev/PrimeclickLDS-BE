@@ -6,15 +6,26 @@ class CampaignUploadSerializer(serializers.Serializer):
     campaign = serializers.FileField()
 
 
-class LeadSerializer(serializers.ModelSerializer):
+class LeadUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lead
         fields = ('id', 'full_name', 'email', 'phone_number')
 
 
-# class CampaginSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Campaign
-#         fields = ('id', 'title', 'leads', 'type_of_campaign', 'converted')
+class LeadFormSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lead
+        fields = ('full_name', 'email', 'phone_number')
 
-#     def create(self, validated_data):
+
+class LeadListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lead
+        fields = ('id', 'full_name', 'email',
+                  'phone_number', 'created', 'status')
+
+
+class CampaginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = ('id', 'title', 'leads', 'type_of_campaign', 'converted')
