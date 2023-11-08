@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.validators import RegexValidator, EmailValidator
+from business.models import Business
 
 
 email_validator = EmailValidator()
@@ -9,6 +10,16 @@ email_validator = EmailValidator()
 phone_regex = RegexValidator(
     regex=r"^\d{10}", message="Phone number must be 13 digits only!"
 )
+
+
+class CustomAutoField(models.AutoField):
+    def db_type(self, connection):
+        return 'smallint'
+
+    def formfield(self, **kwargs):
+        defaults = {'min_value': 1000, 'max_value': 9999}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)
 
 
 class UserManager(BaseUserManager):
@@ -55,7 +66,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255, unique=True, validators=[email_validator])
     phone_number = models.CharField(
         max_length=30, unique=True, blank=True, null=True, validators=[phone_regex])
-    business_name = models.CharField(max_length=255)
+    business_id = models.ForeignKey(
+        Business, on_delete=models.CASCADE, related_name='user_business', to_field='id')
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
@@ -64,13 +76,5 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
-    # def get_full_name(self):
-    #     return self.first_name
-
     def __str__(self):
         return self.first_name
-
-
-class Business(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)

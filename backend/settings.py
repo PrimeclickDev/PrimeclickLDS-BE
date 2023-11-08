@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     'drf_spectacular',
     'accounts',
+    'business',
 ]
 
 MIDDLEWARE = [
@@ -97,6 +98,7 @@ EMAIL_USE_TLS = True
 
 
 SENDCHAMP_API_KEY = config('SENDCHAMP_API_KEY')
+
 # SENDCHAMP_API_KEY = os.environ.get('SENDCHAMP_API_KEY')
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
