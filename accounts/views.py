@@ -54,7 +54,7 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         response_data = {
             "user_id": user.id,
             "business_d": business_id,
-            
+            "otp": otp,
             "message": "Your account activation OTP has been sent successfully"
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
