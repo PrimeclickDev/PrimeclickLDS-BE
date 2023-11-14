@@ -44,17 +44,17 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         print(otp)
 
         # Sending the OTP
-
         send_email(email, otp)
 
-        request.session['user_otp'] = otp
-        user = serializer.save(is_active=False)
+        # Save OTP in user model
+        user = serializer.save(is_active=False, otp=otp)
         print(user.id)
         business_id = user.business_id.id
 
         response_data = {
             "user_id": user.id,
             "business_d": business_id,
+            "otp": otp,
             "message": "Your account activation OTP has been sent successfully"
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
@@ -68,16 +68,18 @@ class ActivationAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         otp = serializer.validated_data['otp']
-        ses_otp = request.session.get('user_otp')
+        user_id = serializer.validated_data['user_id']
 
-        if otp == ses_otp:
-            user = User.objects.filter(
-                id=serializer.validated_data['user_id']).first()
-            if user:
-                user.is_active = True
-                user.save()
-                del request.session['user_otp']
-                return Response({"detail": "Account activated successfully."}, status=status.HTTP_200_OK)
+        # Retrieve user by ID
+        user = User.objects.filter(id=user_id, is_active=False).first()
+
+        if user and user.otp == otp:
+            # Activate user
+            user.is_active = True
+            user.save()
+
+            return Response({"detail": "Account activated successfully."}, status=status.HTTP_200_OK)
+
         return Response({"error": "Invalid OTP. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
 
 
