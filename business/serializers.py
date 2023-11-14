@@ -6,6 +6,10 @@ class CampaignUploadSerializer(serializers.Serializer):
     campaign = serializers.FileField()
 
 
+class CampaignNameSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=255)
+
+
 class LeadUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lead
@@ -28,4 +32,5 @@ class LeadListSerializer(serializers.ModelSerializer):
 class CampaginSerializer(serializers.ModelSerializer):
     class Meta:
         model = Campaign
-        fields = ('id', 'title', 'leads', 'type_of_campaign', 'converted')
+        fields = ('id', 'title', 'leads',
+                  'type', 'created', 'converted')

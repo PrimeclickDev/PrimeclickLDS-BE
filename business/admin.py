@@ -8,8 +8,8 @@ class BusinessAdmin(admin.ModelAdmin):
 
 class CampaignAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'leads',
-                    'type_of_campaign', 'created', 'converted')
-    list_filter = ('type_of_campaign',)
+                    'type', 'created', 'converted')
+    list_filter = ('type',)
 
 
 class LeadAdmin(admin.ModelAdmin):

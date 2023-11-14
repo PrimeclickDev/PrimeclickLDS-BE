@@ -1,11 +1,12 @@
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
+from rest_framework.views import APIView
 import pandas as pd
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Lead, Campaign, Business
-from .serializers import CampaignUploadSerializer, LeadFormSerializer, LeadListSerializer, LeadUploadSerializer
+from .serializers import CampaignUploadSerializer, LeadFormSerializer, LeadListSerializer, LeadUploadSerializer, CampaignNameSerializer, CampaginSerializer
 import io
 import csv
 
@@ -35,7 +36,7 @@ class CampaignUploadView(generics.CreateAPIView):
         new_campaign = Campaign.objects.create(
             title=campaign.name,
             business=business,
-            type_of_campaign='UPLOAD'
+            type='UPLOAD'
         )
 
         total_lead_count = 0
@@ -58,27 +59,51 @@ class CampaignUploadView(generics.CreateAPIView):
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
 
 
-class LeadFormAPIView(generics.CreateAPIView):
+class CampaignNameAPIView(generics.CreateAPIView):
     permission_classes = [AllowAny,]
-    serializer_class = LeadFormSerializer
+    serializer_class = CampaignNameSerializer
 
     def post(self, request, *args, **kwargs):
-        campaign_id = self.kwargs.get('campaign_id')
-        campaign = get_object_or_404(Campaign, id=campaign_id)
+        business_id = self.kwargs.get('business_id')
+        business = get_object_or_404(Business, id=business_id)
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        name = serializer.validated_data['name']
 
-        full_name = serializer.validated_data['full_name']
-        email = serializer.validated_data['email']
-        phone_number = serializer.validated_data['phone_number']
-
-        lead = Lead.objects.create(
-            full_name=full_name,
-            email=email,
-            phone_number=phone_number,
-            campaign=campaign  # Set the campaign for the Lead instance
+        campaign = Campaign.objects.create(
+            title=name,
+            business=business,
+            type_of_campaign='DIRECT'
         )
+
+        response_data = {
+            "campaign_id": campaign.id,
+            "message": "Campaign created successfully"
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+class LeadFormAPIView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = LeadFormSerializer
+
+    def perform_create(self, serializer):
+        campaign_id = self.kwargs.get('campaign_id')
+        campaign = get_object_or_404(Campaign, id=campaign_id)
+
+        # Create the Lead instance and associate it with the campaign
+        lead = serializer.save(campaign=campaign)
+
+        # Update the number of leads in the campaign
+        campaign.leads += 1
+        campaign.save()
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
         response_data = {"message": "Lead added successfully"}
         return Response(response_data, status=status.HTTP_200_OK)
 
@@ -96,3 +121,17 @@ class LeadListAPIView(generics.ListAPIView):
         leads = Lead.objects.filter(campaign=campaign)
 
         return leads
+
+
+class CampaignListAPIView(generics.ListAPIView):
+    permission_classes = [AllowAny,]
+    serializer_class = CampaginSerializer
+
+    def get_queryset(self):
+        # Get the campaign_id from the URL
+        business_id = self.kwargs.get('business_id')
+        business = get_object_or_404(Business, id=business_id)
+        campaigns = Campaign.objects.filter(business=business)
+        # print(campaigns)
+
+        return campaigns
