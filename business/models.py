@@ -5,8 +5,8 @@ import string
 
 
 def generate_random_id(length=4):
-    characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for _ in range(length))
+    characters = string.ascii_uppercase + string.digits
+    return 'B' + ''.join(random.choice(characters) for _ in range(length - 1))
 
 
 class Business(models.Model):
@@ -71,7 +71,7 @@ class Lead(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = generate_random_id()
-        super(Lead, self).save(*args, **kwargs)
+        super(Campaign, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.full_name
