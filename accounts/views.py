@@ -63,6 +63,7 @@ class UserRegistrationAPIView(generics.CreateAPIView):
 
 class ActivationAPIView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         serializer = AccountActivationSerializer(data=request.data)
