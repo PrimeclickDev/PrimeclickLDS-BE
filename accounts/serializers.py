@@ -13,7 +13,8 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'phone_number']
+        fields = ['id', 'first_name', 'last_name',
+                  'email', 'phone_number', 'business_id']
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
