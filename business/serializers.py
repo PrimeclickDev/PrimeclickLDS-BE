@@ -33,4 +33,4 @@ class CampaginSerializer(serializers.ModelSerializer):
     class Meta:
         model = Campaign
         fields = ('id', 'title', 'leads',
-                  'type', 'created', 'converted')
+                  'type_of', 'created', 'converted')

@@ -36,7 +36,7 @@ class CampaignUploadView(generics.CreateAPIView):
         new_campaign = Campaign.objects.create(
             title=campaign.name,
             business=business,
-            type='UPLOAD'
+            type_of='UPLOAD'
         )
 
         total_lead_count = 0
@@ -74,7 +74,7 @@ class CampaignNameAPIView(generics.CreateAPIView):
         campaign = Campaign.objects.create(
             title=name,
             business=business,
-            type_of_campaign='DIRECT'
+            type_of='DIRECT'
         )
 
         response_data = {
