@@ -32,12 +32,12 @@ class CampaignUploadView(generics.CreateAPIView):
         else:
             return Response({"error": "Unsupported file format"}, status=status.HTTP_UNSUPPORTED_MEDIA_TYPE)
 
-        # # Create a new Campaign
-        # new_campaign = Campaign.objects.create(
-        #     title=campaign.name,
-        #     business=business,
-        #     type_of='UPLOAD'
-        # )
+        # Create a new Campaign
+        new_campaign = Campaign.objects.create(
+            title=campaign.name,
+            business=business,
+            type_of='UPLOAD'
+        )
 
         total_lead_count = 0
 
@@ -54,11 +54,11 @@ class CampaignUploadView(generics.CreateAPIView):
                 # Add more conditions for other keywords or fields as needed
 
             # Create a new Campaign
-            new_campaign = Campaign.objects.create(
-                title=campaign.name,
-                business=business,
-                type_of='UPLOAD'
-            )
+            # new_campaign = Campaign.objects.create(
+            #     title=campaign.name,
+            #     business=business,
+            #     type_of='UPLOAD'
+            # )
 
             # Associate each lead with the newly created campaign
             lead_data['campaign'] = new_campaign
