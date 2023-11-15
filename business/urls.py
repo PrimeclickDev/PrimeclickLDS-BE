@@ -9,7 +9,7 @@ urlpatterns = [
          LeadFormAPIView.as_view(), name='lead-create'),
     path('leads/list/<str:campaign_id>/',
          LeadListAPIView.as_view(), name='lead-list'),
-    path('campaigns/list/<uuid:business_id>',
+    path('campaigns/list/<uuid:business_id>/',
          CampaignListAPIView.as_view(), name='campaign-list')
 
 ]
