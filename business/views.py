@@ -135,7 +135,7 @@ class LeadListAPIView(generics.ListAPIView):
         leads = Lead.objects.filter(campaign=campaign)
 
         response_data = {'leads': leads,
-                         'campaign_name': campaign.name
+                         'campaign_name': campaign.title
                          }
 
         return Response(response_data, status=status.HTTP_200_OK)
