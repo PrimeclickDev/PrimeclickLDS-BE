@@ -49,6 +49,7 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         # Save OTP in user model
         user = serializer.save(is_active=False)
         user.otp = otp
+        user.save()
         print(user.id)
         business_id = user.business_id.id
 
