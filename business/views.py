@@ -143,8 +143,8 @@ class LeadListAPIView(generics.ListAPIView):
 
         # Modify this response_data based on your requirements
         response_data = {
-            'leads': serializer.data,
-            'campaign_name': queryset.first().campaign.title
+            'campaign_name': queryset.first().campaign.title,
+            'leads': serializer.data
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
