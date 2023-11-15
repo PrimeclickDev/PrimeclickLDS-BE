@@ -134,9 +134,18 @@ class LeadListAPIView(generics.ListAPIView):
         campaign = get_object_or_404(Campaign, id=campaign_id)
         leads = Lead.objects.filter(campaign=campaign)
 
-        response_data = {'leads': leads,
-                         'campaign_name': campaign.title
-                         }
+        return leads
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        # Modify this response_data based on your requirements
+        response_data = {
+            'leads': serializer.data,
+            'campaign_name': queryset.first().campaign.title
+        }
 
         return Response(response_data, status=status.HTTP_200_OK)
 
