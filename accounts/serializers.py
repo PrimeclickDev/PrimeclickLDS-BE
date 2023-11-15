@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name',
-                  'email', 'business_name', 'phone_number']
+                  'email', 'phone_number']
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -54,7 +54,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'phone_number',
-                  'password', 'confirm_password']
+                  'password', 'business_name', 'confirm_password']
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
