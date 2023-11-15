@@ -13,8 +13,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name',
-                  'email', 'phone_number']
+        fields = ['id', 'first_name', 'last_name', 'email', 'phone_number']
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -31,7 +30,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if user is not None:
             if user.check_password(password):
-                refresh = self.get_token(user)  # Generate refresh token
+                refresh = self.get_token(user)
                 refresh_token = str(refresh)
                 access_token = str(refresh.access_token)
 
