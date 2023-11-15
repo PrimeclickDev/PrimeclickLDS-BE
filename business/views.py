@@ -32,23 +32,37 @@ class CampaignUploadView(generics.CreateAPIView):
         else:
             return Response({"error": "Unsupported file format"}, status=status.HTTP_UNSUPPORTED_MEDIA_TYPE)
 
-        # Create a new Campaign
-        new_campaign = Campaign.objects.create(
-            title=campaign.name,
-            business=business,
-            type_of='UPLOAD'
-        )
+        # # Create a new Campaign
+        # new_campaign = Campaign.objects.create(
+        #     title=campaign.name,
+        #     business=business,
+        #     type_of='UPLOAD'
+        # )
 
         total_lead_count = 0
 
         for _, row in reader.iterrows():
-            # Associate each lead with the newly created campaign
-            lead = Lead(
-                full_name=row["full_name"],
-                email=row['email'],
-                phone_number=row["phone_number"],
-                campaign=new_campaign,
+            lead_data = {}
+            for column in reader.columns:
+                # Check if the column contains the keyword 'name' or 'phone' (case-insensitive)
+                if 'name' in column.lower():
+                    lead_data['full_name'] = row[column]
+                elif 'phone' in column.lower():
+                    lead_data['phone_number'] = row[column]
+                elif 'email' in column.lower():
+                    lead_data['email'] = row[column]
+                # Add more conditions for other keywords or fields as needed
+
+            # Create a new Campaign
+            new_campaign = Campaign.objects.create(
+                title=campaign.name,
+                business=business,
+                type_of='UPLOAD'
             )
+
+            # Associate each lead with the newly created campaign
+            lead_data['campaign'] = new_campaign
+            lead = Lead(**lead_data)
             lead.save()
             total_lead_count += 1
 
