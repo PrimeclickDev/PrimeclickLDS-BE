@@ -47,7 +47,8 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         send_email(email, otp)
 
         # Save OTP in user model
-        user = serializer.save(is_active=False, otp=otp)
+        user = serializer.save(is_active=False)
+        user.otp = otp
         print(user.id)
         business_id = user.business_id.id
 
