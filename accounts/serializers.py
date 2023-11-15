@@ -54,7 +54,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'phone_number',
-                  'business_name', 'password', 'confirm_password']
+                  'password', 'confirm_password']
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
@@ -71,8 +71,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         business, created = Business.objects.get_or_create(name=business_name)
 
         # Link the user to the business
-        # validated_data['business'] = business
-
         user = User(**validated_data)
         user.business_id = business
         user.is_active = False
