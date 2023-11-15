@@ -9,6 +9,11 @@ def generate_random_id(length=4):
     return 'B' + ''.join(random.choice(characters) for _ in range(length - 1))
 
 
+def random_id(length=4):
+    characters = string.ascii_uppercase + string.digits
+    return 'C' + ''.join(random.choice(characters) for _ in range(length - 1))
+
+
 class Business(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
@@ -70,7 +75,7 @@ class Lead(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.id = generate_random_id()
+            self.id = random_id()
         super(Campaign, self).save(*args, **kwargs)
 
     def __str__(self):
