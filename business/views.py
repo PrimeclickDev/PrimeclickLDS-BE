@@ -12,7 +12,7 @@ import csv
 
 
 class CampaignUploadView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = CampaignUploadSerializer
 
     def post(self, request, *args, **kwargs):
@@ -60,7 +60,7 @@ class CampaignUploadView(generics.CreateAPIView):
 
 
 class CampaignNameAPIView(generics.CreateAPIView):
-    permission_classes = [AllowAny,]
+    permission_classes = [IsAuthenticated]
     serializer_class = CampaignNameSerializer
 
     def post(self, request, *args, **kwargs):
@@ -86,7 +86,7 @@ class CampaignNameAPIView(generics.CreateAPIView):
 
 
 class LeadFormAPIView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = LeadFormSerializer
 
     def perform_create(self, serializer):
@@ -109,7 +109,7 @@ class LeadFormAPIView(generics.CreateAPIView):
 
 
 class LeadListAPIView(generics.ListAPIView):
-    permission_classes = [AllowAny,]
+    permission_classes = [IsAuthenticated,]
     serializer_class = LeadListSerializer
 
     def get_queryset(self):
@@ -124,7 +124,7 @@ class LeadListAPIView(generics.ListAPIView):
 
 
 class CampaignListAPIView(generics.ListAPIView):
-    permission_classes = [AllowAny,]
+    permission_classes = [IsAuthenticated,]
     serializer_class = CampaginSerializer
 
     def get_queryset(self):
