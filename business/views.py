@@ -162,7 +162,7 @@ class CampaignNameAPIView(generics.CreateAPIView):
 
 
 class LeadFormAPIView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = LeadFormSerializer
 
     def perform_create(self, serializer):
@@ -201,15 +201,20 @@ class LeadListAPIView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
-        serializer = self.get_serializer(queryset, many=True)
+        # Check if there are leads in the queryset
+        if queryset.exists():
+            serializer = self.get_serializer(queryset, many=True)
 
-        # Modify this response_data based on your requirements
-        response_data = {
-            'campaign_name': queryset.first().campaign.title,
-            'leads': serializer.data
-        }
+            # Modify this response_data based on your requirements
+            response_data = {
+                'campaign_name': queryset.first().campaign.title,
+                'leads': serializer.data
+            }
 
-        return Response(response_data, status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            # Handle the case where there are no leads
+            return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
 
 
 class CampaignListAPIView(generics.ListAPIView):
