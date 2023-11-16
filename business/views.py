@@ -2,13 +2,21 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.views import APIView
 import pandas as pd
+from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
+from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Lead, Campaign, Business
-from .serializers import CampaignUploadSerializer, LeadFormSerializer, LeadListSerializer, LeadUploadSerializer, CampaignNameSerializer, CampaginSerializer
 import io
 import csv
+from .serializers import (CampaignUploadSerializer,
+                          LeadFormSerializer,
+                          LeadListSerializer,
+                          LeadUploadSerializer,
+                          CampaignNameSerializer,
+                          CampaginSerializer,
+                          GoogleSheetURLSerializer)
 
 
 class CampaignUploadView(generics.CreateAPIView):
@@ -53,13 +61,6 @@ class CampaignUploadView(generics.CreateAPIView):
                     lead_data['email'] = row[column]
                 # Add more conditions for other keywords or fields as needed
 
-            # Create a new Campaign
-            # new_campaign = Campaign.objects.create(
-            #     title=campaign.name,
-            #     business=business,
-            #     type_of='UPLOAD'
-            # )
-
             # Associate each lead with the newly created campaign
             lead_data['campaign'] = new_campaign
             lead = Lead(**lead_data)
@@ -71,6 +72,67 @@ class CampaignUploadView(generics.CreateAPIView):
         new_campaign.save()
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+
+
+class GoogleSheetUploadView(APIView):
+    # permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = GoogleSheetURLSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        sheet_url = serializer.validated_data['sheet_url']
+        credentials_path = GOOGLE_SHEET_API_CREDS
+
+        # Get data from Google Sheets
+        data = get_google_sheets_data(sheet_url, credentials_path)
+
+        # Extract sheet name (assuming it's the first sheet in the workbook)
+        sheet_name = data.title
+
+        # Extract business_id from URL (you need to implement this logic based on your URL structure)
+        business_id = kwargs.get('business_id')
+
+        # Create or get Business instance
+        business, created = Business.objects.get_or_create(id=business_id)
+
+        # Create a new Campaign
+        new_campaign = Campaign.objects.create(
+            title=sheet_name,
+            business=business,
+            type_of='UPLOAD'
+        )
+
+        # Process and save data to the Lead model
+        # Assuming the first row contains headers (field names)
+        # Convert to lowercase for case-insensitive matching
+        headers = [header.lower() for header in data[0]]
+        leads_data = data[1:]
+
+        # Mapping dictionary for header names to model field names
+        header_mapping = {
+            'name': 'full_name',
+            'email': 'email',
+            'phone': 'phone_number',
+            # Add more mappings as needed
+        }
+
+        for lead_data in leads_data:
+            lead_dict = {header_mapping.get(
+                header.lower(), header): value for header, value in zip(headers, lead_data)}
+
+            Lead.objects.create(
+                campaign=new_campaign,
+                full_name=lead_dict.get('full_name', ''),
+                email=lead_dict.get('email', ''),
+                phone_number=lead_dict.get('phone_number', ''),
+            )
+
+        # Update the total_leads field in the campaign
+        new_campaign.leads = len(leads_data)
+        new_campaign.save()
+
+        return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
 
 class CampaignNameAPIView(generics.CreateAPIView):

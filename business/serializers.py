@@ -34,3 +34,7 @@ class CampaginSerializer(serializers.ModelSerializer):
         model = Campaign
         fields = ('id', 'title', 'leads',
                   'type_of', 'created', 'converted')
+
+
+class GoogleSheetURLSerializer(serializers.Serializer):
+    sheet_url = serializers.URLField()

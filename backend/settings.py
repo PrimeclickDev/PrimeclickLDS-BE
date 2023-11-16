@@ -15,6 +15,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = config('DEBUG', cast=bool)
+# DEBUG = True
 DEBUG = os.environ.get('DEBUG')
 
 ALLOWED_HOSTS = ['*']
@@ -221,6 +222,8 @@ SIMPLE_JWT = {
 #     }
 # }
 
+GOOGLE_SHEET_API_CREDS = os.path.join(
+    BASE_DIR, 'autoleads-402705-e07105ff59b4.json')
 
 MIN_PASSWORD_LENGTH = 8
 
