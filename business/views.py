@@ -169,7 +169,6 @@ class LeadFormAPIView(generics.CreateAPIView):
         campaign_id = self.kwargs.get('campaign_id')
         campaign = get_object_or_404(Campaign, id=campaign_id)
 
-        # Create the Lead instance and associate it with the campaign
         lead = serializer.save(campaign=campaign)
 
         # Update the number of leads in the campaign
@@ -215,6 +214,22 @@ class LeadListAPIView(generics.ListAPIView):
         else:
             # Handle the case where there are no leads
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
+
+
+class LeadDetailAPIView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    # Use the serializer for individual lead details
+    serializer_class = LeadListSerializer
+    queryset = Lead.objects.all()  # Queryset for all leads
+
+    def get_object(self):
+        # Get the lead_id from the URL
+        lead_id = self.kwargs.get('lead_id')
+
+        # Get the lead based on lead_id
+        lead = get_object_or_404(self.get_queryset(), id=lead_id)
+
+        return lead
 
 
 class CampaignListAPIView(generics.ListAPIView):
