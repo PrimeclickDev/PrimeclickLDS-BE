@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 import random
 import string
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 
 def generate_random_id(length=4):
@@ -17,6 +18,9 @@ def random_id(length=4):
 class Business(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
+    email = models.EmailField()
+    avatar = models.ImageField(
+        upload_to='user_avatar/', storage=MediaCloudinaryStorage(), blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -80,3 +84,38 @@ class Lead(models.Model):
 
     def __str__(self):
         return self.full_name
+
+
+class CallReport(models.Model):
+    bulk_id = models.CharField(max_length=255)
+    message_id = models.CharField(max_length=255)
+    from_number = models.CharField(max_length=15)
+    to_number = models.CharField(max_length=15)
+    sent_at = models.DateTimeField()
+    start_time = models.DateTimeField()
+    answer_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    duration = models.IntegerField()
+    charged_duration = models.IntegerField()
+    file_duration = models.FloatField()
+    dtmf_codes = models.CharField(max_length=255)
+    scenario_id = models.CharField(max_length=255)
+    scenario_name = models.CharField(max_length=255)
+    collected_dtmfs = models.TextField()
+    spoken_input = models.TextField()
+    price_per_second = models.FloatField()
+    currency = models.CharField(max_length=3)
+    group_id = models.IntegerField()
+    group_name = models.CharField(max_length=255)
+    status_id = models.IntegerField()
+    status_name = models.CharField(max_length=255)
+    status_description = models.TextField()
+    error_group_id = models.IntegerField()
+    error_group_name = models.CharField(max_length=255)
+    error_id = models.IntegerField()
+    error_name = models.CharField(max_length=255)
+    error_description = models.TextField()
+    error_permanent = models.BooleanField()
+
+    def __str__(self):
+        return self.to_number

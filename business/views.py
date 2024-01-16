@@ -10,7 +10,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Lead, Campaign, Business
 import io
 import csv
-from .serializers import (CampaignUploadSerializer,
+from django.http import JsonResponse
+from twilio.rest import Client
+from .serializers import (CallReportSerializer, CampaignUploadSerializer,
                           LeadFormSerializer,
                           LeadListSerializer,
                           LeadUploadSerializer,
@@ -244,3 +246,19 @@ class CampaignListAPIView(generics.ListAPIView):
         # print(campaigns)
 
         return campaigns
+
+
+class InfobipWebhook(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            # Assuming you are handling a single call report
+            data = request.data['results'][0]
+            serializer = CallReportSerializer(data=data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
