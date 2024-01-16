@@ -246,15 +246,18 @@ class CampaignListAPIView(generics.ListAPIView):
 
         return campaigns
 
+
 class CallReportAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         results = request.data.get('results', [])
+        print(result)
         for result in results:
             serializer = ResultSerializer(data=result)
             if serializer.is_valid():
                 serializer.save()
+                print(serializer.data)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_201_CREATED)
