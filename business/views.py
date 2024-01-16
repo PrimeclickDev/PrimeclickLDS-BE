@@ -248,6 +248,8 @@ class CampaignListAPIView(generics.ListAPIView):
 
 
 class InfobipWebhook(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         try:
             # Assuming you are handling a single call report
