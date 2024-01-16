@@ -51,11 +51,11 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         user.otp = otp
         user.save()
         print(user.id)
-        # business_id = user.business_id.id
+        business_id = user.business_id.id
 
         response_data = {
             "user_id": user.id,
-            # "business_id": business_id,
+            "business_id": business_id,
             "otp": otp,
             "message": "Your account activation OTP has been sent successfully"
         }
