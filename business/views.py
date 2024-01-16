@@ -251,13 +251,15 @@ class CallReportAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        results = request.data.get('results', [])
-        print(result)
-        for result in results:
-            serializer = ResultSerializer(data=result)
+        try:
+            data = request.data['results'][0]
+            print(data)
+            serializer = ResultSerializer(data=data)
+
             if serializer.is_valid():
                 serializer.save()
-                print(serializer.data)
+                return Response(status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
