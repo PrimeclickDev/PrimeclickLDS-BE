@@ -252,14 +252,19 @@ class InfobipWebhook(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            # Assuming you are handling a single call report
             data = request.data['results'][0]
+
+            # Log or print the received data for debugging
+            print("Received Data:", data)
+
             serializer = CallReportSerializer(data=data)
 
             if serializer.is_valid():
                 serializer.save()
                 return Response(status=status.HTTP_201_CREATED)
             else:
+                # Log or print serializer errors for debugging
+                print("Serializer Errors:", serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
