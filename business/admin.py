@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Business, Campaign, Lead, CallReport
+from .models import Business, Campaign, Lead, Result
 
 
 class BusinessAdmin(admin.ModelAdmin):
@@ -16,10 +16,9 @@ class LeadAdmin(admin.ModelAdmin):
     list_display = ('campaign', 'full_name', 'email',
                     'phone_number', 'created', 'status')
     list_filter = ('campaign', 'campaign', 'status')
-    
 
 
-admin.site.register(CallReport)
+admin.site.register(Result)
 admin.site.register(Business, BusinessAdmin)
 admin.site.register(Campaign, CampaignAdmin)
 admin.site.register(Lead, LeadAdmin)

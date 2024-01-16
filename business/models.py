@@ -86,36 +86,18 @@ class Lead(models.Model):
         return self.full_name
 
 
-class CallReport(models.Model):
-    bulkId = models.CharField(max_length=255, blank=True, null=True)
-    messageId = models.CharField(max_length=255, blank=True, null=True)
-    fromNum = models.CharField(max_length=15, blank=True, null=True)
-    to = models.CharField(max_length=15, blank=True, null=True)
-    sentAt = models.DateTimeField(blank=True, null=True)
-    startTime = models.DateTimeField(blank=True, null=True)
-    answerTime = models.DateTimeField(blank=True, null=True)
-    endTime = models.DateTimeField(blank=True, null=True)
-    duration = models.IntegerField(blank=True, null=True)
-    chargedDuration = models.IntegerField(blank=True, null=True)
-    fileDuration = models.FloatField(blank=True, null=True)
-    dtmfCodes = models.CharField(max_length=255, blank=True, null=True)
-    scenarioId = models.CharField(max_length=255, blank=True, null=True)
-    scenarioName = models.CharField(max_length=255, blank=True, null=True)
-    collectedDtmfs = models.TextField(blank=True, null=True)
-    spokenInput = models.TextField(blank=True, null=True)
-    pricePerSecond = models.FloatField(blank=True, null=True)
-    currency = models.CharField(max_length=3, blank=True, null=True)
-    groupId = models.IntegerField(blank=True, null=True)
-    groupName = models.CharField(max_length=255, blank=True, null=True)
-    statusId = models.IntegerField(blank=True, null=True)
-    statusName = models.CharField(max_length=255, blank=True, null=True)
-    statusDescription = models.TextField(blank=True, null=True)
-    errorGroupId = models.IntegerField(blank=True, null=True)
-    errorGroupName = models.CharField(max_length=255, blank=True, null=True)
-    errorId = models.IntegerField(blank=True, null=True)
-    errorName = models.CharField(max_length=255, blank=True, null=True)
-    errorDescription = models.TextField(blank=True, null=True)
-    errorPermanent = models.BooleanField(blank=True, null=True)
+class Result(models.Model):
+    bulkId = models.UUIDField(unique=True)
+    messageId = models.UUIDField()
+    from_number = models.CharField(max_length=20)
+    to = models.CharField(max_length=20)
+    sentAt = models.DateTimeField()
+    mccMnc = models.CharField(max_length=20)
+    callbackData = models.CharField(max_length=100)
+    voiceCall = models.JSONField()
+    price = models.JSONField()
+    status = models.JSONField()
+    error = models.JSONField()
 
     def __str__(self):
         return self.to

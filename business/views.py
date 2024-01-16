@@ -11,13 +11,13 @@ from .models import Lead, Campaign, Business
 import io
 import csv
 from django.http import JsonResponse
-from .serializers import (CallReportSerializer, CampaignUploadSerializer,
+from .serializers import (CampaignUploadSerializer,
                           LeadFormSerializer,
                           LeadListSerializer,
                           LeadUploadSerializer,
                           CampaignNameSerializer,
                           CampaginSerializer,
-                          GoogleSheetURLSerializer)
+                          GoogleSheetURLSerializer, ResultSerializer)
 
 
 class CampaignUploadView(generics.CreateAPIView):
@@ -246,25 +246,15 @@ class CampaignListAPIView(generics.ListAPIView):
 
         return campaigns
 
-
-class InfobipWebhook(APIView):
+class CallReportAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        try:
-            data = request.data['results'][0]
-
-            # Log or print the received data for debugging
-            print("Received Data:", data)
-
-            serializer = CallReportSerializer(data=data)
-
+        results = request.data.get('results', [])
+        for result in results:
+            serializer = ResultSerializer(data=result)
             if serializer.is_valid():
                 serializer.save()
-                return Response(status=status.HTTP_201_CREATED)
             else:
-                # Log or print serializer errors for debugging
-                print("Serializer Errors:", serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_201_CREATED)
