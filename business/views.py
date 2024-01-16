@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Lead, Campaign, Business
+from .models import Lead, Campaign, Business, Result
 import io
 import csv
 from django.http import JsonResponse
@@ -247,19 +247,7 @@ class CampaignListAPIView(generics.ListAPIView):
         return campaigns
 
 
-class CallReportAPIView(APIView):
+class CallReportAPIView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        try:
-            data = request.data['results'][0]
-            print(data)
-            serializer = ResultSerializer(data=data)
-
-            if serializer.is_valid():
-                serializer.save()
-                return Response(status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    queryset = Result.objects.all()
+    serializer_class = ResultSerializer
