@@ -11,7 +11,6 @@ from .models import Lead, Campaign, Business
 import io
 import csv
 from django.http import JsonResponse
-from twilio.rest import Client
 from .serializers import (CallReportSerializer, CampaignUploadSerializer,
                           LeadFormSerializer,
                           LeadListSerializer,
