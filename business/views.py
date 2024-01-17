@@ -262,7 +262,7 @@ class CallReportAPIView(APIView):
                 'bulk_id': data.get('bulkId'),
                 'message_id': data.get('messageId'),
                 'from_number': data.get('from'),
-                'to': data.get('to'),
+                'to_number': data.get('to'),
                 'sent_at': data.get('sentAt'),
                 'mcc_mnc': data.get('mccMnc'),
                 'call_back_data': data.get('callbackData'),
