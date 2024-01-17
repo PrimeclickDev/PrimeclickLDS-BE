@@ -252,6 +252,7 @@ class CallReportAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
+            print(request.data)
             data = request.data['results'][0]
             voice_call_data = data.get('voiceCall', {})
             ivr_data = voice_call_data.get('ivr', {})
