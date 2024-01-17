@@ -86,18 +86,35 @@ class Lead(models.Model):
         return self.full_name
 
 
-class Result(models.Model):
-    bulkId = models.UUIDField(unique=True)
-    messageId = models.UUIDField()
-    from_number = models.CharField(max_length=20)
-    to = models.CharField(max_length=20)
-    sentAt = models.DateTimeField()
-    mccMnc = models.CharField(max_length=20)
-    callbackData = models.CharField(max_length=100)
-    voiceCall = models.JSONField()
-    price = models.JSONField()
-    status = models.JSONField()
-    error = models.JSONField()
+class CallReport(models.Model):
+    bulk_id = models.CharField(max_length=255)
+    message_id = models.CharField(max_length=255)
+    from_number = models.CharField(max_length=15)
+    to_number = models.CharField(max_length=15)
+    sent_at = models.DateTimeField()
+    mcc_mnc = models.CharField(max_length=20)
+    call_back_data = models.CharField(max_length=15)
+    feature = models.CharField(max_length=15)
+    start_time = models.DateTimeField()
+    answer_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    duration = models.IntegerField()
+    charged_duration = models.IntegerField()
+    file_duration = models.FloatField(null=True, blank=True)
+    dtmf_codes = models.CharField(max_length=255)
+    scenario_id = models.CharField(max_length=255)
+    scenario_name = models.CharField(max_length=255)
+    group_id = models.IntegerField()
+    group_name = models.CharField(max_length=255)
+    status_id = models.IntegerField()
+    status_name = models.CharField(max_length=255)
+    status_description = models.TextField()
+    error_group_id = models.IntegerField()
+    error_group_name = models.CharField(max_length=255)
+    error_id = models.IntegerField()
+    error_name = models.CharField(max_length=255)
+    error_description = models.TextField()
+    error_permanent = models.BooleanField()
 
     def __str__(self):
-        return self.to
+        return self.to_number

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Business, Campaign, Lead, Result
+from .models import Business, CallReport, Campaign, Lead
 
 
 class BusinessSerializer(serializers.ModelSerializer):
@@ -46,7 +46,7 @@ class GoogleSheetURLSerializer(serializers.Serializer):
     sheet_url = serializers.URLField()
 
 
-class ResultSerializer(serializers.ModelSerializer):
+class CallReportSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Result
+        model = CallReport
         fields = '__all__'

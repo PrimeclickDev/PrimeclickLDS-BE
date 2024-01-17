@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Lead, Campaign, Business, Result
+from .models import Lead, Campaign, Business, CallReport
 import io
 import csv
 from django.http import JsonResponse
@@ -17,7 +17,7 @@ from .serializers import (CampaignUploadSerializer,
                           LeadUploadSerializer,
                           CampaignNameSerializer,
                           CampaginSerializer,
-                          GoogleSheetURLSerializer, ResultSerializer)
+                          GoogleSheetURLSerializer, CallReportSerializer)
 
 
 class CampaignUploadView(generics.CreateAPIView):
@@ -247,7 +247,57 @@ class CampaignListAPIView(generics.ListAPIView):
         return campaigns
 
 
-class CallReportAPIView(generics.ListCreateAPIView):
+class CallReportAPIView(APIView):
     permission_classes = [AllowAny]
-    queryset = Result.objects.all()
-    serializer_class = ResultSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            data = request.data['results'][0]
+            voice_call_data = data.get('voiceCall', {})
+            ivr_data = voice_call_data.get('ivr', {})
+            status_data = data.get('status', {})
+            error_data = data.get('error', {})
+
+            extracted_data = {
+                'bulkId': data.get('bulkId'),
+                'messageId': data.get('messageId'),
+                'from_number': data.get('from'),
+                'to': data.get('to'),
+                'sentAt': data.get('sentAt'),
+                'mccMnc': data.get('mccMnc'),
+                'callbackData': data.get('callbackData'),
+                'feature': voice_call_data.get('feature'),
+                'start_time': voice_call_data.get('startTime'),
+                'answer_time': voice_call_data.get('answerTime'),
+                'end_time': voice_call_data.get('endTime'),
+                'duration': voice_call_data.get('duration'),
+                'charged_duration': voice_call_data.get('chargedDuration'),
+                'file_duration': voice_call_data.get('fileDuration'),
+                'dtmf_codes': voice_call_data.get('dtmfCodes'),
+                'scenario_id': ivr_data.get('scenarioId'),
+                'scenario_name': ivr_data.get('scenarioName'),
+                'group_id': status_data.get('groupId'),
+                'group_name': status_data.get('groupName'),
+                'status_id': status_data.get('id'),
+                'status_name': status_data.get('name'),
+                'status_description': status_data.get('description'),
+                'error_group_id': error_data.get('groupId'),
+                'error_group_name': error_data.get('groupName'),
+                'error_id': error_data.get('id'),
+                'error_name': error_data.get('name'),
+                'error_description': error_data.get('description'),
+                'error_permanent': error_data.get('permanent'),
+            }
+
+            print(extracted_data)
+            # Assuming ResultSerializer is defined and properly configured
+            serializer = CallReportSerializer(data=extracted_data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
