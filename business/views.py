@@ -289,6 +289,10 @@ class CallReportAPIView(APIView):
                 'error_permanent': error_data.get('permanent'),
             }
 
+            for key, value in extracted_data.items():
+                if value is None:
+                    extracted_data[key] = None
+
             print(extracted_data)
             # Saving the extracted data directly into the database
             CallReport.objects.create(**extracted_data)

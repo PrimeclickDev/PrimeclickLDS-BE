@@ -92,7 +92,7 @@ class CallReport(models.Model):
     from_number = models.CharField(max_length=15)
     to_number = models.CharField(max_length=15)
     sent_at = models.DateTimeField()
-    mcc_mnc = models.CharField(max_length=20)
+    mcc_mnc = models.CharField(max_length=20, null=True, blank=True)
     call_back_data = models.CharField(max_length=15)
     feature = models.CharField(max_length=15)
     start_time = models.DateTimeField()
