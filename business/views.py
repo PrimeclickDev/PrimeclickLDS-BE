@@ -259,13 +259,13 @@ class CallReportAPIView(APIView):
             error_data = data.get('error', {})
 
             extracted_data = {
-                'bulkId': data.get('bulkId'),
-                'messageId': data.get('messageId'),
+                'bulk_id': data.get('bulkId'),
+                'message_id': data.get('messageId'),
                 'from_number': data.get('from'),
                 'to': data.get('to'),
-                'sentAt': data.get('sentAt'),
-                'mccMnc': data.get('mccMnc'),
-                'callbackData': data.get('callbackData'),
+                'sent_at': data.get('sentAt'),
+                'mcc_mnc': data.get('mccMnc'),
+                'call_back_data': data.get('callbackData'),
                 'feature': voice_call_data.get('feature'),
                 'start_time': voice_call_data.get('startTime'),
                 'answer_time': voice_call_data.get('answerTime'),
