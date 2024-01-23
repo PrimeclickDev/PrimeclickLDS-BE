@@ -78,9 +78,9 @@ class CampaignUploadView(generics.CreateAPIView):
             campaign=new_campaign).values_list('phone_number', flat=True)
         leads_phone_numbers_list = list(leads_phone_numbers)
         nums = arrange_nums(leads_phone_numbers_list)
-        launch(nums)
+        launch_status = launch(nums)
 
-        return Response({"status": "success", "leads_phone_numbers": leads_phone_numbers_list}, status=status.HTTP_201_CREATED)
+        return Response({"status": "success", "leads_phone_numbers": leads_phone_numbers_list, "nums": nums, "launch_status": launch_status}, status=status.HTTP_201_CREATED)
 
 
 class CampaignNameAPIView(generics.CreateAPIView):
