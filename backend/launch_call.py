@@ -13,7 +13,8 @@ def arrange_nums(qrst):
 
 def launch(nums):
     # Calculate the time 5 minutes from now
-    send_at_time = datetime.now() - timedelta(minutes=58)
+    # send_at_time = datetime.now() - timedelta(minutes=58)
+    send_at_time = datetime.now() + timedelta(minutes=2)
     send_at_formatted = send_at_time.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     print(str(send_at_formatted))
 
