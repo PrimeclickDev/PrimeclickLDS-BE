@@ -80,7 +80,7 @@ class CampaignUploadView(generics.CreateAPIView):
         leads_phone_numbers_list = list(leads_phone_numbers)
         nums = arrange_nums(leads_phone_numbers_list)
 
-        time.sleep(5)
+        # time.sleep(5)
         try:
             launch(nums)
         except Exception as e:
