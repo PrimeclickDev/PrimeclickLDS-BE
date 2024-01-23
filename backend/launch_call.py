@@ -61,8 +61,9 @@ def launch(nums):
     res = conn.getresponse()
     data = res.read()
     print(data.decode("utf-8"))
+    return data
 
 
-# nummber_queryset = ["2348034489360", "2347083955292", "2348166590317"]
-# nums = arrange_nums(nummber_queryset)
-# launch(nums)
+nummber_queryset = ["2348034489360", "2347083955292", "2348166590317"]
+nums = arrange_nums(nummber_queryset)
+launch(nums)

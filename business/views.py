@@ -9,6 +9,7 @@ from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Lead, Campaign, Business, CallReport
 from backend.launch_call import arrange_nums, launch
+import time
 import io
 import csv
 from django.http import JsonResponse
@@ -78,9 +79,14 @@ class CampaignUploadView(generics.CreateAPIView):
             campaign=new_campaign).values_list('phone_number', flat=True)
         leads_phone_numbers_list = list(leads_phone_numbers)
         nums = arrange_nums(leads_phone_numbers_list)
-        launch_status = launch(nums)
 
-        return Response({"status": "success", "leads_phone_numbers": leads_phone_numbers_list, "nums": nums, "launch_status": launch_status}, status=status.HTTP_201_CREATED)
+        time.sleep(5)
+        try:
+            launch(nums)
+        except Exception as e:
+            print(f"Error in launching call: {e}")
+
+        return Response({"status": "success", "leads_phone_numbers": leads_phone_numbers_list, "nums": nums}, status=status.HTTP_201_CREATED)
 
 
 class CampaignNameAPIView(generics.CreateAPIView):
