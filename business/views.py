@@ -59,9 +59,21 @@ class CampaignUploadView(generics.CreateAPIView):
                     lead_data['full_name'] = row[column]
                 elif 'phone' in column.lower():
                     # Process phone numbers
-                    phone_number = row[column].replace(" ", "")
-                    processed_phone_number = int('234' + str(phone_number)[1:]) if str(phone_number).startswith(
-                        '0') else int(phone_number) if str(phone_number).startswith('2') else int('234' + str(phone_number))
+                    phone_number = row[column]
+
+                    # Check if phone_number is not None
+                    if phone_number is not None:
+                        # Convert to string and remove spaces
+                        phone_number_str = str(phone_number).replace(" ", "")
+
+                        # Process the phone number based on your requirements
+                        processed_phone_number = int('234' + phone_number_str[1:]) if phone_number_str.startswith(
+                            '0') else int(phone_number_str) if phone_number_str.startswith('2') else int('234' + phone_number_str)
+
+                        # Rest of your code...
+                    else:
+                        # Handle the case when phone_number is None
+                        processed_phone_number = None
 
                     lead_data['phone_number'] = processed_phone_number
                 elif 'email' in column.lower():
