@@ -7,7 +7,7 @@ authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-
 
 
 def arrange_nums(qrst):
-    nums = [{"to": num} for num in qrst]
+    nums = [{"to": num} for num in qrst if qrst.length > 0]
     return nums
 
 

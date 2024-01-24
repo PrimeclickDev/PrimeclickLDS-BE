@@ -51,7 +51,6 @@ class CampaignUploadView(generics.CreateAPIView):
         )
 
         total_lead_count = 0
-
         for _, row in reader.iterrows():
             lead_data = {}
             for column in reader.columns:
@@ -59,7 +58,11 @@ class CampaignUploadView(generics.CreateAPIView):
                 if 'name' in column.lower():
                     lead_data['full_name'] = row[column]
                 elif 'phone' in column.lower():
-                    lead_data['phone_number'] = row[column]
+                    # Process phone numbers
+                    phone_number = row[column]
+                    processed_phone_number = int('234' + phone_number[1:]) if phone_number.startswith(
+                        '0') else int(phone_number) if phone_number.startswith('2') else int('234' + phone_number)
+                    lead_data['phone_number'] = processed_phone_number
                 elif 'email' in column.lower():
                     lead_data['email'] = row[column]
                 # Add more conditions for other keywords or fields as needed
@@ -77,6 +80,7 @@ class CampaignUploadView(generics.CreateAPIView):
         # Get the list of all phone numbers of leads in the campaign
         leads_phone_numbers = Lead.objects.filter(
             campaign=new_campaign).values_list('phone_number', flat=True)
+
         leads_phone_numbers_list = list(leads_phone_numbers)
         nums = arrange_nums(leads_phone_numbers_list)
 
