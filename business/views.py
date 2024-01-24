@@ -59,7 +59,7 @@ class CampaignUploadView(generics.CreateAPIView):
                     lead_data['full_name'] = row[column]
                 elif 'phone' in column.lower():
                     # Process phone numbers
-                    phone_number = row[column]
+                    phone_number = row[column].replace(" ", "")
                     processed_phone_number = int('234' + str(phone_number)[1:]) if str(phone_number).startswith(
                         '0') else int(phone_number) if str(phone_number).startswith('2') else int('234' + str(phone_number))
 
