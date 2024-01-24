@@ -85,6 +85,7 @@ class CampaignUploadView(generics.CreateAPIView):
             launch(nums)
         except Exception as e:
             print(f"Error in launching call: {e}")
+            raise  # Re-raise the exception to see the traceback in logs
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
 
