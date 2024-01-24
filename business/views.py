@@ -60,8 +60,9 @@ class CampaignUploadView(generics.CreateAPIView):
                 elif 'phone' in column.lower():
                     # Process phone numbers
                     phone_number = row[column]
-                    processed_phone_number = int('234' + phone_number[1:]) if phone_number.startswith(
-                        '0') else int(phone_number) if phone_number.startswith('2') else int('234' + phone_number)
+                    processed_phone_number = int('234' + str(phone_number)[1:]) if str(phone_number).startswith(
+                        '0') else int(phone_number) if str(phone_number).startswith('2') else int('234' + str(phone_number))
+
                     lead_data['phone_number'] = processed_phone_number
                 elif 'email' in column.lower():
                     lead_data['email'] = row[column]
