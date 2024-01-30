@@ -87,6 +87,8 @@ class Lead(models.Model):
 
 
 class CallReport(models.Model):
+    lead = models.ForeignKey(
+        Lead,  on_delete=models.CASCADE, related_name="call_reports", to_field='id')
     bulk_id = models.CharField(max_length=255)
     message_id = models.CharField(max_length=255)
     from_number = models.CharField(max_length=50)
@@ -118,3 +120,9 @@ class CallReport(models.Model):
 
     def __str__(self):
         return self.to_number
+
+
+class Call(models.Model):
+    campaign = models.ForeignKey(
+        Campaign, on_delete=models.CASCADE, related_name='campaign_call', to_field='id')
+    call_scenario_id = models.Charfield(null=True, blank=True)

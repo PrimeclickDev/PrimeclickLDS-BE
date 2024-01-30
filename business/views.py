@@ -8,7 +8,7 @@ from rest_framework import status
 from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Lead, Campaign, Business, CallReport
-from backend.launch_call import arrange_nums, launch
+# from launch_call import arrange_nums, launch
 import time
 import io
 import csv
@@ -90,19 +90,19 @@ class CampaignUploadView(generics.CreateAPIView):
         new_campaign.leads = total_lead_count
         new_campaign.save()
 
-        # Get the list of all phone numbers of leads in the campaign
-        leads_phone_numbers = Lead.objects.filter(
-            campaign=new_campaign).values_list('phone_number', flat=True)
+        # # Get the list of all phone numbers of leads in the campaign
+        # leads_phone_numbers = Lead.objects.filter(
+        #     campaign=new_campaign).values_list('phone_number', flat=True)
 
-        leads_phone_numbers_list = list(leads_phone_numbers)
-        nums = arrange_nums(leads_phone_numbers_list)
+        # leads_phone_numbers_list = list(leads_phone_numbers)
+        # nums = arrange_nums(leads_phone_numbers_list)
 
-        # time.sleep(5)
-        try:
-            launch(nums)
-        except Exception as e:
-            print(f"Error in launching call: {e}")
-            raise  # Re-raise the exception to see the traceback in logs
+        # # time.sleep(5)
+        # try:
+        #     launch(nums)
+        # except Exception as e:
+        #     print(f"Error in launching call: {e}")
+        #     raise  # Re-raise the exception to see the traceback in logs
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
 
