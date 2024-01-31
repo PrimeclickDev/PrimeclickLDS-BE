@@ -50,3 +50,16 @@ class CallReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = CallReport
         fields = '__all__'
+
+
+class ContactOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = ("contact_option",)
+
+
+class CallAudioLinksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = ("call_scenario_id", "audio_link1",
+                  "audio_link2", "audio_link3", "audio_link4")

@@ -35,17 +35,28 @@ class Campaign(models.Model):
         ('DIRECT', 'Direct')
     )
 
+    CONTACT_OPTION = (
+        ("CALL", "Call"),
+        ("SMS", "Sms")
+    )
+
     id = models.CharField(max_length=4, primary_key=True,
                           unique=True, editable=False)
     business = models.ForeignKey(
         Business, on_delete=models.CASCADE, related_name='business_campaign', to_field='id')
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, null=True, blank=True)
     leads = models.IntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     type_of = models.CharField(
         max_length=30, choices=TYPE_OF_CAMPAIGN)
     converted = models.IntegerField(default=0)
+    contact_option = models.CharField(max_length=30, choices=CONTACT_OPTION)
+    call_scenario_id = models.CharField(max_length=50, null=True, blank=True)
+    audio_link_1 = models.CharField(max_length=100, null=True, blank=True)
+    audio_link_2 = models.CharField(max_length=100, null=True, blank=True)
+    audio_link_3 = models.CharField(max_length=100, null=True, blank=True)
+    audio_link_4 = models.CharField(max_length=100, null=True, blank=True)
     # actions = models.CharField(max_length=50, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -122,7 +133,14 @@ class CallReport(models.Model):
         return self.to_number
 
 
-class Call(models.Model):
-    campaign = models.ForeignKey(
-        Campaign, on_delete=models.CASCADE, related_name='campaign_call', to_field='id')
-    call_scenario_id = models.CharField(null=True, blank=True)
+# class Call(models.Model):
+#     campaign = models.ForeignKey(
+#         Campaign, on_delete=models.CASCADE, related_name='campaign_call', to_field='id')
+#     call_scenario_id = models.CharField(max_length=50, null=True, blank=True)
+#     audio_link_1 = models.CharField(max_length=100, null=True, blank=True)
+#     audio_link_2 = models.CharField(max_length=100, null=True, blank=True)
+#     audio_link_3 = models.CharField(max_length=100, null=True, blank=True)
+#     audio_link_4 = models.CharField(max_length=100, null=True, blank=True)
+
+#     def __str__(self):
+#         return self.campaign.title

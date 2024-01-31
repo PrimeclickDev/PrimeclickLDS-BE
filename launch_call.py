@@ -8,16 +8,7 @@ conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
 authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-5b12fe56ae1d'
 
 
-# FOR TESTING
-
-# FOR PRODUCTION
-
-# def arrange_nums(qrst):
-#     nums = [{"to": num} for num in qrst] if len(qrst) > 0 else []
-#     return nums
-
-
-def launch(nums):
+def launch(nums, scenario_id):
     # Calculate the time 5 minutes from now
     # send_at_time = datetime.now() - timedelta(minutes=58)
     send_at_time = datetime.now() - timedelta(minutes=58)
@@ -29,8 +20,8 @@ def launch(nums):
     payload = json.dumps({
         "messages": [
             {
-                # "scenarioId": call(),
-                "scenarioId": "5ACD46EA72C9A59ABCAC70923565872B",
+                "scenarioId": scenario_id,
+                # "scenarioId": "5ACD46EA72C9A59ABCAC70923565872B",
                 "from": "12172814794",
                 "destinations": nums,
                 "notifyUrl": "https://coral-app-kajof.ondigitalocean.app/call-report/",
@@ -79,7 +70,7 @@ def launch(nums):
         print(f"Error: {e}")
 
 
-qrst = ["2348166590317"]
-nums = [{"to": num} for num in qrst] if len(qrst) > 0 else []
+# qrst = ["2348166590317"]
+# nums = [{"to": num} for num in qrst] if len(qrst) > 0 else []
 
-launch(nums)
+# launch(nums)

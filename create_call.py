@@ -5,7 +5,7 @@ conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
 authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-5b12fe56ae1d'
 
 
-def call():
+def call(audio1, audio2, audio3):
     payload = json.dumps({
         "name": "Collect Digits",
         "description": "Collect user input and follow default branches for better user experience",
@@ -24,7 +24,7 @@ def call():
             },
 
             {
-                "playFromUrl": "https://od.lk/s/NTZfMjc5MDk2NThf/ivr_audio4.mp3"
+                "playFromUrl": audio1
             },
 
             {
@@ -44,12 +44,12 @@ def call():
                 "case": {
                     "1": [
                         {
-                            "playFromUrl": "https://od.lk/s/NTZfMjc5MDkwNjJf/ivr_audio2.mp3"
+                            "playFromUrl": audio2
                         }
                     ],
                     "2": [
                         {
-                            "playFromUrl": "https://od.lk/s/NTZfMjc5MDkxMjVf/ivr_audio3.mp3"
+                            "playFromUrl": audio3
                         }
                     ],
                     "__default": [
@@ -79,6 +79,3 @@ def call():
     scenario_id = response_data.get('id')
     # print("Scenario ID:", scenario_id)
     return scenario_id
-
-
-call()

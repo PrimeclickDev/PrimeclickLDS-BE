@@ -5,6 +5,9 @@ import pandas as pd
 from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
+
+from create_call import call
+from launch_call import launch
 from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Lead, Campaign, Business, CallReport
@@ -13,7 +16,7 @@ import time
 import io
 import csv
 from django.http import JsonResponse
-from .serializers import (CampaignUploadSerializer,
+from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer,
                           LeadFormSerializer,
                           LeadListSerializer,
                           LeadUploadSerializer,
@@ -90,27 +93,80 @@ class CampaignUploadView(generics.CreateAPIView):
         new_campaign.leads = total_lead_count
         new_campaign.save()
 
-        # # Get the list of all phone numbers of leads in the campaign
-        # leads_phone_numbers = Lead.objects.filter(
-        #     campaign=new_campaign).values_list('phone_number', flat=True)
+        response_data = {"status": "success", "campaign_id": new_campaign.id}
 
-        # leads_phone_numbers_list = list(leads_phone_numbers)
-        # nums = arrange_nums(leads_phone_numbers_list)
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
-        # # time.sleep(5)
-        # try:
-        #     launch(nums)
-        # except Exception as e:
-        #     print(f"Error in launching call: {e}")
-        #     raise  # Re-raise the exception to see the traceback in logs
 
-        return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+class ContactOptionAPIView(generics.UpdateAPIView):
+    queryset = Campaign.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ContactOptionSerializer
 
-    # def put(self, request, campaign_id):
-    #     campaign = get_object_or_404(Campaign, id=campaign_id)
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_object(self):
+        campaign_id = self.kwargs.get("campaign_id")
+        return Campaign.objects.get(id=campaign_id)
+
+
+class CallCreateAPIView(generics.UpdateAPIView):
+    queryset = Campaign.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = CallAudioLinksSerializer
+
+    def get_object(self):
+        campaign_id = self.kwargs.get("campaign_id")
+        return Campaign.objects.get(id=campaign_id)
+
+    def perform_update(self, serializer):
+
+        user_data = self.request.data
+        # Replace 'field1' with the actual field name
+        audio1 = user_data.get('audio_link1')
+        # Replace 'field2' with the actual field name
+        audio2 = user_data.get('audio_link2')
+        audio3 = user_data.get('audio_link3')
+        # Call the function to get the scenario_id
+        scenario_id = call(audio1, audio2,  audio3)
+
+        # Update the field in the Campaign model with the scenario_id
+        serializer.save(
+            call_scenario_id=scenario_id,
+            audio_link1=audio1,
+            audio_link2=audio2,
+            audio_link3=audio3
+        )
+
+        return Response(
+            {"message": "Update successful", "scenario_id": scenario_id,
+                "campaign_id": self.campaign_id},
+            status=status.HTTP_200_OK
+        )
+
+
+class LaunchCallAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, campaign_id, *args, **kwargs):
+        # Retrieve the Campaign object based on the provided campaign_id
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+        except Campaign.DoesNotExist:
+            return Response({"message": "Campaign not found"}, status=404)
+
+        # Extract numbers from the Leads associated with the Campaign
+        leads_phone_numbers = Lead.objects.filter(
+            campaign=campaign).values_list('phone_number', flat=True)
+        nums = [{"to": number} for number in leads_phone_numbers]
+
+        scenario_id = campaign.call_scenario_id
+
+        # Now you have the nums list and scenario_id, and you can use them in your further logic
+        # For example, you can call the `launch` function passing the nums list and scenario_id
+        try:
+            launch(nums, scenario_id)
+            return Response({"message": "Call launched successfully"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
 
 class CampaignNameAPIView(generics.CreateAPIView):
