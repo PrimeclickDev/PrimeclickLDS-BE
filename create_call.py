@@ -71,7 +71,7 @@ def call(audio1=None, audio2=None, audio3=None):
     }
 
     conn.request("POST", "/voice/ivr/1/scenarios",
-                 payload, headers, timeout=30)
+                 payload, headers)
     res = conn.getresponse()
     data = res.read().decode("utf-8")
     print(data)
