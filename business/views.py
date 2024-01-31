@@ -106,6 +106,12 @@ class CampaignUploadView(generics.CreateAPIView):
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
 
+    # def put(self, request, campaign_id):
+    #     campaign = get_object_or_404(Campaign, id=campaign_id)
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CampaignNameAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
