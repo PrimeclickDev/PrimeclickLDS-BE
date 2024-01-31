@@ -131,16 +131,3 @@ class CallReport(models.Model):
 
     def __str__(self):
         return self.to_number
-
-
-# class Call(models.Model):
-#     campaign = models.ForeignKey(
-#         Campaign, on_delete=models.CASCADE, related_name='campaign_call', to_field='id')
-#     call_scenario_id = models.CharField(max_length=50, null=True, blank=True)
-#     audio_link_1 = models.CharField(max_length=100, null=True, blank=True)
-#     audio_link_2 = models.CharField(max_length=100, null=True, blank=True)
-#     audio_link_3 = models.CharField(max_length=100, null=True, blank=True)
-#     audio_link_4 = models.CharField(max_length=100, null=True, blank=True)
-
-#     def __str__(self):
-#         return self.campaign.title

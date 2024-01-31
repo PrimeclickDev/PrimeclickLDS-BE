@@ -9,8 +9,6 @@ authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-
 
 
 def launch(nums, scenario_id):
-    # Calculate the time 5 minutes from now
-    # send_at_time = datetime.now() - timedelta(minutes=58)
     send_at_time = datetime.now() + timedelta(minutes=2)
     day_of_week = send_at_time.strftime("%A").upper()
     send_at_formatted = send_at_time.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
@@ -21,7 +19,6 @@ def launch(nums, scenario_id):
         "messages": [
             {
                 "scenarioId": scenario_id,
-                # "scenarioId": "5ACD46EA72C9A59ABCAC70923565872B",
                 "from": "12172814794",
                 "destinations": nums,
                 "notifyUrl": "https://coral-app-kajof.ondigitalocean.app/call-report/",
@@ -68,9 +65,3 @@ def launch(nums, scenario_id):
         print(data.decode("utf-8"))
     except Exception as e:
         print(f"Error: {e}")
-
-
-# qrst = ["2348166590317"]
-# nums = [{"to": num} for num in qrst] if len(qrst) > 0 else []
-
-# launch(nums)

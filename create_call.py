@@ -70,7 +70,8 @@ def call(audio1=None, audio2=None, audio3=None):
         'Accept': 'application/json'
     }
 
-    conn.request("POST", "/voice/ivr/1/scenarios", payload, headers)
+    conn.request("POST", "/voice/ivr/1/scenarios",
+                 payload, headers, timeout=30)
     res = conn.getresponse()
     data = res.read().decode("utf-8")
     print(data)
