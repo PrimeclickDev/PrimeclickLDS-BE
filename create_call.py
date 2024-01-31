@@ -5,7 +5,7 @@ conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
 authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-5b12fe56ae1d'
 
 
-def call(audio1, audio2, audio3):
+def call(audio1=None, audio2=None, audio3=None):
     payload = json.dumps({
         "name": "Collect Digits",
         "description": "Collect user input and follow default branches for better user experience",

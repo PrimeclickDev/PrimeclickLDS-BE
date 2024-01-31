@@ -118,17 +118,13 @@ class CallCreateAPIView(generics.UpdateAPIView):
         return Campaign.objects.get(id=campaign_id)
 
     def perform_update(self, serializer):
-
         user_data = self.request.data
-        # Replace 'field1' with the actual field name
         audio1 = user_data.get('audio_link_1')
-        # Replace 'field2' with the actual field name
         audio2 = user_data.get('audio_link_2')
         audio3 = user_data.get('audio_link_3')
-        # Call the function to get the scenario_id
         scenario_id = call(audio1, audio2,  audio3)
 
-        # Update the field in the Campaign model with the scenario_id
+        campaign = self.get_object()  # Retrieve the Campaign object
         serializer.save(
             call_scenario_id=scenario_id,
             audio_link_1=audio1,
@@ -138,7 +134,7 @@ class CallCreateAPIView(generics.UpdateAPIView):
 
         return Response(
             {"message": "Update successful", "scenario_id": scenario_id,
-                "campaign_id": self.campaign_id},
+                "campaign_id": campaign.id},  # Use campaign.id
             status=status.HTTP_200_OK
         )
 
