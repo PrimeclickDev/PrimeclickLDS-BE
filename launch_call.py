@@ -11,7 +11,7 @@ authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-
 def launch(nums, scenario_id):
     # Calculate the time 5 minutes from now
     # send_at_time = datetime.now() - timedelta(minutes=58)
-    send_at_time = datetime.now() - timedelta(minutes=58)
+    send_at_time = datetime.now() + timedelta(minutes=2)
     day_of_week = send_at_time.strftime("%A").upper()
     send_at_formatted = send_at_time.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     print(str(send_at_formatted))
