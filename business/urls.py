@@ -1,11 +1,13 @@
 from django.urls import path
-from .views import CallReportAPIView, CampaignUploadView, ContactOptionAPIView, LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView, LeadListAPIView, CampaignNameAPIView, CampaignListAPIView
+from .views import CallCreateAPIView, CallReportAPIView, CampaignUploadView, ContactOptionAPIView, LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView, LeadListAPIView, CampaignNameAPIView, CampaignListAPIView
 urlpatterns = [
     path('campaign/upload/<uuid:business_id>/',
          CampaignUploadView.as_view(), name='campaign-upload'),
-    path('campaign/add/contact/<str:campaignId>/',
+    path('campaign/add/contact/<str:campaign_id>/',
          ContactOptionAPIView.as_view(), name='contact-option'),
-    path('campaign/call/launch/<str:campaignId>/',
+    path('campaign/call/create/<str:campaign_id>/',
+         CallCreateAPIView.as_view(), name='campaign-call-create'),
+    path('campaign/call/launch/<str:campaign_id>/',
          LaunchCallAPIView.as_view(), name='campaign-call-launch'),
     path('campaign/create/<uuid:business_id>/',
          CampaignNameAPIView.as_view(), name='campaign-name'),
