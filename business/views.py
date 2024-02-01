@@ -287,12 +287,16 @@ class CallReportAPIView(APIView):
             ivr_data = voice_call_data.get('ivr', {})
             status_data = data.get('status', {})
             error_data = data.get('error', {})
+            to_number = data.get('to')
+
+            lead = Lead.objects.get(phone_number=to_number)
 
             extracted_data = {
+                'lead': lead,
                 'bulk_id': data.get('bulkId'),
                 'message_id': data.get('messageId'),
                 'from_number': data.get('from'),
-                'to_number': data.get('to'),
+                'to_number': to_number,
                 'sent_at': data.get('sentAt'),
                 'mcc_mnc': data.get('mccMnc'),
                 'call_back_data': data.get('callbackData'),
