@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from create_call import call
+from delete_call import call_delete
 from launch_call import launch
 from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -160,7 +161,8 @@ class LaunchCallAPIView(APIView):
         # For example, you can call the `launch` function passing the nums list and scenario_id
         try:
             launch(nums, scenario_id)
-            return Response({"message": "Call launched successfully"})
+            call_delete()
+            return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
