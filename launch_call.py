@@ -65,3 +65,5 @@ def launch(nums, scenario_id):
         print(data.decode("utf-8"))
     except Exception as e:
         print(f"Error: {e}")
+
+    conn.close()
