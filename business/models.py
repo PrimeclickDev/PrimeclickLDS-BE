@@ -139,4 +139,4 @@ class FormDesign(models.Model):
     design = models.TextField()
 
     def __str__(self):
-        return f"{self.campaign.title}'s form custom design"
+        return f"{self.campaign}'s form custom design"
