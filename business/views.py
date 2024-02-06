@@ -201,11 +201,37 @@ class LeadFormAPIView(generics.CreateAPIView):
         campaign_id = self.kwargs.get('campaign_id')
         campaign = get_object_or_404(Campaign, id=campaign_id)
 
-        lead = serializer.save(campaign=campaign)
+        lead = serializer.validated_data
+        phone_number = lead['phone_number']
 
-        # Update the number of leads in the campaign
+        # Process the phone number before saving to the database
+        if phone_number is not None:
+            # Convert to string and remove spaces
+            phone_number_str = str(phone_number).replace(" ", "")
+
+            # Process the phone number based on your requirements
+            processed_phone_number = int('234' + phone_number_str[1:]) if phone_number_str.startswith(
+                '0') else int(phone_number_str) if phone_number_str.startswith('2') else int('234' + phone_number_str)
+
+            # Update the phone number in the lead data
+            lead['phone_number'] = processed_phone_number
+
+            num = [{"to": processed_phone_number}]
+        else:
+            num = []
+
+        lead_instance = serializer.save(campaign=campaign)
+
         campaign.leads += 1
         campaign.save()
+        scenario_id = campaign.call_scenario_id
+
+        try:
+            launch(num, scenario_id)
+            call_delete()
+            return Response({"message": "Call launched and scenario deleted successfully"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
