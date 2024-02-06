@@ -393,6 +393,10 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
         if response.status_code == status.HTTP_201_CREATED:
             # Custom message for successful creation
             response.data['message'] = "Form design saved successfully"
+            # Get the ID of the newly created design
+            design_id = response.data['id']
+            # Add the ID to the response data
+            response.data['design_id'] = design_id
         return response
 
 
@@ -402,8 +406,8 @@ class FormDesignRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
     def get_queryset(self):
         # Get the campaign_id from URL
-        campaign_id = self.kwargs.get('campaign_id')
-        return FormDesign.objects.filter(campaign_id=campaign_id).first()
+        design_id = self.kwargs.get('design_id')
+        return FormDesign.objects.filter(id=design_id).first()
 
     def get_object(self):
         queryset = self.get_queryset()
