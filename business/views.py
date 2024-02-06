@@ -316,8 +316,12 @@ class CallReportAPIView(APIView):
             status_data = data.get('status', {})
             error_data = data.get('error', {})
             to_number = data.get('to')
+            scenario_id: ivr_data.get('scenarioId')
 
-            lead = Lead.objects.get(phone_number=to_number)
+            campaign = Campaign.objects.get(call_scenario_id=scenario_id)
+            lead = campaign.campaign_lead.filter(
+                phone_number=to_number).first()
+            # lead = Lead.objects.get(phone_number=to_number)
 
             extracted_data = {
                 'lead': lead,
@@ -336,7 +340,7 @@ class CallReportAPIView(APIView):
                 'charged_duration': voice_call_data.get('chargedDuration'),
                 'file_duration': voice_call_data.get('fileDuration'),
                 'dtmf_codes': voice_call_data.get('dtmfCodes'),
-                'scenario_id': ivr_data.get('scenarioId'),
+                'scenario_id':  scenario_id,
                 'scenario_name': ivr_data.get('scenarioName'),
                 'group_id': status_data.get('groupId'),
                 'group_name': status_data.get('groupName'),
