@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (CallCreateAPIView, CallReportAPIView, CampaignUploadView,
-                    ContactOptionAPIView, FormDesignCreateAPIView, FormDesignRetrieveAPIView,
+                    ContactOptionAPIView, FormDesignCreateAPIView, FormDesignRetrieveUpdateAPIView,
                     LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView,
                     LeadListAPIView, CampaignNameAPIView, CampaignListAPIView)
 
@@ -28,5 +28,5 @@ urlpatterns = [
     path('campaign/<str:campaign_id>/form-design/',
          FormDesignCreateAPIView.as_view(), name='form-design-create'),
     path('campaign/form-design/<str:campaign_id>/',
-         FormDesignRetrieveAPIView.as_view(), name='form-design-retrieve')
+         FormDesignRetrieveUpdateAPIView.as_view(), name='form-design-retrieve')
 ]

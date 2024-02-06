@@ -381,7 +381,7 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
         serializer.save()
 
 
-class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
+class FormDesignRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     permission_classes = [AllowAny]
     serializer_class = FormDesignSerializer
 
@@ -389,3 +389,9 @@ class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
         # Get the campaign_id from URL
         campaign_id = self.kwargs.get('campaign_id')
         return FormDesign.objects.filter(campaign_id=campaign_id)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = generics.get_object_or_404(queryset)
+        self.check_object_permissions(self.request, obj)
+        return obj
