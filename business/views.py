@@ -11,13 +11,13 @@ from delete_call import call_delete
 from launch_call import launch
 from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Lead, Campaign, Business, CallReport
+from .models import FormDesign, Lead, Campaign, Business, CallReport
 # from launch_call import arrange_nums, launch
 import time
 import io
 import csv
 from django.http import JsonResponse
-from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer,
+from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer, FormDesignSerializer,
                           LeadFormSerializer,
                           LeadListSerializer,
                           LeadUploadSerializer,
@@ -366,3 +366,26 @@ class CallReportAPIView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class FormDesignCreateAPIView(generics.CreateAPIView):
+    serializer_class = FormDesignSerializer
+
+    def perform_create(self, serializer):
+        # Get the campaign_id from URL
+        campaign_id = self.kwargs.get('campaign_id')
+        campaign = get_object_or_404(
+            Campaign, id=campaign_id)  # Get the Campaign object
+        # Set the campaign in the serializer data
+        serializer.validated_data['campaign'] = campaign
+        serializer.save()
+
+
+class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = FormDesignSerializer
+
+    def get_queryset(self):
+        # Get the campaign_id from URL
+        campaign_id = self.kwargs.get('campaign_id')
+        return FormDesign.objects.filter(campaign_id=campaign_id)

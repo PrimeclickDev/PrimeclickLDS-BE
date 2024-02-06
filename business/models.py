@@ -131,3 +131,12 @@ class CallReport(models.Model):
 
     def __str__(self):
         return self.to_number
+
+
+class FormDesign(models.Model):
+    campaign = models.ForeignKey(
+        Campaign, on_delete=models.CASCADE, related_name="form_design", to_field="id")
+    design = models.TextField()
+
+    def __str__(self):
+        return f"{self.campaign.title}'s form custom design"

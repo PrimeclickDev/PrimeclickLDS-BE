@@ -2,10 +2,11 @@ import http.client
 import json
 from datetime import datetime, timedelta
 from create_call import call
+from backend import settings
 
 
 conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
-authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-5b12fe56ae1d'
+authorization_token = settings.INFOBIP_AUTH_TOKEN
 
 
 def launch(nums, scenario_id):

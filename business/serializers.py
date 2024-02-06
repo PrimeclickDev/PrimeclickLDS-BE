@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Business, CallReport, Campaign, Lead
+from .models import Business, CallReport, Campaign, FormDesign, Lead
 
 
 class BusinessSerializer(serializers.ModelSerializer):
@@ -63,3 +63,9 @@ class CallAudioLinksSerializer(serializers.ModelSerializer):
         model = Campaign
         fields = ("call_scenario_id", "audio_link_1",
                   "audio_link_2", "audio_link_3", "audio_link_4")
+
+
+class FormDesignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FormDesign
+        fields = ("design",)

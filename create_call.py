@@ -1,6 +1,8 @@
 import http.client
 import json
 
+from backend import settings
+
 # audio1 = "https://od.lk/s/NTZfMjc5MDM4Nzhf/Primeclick%20%281%29.mp3"
 # audio2 = "https://od.lk/s/NTZfMjc5MDkwNjJf/ivr_audio2.mp3"
 # audio3 = "https://od.lk/s/NTZfMjc5MDkxMjVf/ivr_audio3.mp3"
@@ -8,7 +10,7 @@ import json
 
 def call(audio1=None, audio2=None, audio3=None):
     conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com", timeout=15)
-    authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-5b12fe56ae1d'
+    authorization_token = settings.INFOBIP_AUTH_TOKEN
     payload = json.dumps({
         "name": "Collect Digits",
         "description": "Collect user input and follow default branches for better user experience",

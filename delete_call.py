@@ -1,10 +1,12 @@
 import http.client
 import json
 
+from backend import settings
+
 
 def call_delete():
     conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
-    authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-5b12fe56ae1d'
+    authorization_token = settings.INFOBIP_AUTH_TOKEN
 
     payload = json.dumps({
         "id": "E56E44C8D256532D129440995F66548F"
