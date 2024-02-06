@@ -374,11 +374,26 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         # Get the campaign_id from URL
         campaign_id = self.kwargs.get('campaign_id')
-        campaign = get_object_or_404(
-            Campaign, id=campaign_id)  # Get the Campaign object
-        # Set the campaign in the serializer data
-        serializer.validated_data['campaign'] = campaign
-        serializer.save()
+        campaign = get_object_or_404(Campaign, id=campaign_id)
+
+        # Check if a record already exists for this campaign
+        existing_record = FormDesign.objects.filter(campaign=campaign).first()
+        if existing_record:
+            # If a record exists, update it instead of creating a new one
+            serializer.instance = existing_record
+            serializer.update(existing_record, serializer.validated_data)
+        else:
+            # If no record exists, create a new one
+            serializer.validated_data['campaign'] = campaign
+            serializer.save()
+
+    def post(self, request, *args, **kwargs):
+        # Call the parent class post method to perform creation
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_201_CREATED:
+            # Custom message for successful creation
+            response.data['message'] = "Form design saved successfully"
+        return response
 
 
 class FormDesignRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
