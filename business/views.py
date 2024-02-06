@@ -388,7 +388,7 @@ class FormDesignRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         # Get the campaign_id from URL
         campaign_id = self.kwargs.get('campaign_id')
-        return FormDesign.objects.filter(campaign_id=campaign_id)
+        return FormDesign.objects.filter(campaign_id=campaign_id).first()
 
     def get_object(self):
         queryset = self.get_queryset()
