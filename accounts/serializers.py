@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        username = attrs.get(self.username_field)
+        username = attrs.get(self.username_field).lower()
         password = attrs.get('password')
 
         user = None
@@ -66,6 +66,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         business_name = validated_data.pop('business_name')
         validated_data['password'] = make_password(password)
+        validated_data['email'] = validated_data['email'].lower()
 
         # Create a new Business instance and save it
         business, created = Business.objects.get_or_create(name=business_name)

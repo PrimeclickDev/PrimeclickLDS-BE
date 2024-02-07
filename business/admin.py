@@ -19,7 +19,7 @@ class LeadAdmin(admin.ModelAdmin):
 
 
 class FormDesignAdmin(admin.ModelAdmin):
-    list_display = ('design',)
+    list_display = ('id', 'design',)
 
 
 admin.site.register(FormDesign, FormDesignAdmin)
