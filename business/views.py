@@ -396,20 +396,37 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
         return response
 
 
-class FormDesignRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    permission_classes = [AllowAny]
+class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = FormDesignSerializer
 
-    def get_queryset(self):
-        # Get the campaign_id from URL
+    def get_object(self):
+        # Retrieve the campaign_id from the URL parameters
         campaign_id = self.kwargs.get('campaign_id')
+        # Retrieve the form design associated with the campaign_id
+        obj = get_object_or_404(FormDesign, campaign_id=campaign_id)
+        return obj
 
-        campaign = get_object_or_404(Campaign, id=campaign_id)
 
-        return FormDesign.objects.filter(campaign=campaign).first()
+class FormDesignUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = FormDesignSerializer
 
     def get_object(self):
-        queryset = self.get_queryset()
-        obj = generics.get_object_or_404(queryset)
-        self.check_object_permissions(self.request, obj)
+        # Retrieve the campaign_id from the URL parameters
+        campaign_id = self.kwargs.get('campaign_id')
+        # Retrieve the form design associated with the campaign_id
+        obj = get_object_or_404(FormDesign, campaign_id=campaign_id)
         return obj
+
+    def update(self, request, *args, **kwargs):
+        # Retrieve the form design object
+        form_design = self.get_object()
+
+        # Serialize the form design data with the provided data in the request
+        serializer = self.get_serializer(
+            form_design, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        # Save the updated form design
+        serializer.save()
+
+        return Response(serializer.data)
