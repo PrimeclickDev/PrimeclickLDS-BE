@@ -27,8 +27,8 @@ urlpatterns = [
     path('call-report/', CallReportAPIView.as_view(), name='call-report'),
     path('campaign/<str:campaign_id>/form-design/',
          FormDesignCreateAPIView.as_view(), name='form-design-create'),
-    path('campaign/<str:campaign_id>/form-design/',
+    path('campaign/form-design/<str:campaign_id>/',
          FormDesignRetrieveAPIView.as_view(), name='retrieve-form-design'),
-    path('campaign/<str:campaign_id>/form-design/',
+    path('campaign/form-design/<str:campaign_id>/update/',
          FormDesignUpdateAPIView.as_view(), name='update-form-design'),
 ]
