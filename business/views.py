@@ -396,7 +396,7 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
 
 
 class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     # Use the serializer for individual lead details
     serializer_class = FormDesignSerializer
     queryset = FormDesign.objects.all()  # Queryset for all leads
@@ -413,6 +413,7 @@ class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
 
 
 class FormDesignUpdateAPIView(generics.UpdateAPIView):
+    permission_classes = [AllowAny]
     queryset = FormDesign.objects.all()
     serializer_class = FormDesignSerializer
     lookup_field = 'campaign_id'
