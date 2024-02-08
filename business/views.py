@@ -397,36 +397,61 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
 
 
 class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    # Use the serializer for individual lead details
     serializer_class = FormDesignSerializer
+    queryset = FormDesign.objects.all()  # Queryset for all leads
 
     def get_object(self):
-        # Retrieve the campaign_id from the URL parameters
+        # Get the lead_id from the URL
         campaign_id = self.kwargs.get('campaign_id')
-        # Retrieve the form design associated with the campaign_id
-        obj = get_object_or_404(FormDesign, campaign_id=campaign_id)
-        return obj
+
+        # Get the lead based on lead_id
+        design = get_object_or_404(
+            self.get_queryset(), campaign_id=campaign_id)
+
+        return design
 
 
-class FormDesignUpdateAPIView(generics.RetrieveUpdateAPIView):
+# class FormDesignUpdateAPIView(generics.UpdateAPIView):
+#     serializer_class = FormDesignSerializer
+#     queryset = FormDesign.objects.all()
+
+#     def get_object(self):
+#         # Retrieve the campaign_id from the URL parameters
+#         campaign_id = self.kwargs.get('campaign_id')
+#         # Retrieve the form design associated with the campaign_id
+#         obj = get_object_or_404(FormDesign, campaign_id=campaign_id)
+#         return obj
+
+#     def update(self, request, *args, **kwargs):
+#         # Retrieve the form design object
+#         form_design = self.get_object()
+
+#         # Serialize the form design data with the provided data in the request
+#         serializer = self.get_serializer(
+#             form_design, data=request.data, partial=True)
+#         serializer.is_valid(raise_exception=True)
+
+#         # Save the updated form design
+#         serializer.save()
+
+#         return Response(serializer.data)
+
+
+class FormDesignUpdateAPIView(generics.UpdateAPIView):
+    queryset = FormDesign.objects.all()
     serializer_class = FormDesignSerializer
-
-    def get_object(self):
-        # Retrieve the campaign_id from the URL parameters
-        campaign_id = self.kwargs.get('campaign_id')
-        # Retrieve the form design associated with the campaign_id
-        obj = get_object_or_404(FormDesign, campaign_id=campaign_id)
-        return obj
+    lookup_field = 'campaign_id'
 
     def update(self, request, *args, **kwargs):
-        # Retrieve the form design object
-        form_design = self.get_object()
-
-        # Serialize the form design data with the provided data in the request
+        instance = self.get_object()
         serializer = self.get_serializer(
-            form_design, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
+            instance, data=request.data, partial=True)
 
-        # Save the updated form design
-        serializer.save()
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Form design updated successfully"})
 
-        return Response(serializer.data)
+        else:
+            return Response({"message": "failed", "details": serializer.errors})
