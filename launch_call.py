@@ -6,7 +6,7 @@ from backend import settings
 
 
 conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
-authorization_token = '75dd75c756479ec0b8a148986fd6247e-c712fc66-6d27-4e46-b372-5b12fe56ae1d'
+authorization_token = '39f8e3641d7d8e85305a419fc4f79415-795ee287-c1f2-4e4a-861b-0fb8f0a571c8'
 
 
 def launch(nums, scenario_id):
