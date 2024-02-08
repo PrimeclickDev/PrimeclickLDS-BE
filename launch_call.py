@@ -6,11 +6,12 @@ from backend import settings
 
 
 conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
-authorization_token = '39f8e3641d7d8e85305a419fc4f79415-795ee287-c1f2-4e4a-861b-0fb8f0a571c8'
+authorization_token = settings.INFOBIP_AUTH_TOKEN
+# authorization_token = '39f8e3641d7d8e85305a419fc4f79415-795ee287-c1f2-4e4a-861b-0fb8f0a571c8'
 
 
 def launch(nums, scenario_id):
-    send_at_time = datetime.now() + timedelta(minutes=2)
+    send_at_time = datetime.now() + timedelta(seconds=30)
     day_of_week = send_at_time.strftime("%A").upper()
     send_at_formatted = send_at_time.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     print(str(send_at_formatted))
