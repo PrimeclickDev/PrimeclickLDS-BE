@@ -385,11 +385,6 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
         if response.status_code == status.HTTP_201_CREATED:
             # Custom message for successful creation
             response.data['message'] = "Form design saved successfully"
-            # Extract the ID from the serialized data
-            created_data = response.data
-            design_id = created_data['id']
-            # Add the ID to the response data
-            response.data['design_id'] = design_id
         return response
 
 
