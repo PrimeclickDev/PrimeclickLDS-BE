@@ -28,7 +28,7 @@ urlpatterns = [
     path('campaign/<str:campaign_id>/form-design/',
          FormDesignCreateAPIView.as_view(), name='form-design-create'),
     path('campaign/<str:campaign_id>/form-design/',
-         FormDesignRetrieveAPIView.as_view(), name='retrieve_form_design'),
+         FormDesignRetrieveAPIView.as_view(), name='retrieve-form-design'),
     path('campaign/<str:campaign_id>/form-design/',
-         FormDesignUpdateAPIView.as_view(), name='update_form_design'),
+         FormDesignUpdateAPIView.as_view(), name='update-form-design'),
 ]
