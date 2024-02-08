@@ -316,7 +316,7 @@ class CallReportAPIView(APIView):
             status_data = data.get('status', {})
             error_data = data.get('error', {})
             to_number = data.get('to')
-            scenario_id: ivr_data.get('scenarioId')
+            scenario_id = ivr_data.get('scenarioId')
 
             campaign = Campaign.objects.get(call_scenario_id=scenario_id)
             lead = campaign.campaign_lead.filter(
