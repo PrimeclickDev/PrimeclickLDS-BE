@@ -5,7 +5,7 @@ import pandas as pd
 from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
-
+from rest_framework import serializers
 from create_call import call
 from delete_call import call_delete
 from launch_call import launch
@@ -379,13 +379,12 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
         # Check if a record already exists for this campaign
         existing_record = FormDesign.objects.filter(campaign=campaign).first()
         if existing_record:
-            # If a record exists, update it instead of creating a new one
-            serializer.instance = existing_record
-            serializer.update(existing_record, serializer.validated_data)
+            # If a record exists, inform the user
+            raise serializers.ValidationError(
+                "A form design already exists for this campaign.")
         else:
             # If no record exists, create a new one
-            serializer.validated_data['campaign'] = campaign
-            serializer.save()
+            serializer.save(campaign=campaign)
 
     def post(self, request, *args, **kwargs):
         # Call the parent class post method to perform creation
@@ -411,32 +410,6 @@ class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
             self.get_queryset(), campaign_id=campaign_id)
 
         return design
-
-
-# class FormDesignUpdateAPIView(generics.UpdateAPIView):
-#     serializer_class = FormDesignSerializer
-#     queryset = FormDesign.objects.all()
-
-#     def get_object(self):
-#         # Retrieve the campaign_id from the URL parameters
-#         campaign_id = self.kwargs.get('campaign_id')
-#         # Retrieve the form design associated with the campaign_id
-#         obj = get_object_or_404(FormDesign, campaign_id=campaign_id)
-#         return obj
-
-#     def update(self, request, *args, **kwargs):
-#         # Retrieve the form design object
-#         form_design = self.get_object()
-
-#         # Serialize the form design data with the provided data in the request
-#         serializer = self.get_serializer(
-#             form_design, data=request.data, partial=True)
-#         serializer.is_valid(raise_exception=True)
-
-#         # Save the updated form design
-#         serializer.save()
-
-#         return Response(serializer.data)
 
 
 class FormDesignUpdateAPIView(generics.UpdateAPIView):
