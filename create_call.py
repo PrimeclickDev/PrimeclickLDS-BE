@@ -11,7 +11,6 @@ from backend import settings
 def call(audio1=None, audio2=None, audio3=None):
     conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com", timeout=15)
     authorization_token = settings.INFOBIP_AUTH_TOKEN
-    # authorization_token = '39f8e3641d7d8e85305a419fc4f79415-795ee287-c1f2-4e4a-861b-0fb8f0a571c8'
     payload = json.dumps({
         "name": "Collect Digits",
         "description": "Collect user input and follow default branches for better user experience",
