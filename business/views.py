@@ -299,12 +299,15 @@ class LeadListAPIView(generics.ListAPIView):
             # Iterate through each lead
             for lead in queryset:
                 # Fetch the corresponding call report for the lead, if any
+                print(lead)
                 call_report = CallReport.objects.filter(
                     to_number=lead.phone_number).first()
 
                 # Determine the status based on call report, or set default status if no call report found
                 if call_report:
+                    print(call_report)
                     call_report_status = call_report.dtmf_codes
+                    print(call_report_status)
                     if call_report_status == 1:
                         lead.status = "Converted"
                     elif call_report_status == 2 or call_report_status == None:
