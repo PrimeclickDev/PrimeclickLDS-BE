@@ -307,7 +307,7 @@ class LeadListAPIView(generics.ListAPIView):
                     call_report_status = call_report.dtmf_codes
                     if call_report_status == 1:
                         lead.status = "Converted"
-                    elif call_report_status == 2:
+                    elif call_report_status == 2 or call_report_status == None:
                         lead.status = "Rejected"
                     else:
                         lead.status = "Pending"
