@@ -310,14 +310,14 @@ class LeadListAPIView(generics.ListAPIView):
                     call_report_status = call_report.dtmf_codes
                     print(call_report_status)
                     if call_report_status == 1:
-                        lead.status = "Converted"
+                        lead.status = "CONVERTED"
                     elif call_report_status == 2 or call_report_status == None:
-                        lead.status = "Rejected"
+                        lead.status = "REJECTED"
                     else:
-                        lead.status = "Pending"
+                        lead.status = "PENDING"
                 else:
                     # Set default status if no call report found
-                    lead.status = "Pending"
+                    lead.status = "PENDING"
 
                 # Serialize the lead data and append to leads_data list
                 lead_data = LeadListSerializer(lead).data
