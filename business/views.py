@@ -262,10 +262,6 @@ class LeadListAPIView(generics.ListAPIView):
         if queryset.exists():
             leads_data = []
 
-            # Create a list to store leads that need to be updated
-            # leads_to_update = []
-
-            # Iterate through each lead
             for lead in queryset:
                 # Fetch the corresponding call report for the lead, if any
                 call_report = CallReport.objects.filter(
