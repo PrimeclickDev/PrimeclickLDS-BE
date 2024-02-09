@@ -276,7 +276,7 @@ class LeadListAPIView(generics.ListAPIView):
                     elif call_report_status == 2:
                         lead.status = "Rejected"
                     elif call_report_status == None:
-                        lead.status = "Rejected"
+                        lead.status = "Pending"
                     elif call_report_status == "null":
                         lead.status = "Rejected"
                     else:
