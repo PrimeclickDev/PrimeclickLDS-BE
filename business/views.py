@@ -12,6 +12,7 @@ from launch_call import launch
 from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import FormDesign, Lead, Campaign, Business, CallReport
+from django.db import transaction
 # from launch_call import arrange_nums, launch
 import time
 import io
@@ -241,41 +242,6 @@ class LeadFormAPIView(generics.CreateAPIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
-# class LeadListAPIView(generics.ListAPIView):
-#     permission_classes = [IsAuthenticated,]
-#     serializer_class = LeadListSerializer
-
-#     def get_queryset(self):
-#         # Get the campaign_id from the URL
-#         campaign_id = self.kwargs.get('campaign_id')
-
-#         # Get the campaign and its related leads
-#         campaign = get_object_or_404(Campaign, id=campaign_id)
-#         leads = Lead.objects.filter(campaign=campaign)
-#         for  lead in leads:
-#             call_report = CallReport.objects.filter(lead=lead, to_number=lead.phone_number)
-
-#         return leads
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-
-#         # Check if there are leads in the queryset
-#         if queryset.exists():
-#             serializer = self.get_serializer(queryset, many=True)
-
-#             # Modify this response_data based on your requirements
-#             response_data = {
-#                 'campaign_name': queryset.first().campaign.title,
-#                 'leads': serializer.data
-#             }
-
-#             return Response(response_data, status=status.HTTP_200_OK)
-#         else:
-#             # Handle the case where there are no leads
-#             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
-
-
 class LeadListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated,]
     serializer_class = LeadListSerializer
@@ -295,6 +261,9 @@ class LeadListAPIView(generics.ListAPIView):
         # Check if there are leads in the queryset
         if queryset.exists():
             leads_data = []
+
+            # Create a list to store leads that need to be updated
+            leads_to_update = []
 
             # Iterate through each lead
             for lead in queryset:
@@ -317,12 +286,16 @@ class LeadListAPIView(generics.ListAPIView):
                     # Set default status if no call report found
                     lead.status = "Pending"
 
-                # Save the updated lead
-                lead.save()
+                # Append the lead to the list for batch update
+                leads_to_update.append(lead)
 
                 # Serialize the lead data and append to leads_data list
                 lead_data = LeadListSerializer(lead).data
                 leads_data.append(lead_data)
+
+            # Batch update all leads
+            with transaction.atomic():
+                Lead.objects.bulk_update(leads_to_update, ['status'])
 
             # Modify this response_data based on your requirements
             response_data = {
@@ -436,6 +409,7 @@ class CallReportAPIView(APIView):
             print(extracted_data)
             # Saving the extracted data directly into the database
             CallReport.objects.create(**extracted_data)
+
             return Response(status=status.HTTP_201_CREATED)
 
         except Exception as e:
