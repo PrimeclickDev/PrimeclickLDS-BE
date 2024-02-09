@@ -287,11 +287,6 @@ class LeadListAPIView(generics.ListAPIView):
         # Get the leads for the specified campaign
         leads = Lead.objects.filter(campaign_id=campaign_id)
 
-        # Fetch call reports for each lead
-        for lead in leads:
-            call_reports = CallReport.objects.filter(lead=lead)
-            lead.call_reports = call_reports
-
         return leads
 
     def list(self, request, *args, **kwargs):
@@ -301,11 +296,13 @@ class LeadListAPIView(generics.ListAPIView):
         if queryset.exists():
             serializer = self.get_serializer(queryset, many=True)
 
-            # Serialize call reports separately
+            # Fetch call reports for each lead
             call_reports_data = {}
             for lead in queryset:
+                call_reports = CallReport.objects.filter(
+                    to_number=lead.phone_number)
                 call_reports_data[lead.id] = CallReportSerializer(
-                    lead.call_reports, many=True).data
+                    call_reports, many=True).data
 
             # Modify this response_data based on your requirements
             response_data = {
