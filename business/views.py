@@ -288,18 +288,9 @@ class LeadListAPIView(generics.ListAPIView):
 
                 lead.save()
 
-                # # Append the lead to the list for batch update
-                # leads_to_update.append(lead)
-
-                # Serialize the lead data and append to leads_data list
                 lead_data = LeadListSerializer(lead).data
                 leads_data.append(lead_data)
 
-            # Batch update all leads
-            # with transaction.atomic():
-            #     Lead.objects.bulk_update(leads_to_update, ['status'])
-
-            # Modify this response_data based on your requirements
             response_data = {
                 'leads': leads_data,
             }
@@ -410,7 +401,23 @@ class CallReportAPIView(APIView):
 
             print(extracted_data)
             # Saving the extracted data directly into the database
-            CallReport.objects.create(**extracted_data)
+            call_report = CallReport.objects.create(**extracted_data)
+
+            if call_report:
+                call_report_status = int(call_report.dtmf_codes.split(',')[0])
+                print(call_report_status)
+                if call_report_status == 1:
+                    lead.status = "CONVERTED"
+                elif call_report_status == 2:
+                    lead.status = "REJECTED"
+                else:
+                    lead.status = "PENDING"
+
+            else:
+                # Set default status if no call report found
+                lead.status = "PENDING"
+
+            lead.save()
 
             return Response(status=status.HTTP_201_CREATED)
 
