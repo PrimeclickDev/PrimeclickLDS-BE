@@ -263,7 +263,7 @@ class LeadListAPIView(generics.ListAPIView):
             leads_data = []
 
             # Create a list to store leads that need to be updated
-            leads_to_update = []
+            # leads_to_update = []
 
             # Iterate through each lead
             for lead in queryset:
@@ -281,20 +281,23 @@ class LeadListAPIView(generics.ListAPIView):
                         lead.status = "Rejected"
                     else:
                         lead.status = "Pending"
+
                 else:
                     # Set default status if no call report found
                     lead.status = "Pending"
 
-                # Append the lead to the list for batch update
-                leads_to_update.append(lead)
+                lead.save()
+
+                # # Append the lead to the list for batch update
+                # leads_to_update.append(lead)
 
                 # Serialize the lead data and append to leads_data list
                 lead_data = LeadListSerializer(lead).data
                 leads_data.append(lead_data)
 
             # Batch update all leads
-            with transaction.atomic():
-                Lead.objects.bulk_update(leads_to_update, ['status'])
+            # with transaction.atomic():
+            #     Lead.objects.bulk_update(leads_to_update, ['status'])
 
             # Modify this response_data based on your requirements
             response_data = {
