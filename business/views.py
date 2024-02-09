@@ -241,6 +241,41 @@ class LeadFormAPIView(generics.CreateAPIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
+# class LeadListAPIView(generics.ListAPIView):
+#     permission_classes = [IsAuthenticated,]
+#     serializer_class = LeadListSerializer
+
+#     def get_queryset(self):
+#         # Get the campaign_id from the URL
+#         campaign_id = self.kwargs.get('campaign_id')
+
+#         # Get the campaign and its related leads
+#         campaign = get_object_or_404(Campaign, id=campaign_id)
+#         leads = Lead.objects.filter(campaign=campaign)
+#         for  lead in leads:
+#             call_report = CallReport.objects.filter(lead=lead, to_number=lead.phone_number)
+
+#         return leads
+
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.get_queryset()
+
+#         # Check if there are leads in the queryset
+#         if queryset.exists():
+#             serializer = self.get_serializer(queryset, many=True)
+
+#             # Modify this response_data based on your requirements
+#             response_data = {
+#                 'campaign_name': queryset.first().campaign.title,
+#                 'leads': serializer.data
+#             }
+
+#             return Response(response_data, status=status.HTTP_200_OK)
+#         else:
+#             # Handle the case where there are no leads
+#             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
+
+
 class LeadListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated,]
     serializer_class = LeadListSerializer
@@ -249,9 +284,13 @@ class LeadListAPIView(generics.ListAPIView):
         # Get the campaign_id from the URL
         campaign_id = self.kwargs.get('campaign_id')
 
-        # Get the campaign and its related leads
-        campaign = get_object_or_404(Campaign, id=campaign_id)
-        leads = Lead.objects.filter(campaign=campaign)
+        # Get the leads for the specified campaign
+        leads = Lead.objects.filter(campaign_id=campaign_id)
+
+        # Fetch call reports for each lead
+        for lead in leads:
+            call_reports = CallReport.objects.filter(lead=lead)
+            lead.call_reports = call_reports
 
         return leads
 
@@ -262,10 +301,16 @@ class LeadListAPIView(generics.ListAPIView):
         if queryset.exists():
             serializer = self.get_serializer(queryset, many=True)
 
+            # Serialize call reports separately
+            call_reports_data = {}
+            for lead in queryset:
+                call_reports_data[lead.id] = CallReportSerializer(
+                    lead.call_reports, many=True).data
+
             # Modify this response_data based on your requirements
             response_data = {
-                'campaign_name': queryset.first().campaign.title,
-                'leads': serializer.data
+                'leads': serializer.data,
+                'call_reports': call_reports_data
             }
 
             return Response(response_data, status=status.HTTP_200_OK)

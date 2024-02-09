@@ -28,9 +28,9 @@ def launch(nums, scenario_id):
                 "validityPeriod": 720,
                 "sendAt": send_at_formatted,
                 "retry": {
-                    "minPeriod": 1,
-                    "maxPeriod": 5,
-                    "maxCount": 5
+                    "minPeriod": 10,
+                    "maxPeriod": 10,
+                    "maxCount": 3
                 },
                 "record": False,
                 "deliveryTimeWindow": {
