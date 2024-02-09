@@ -271,9 +271,9 @@ class LeadListAPIView(generics.ListAPIView):
                     call_report_status = self.extract_dtmf_code(
                         call_report.dtmf_codes)
                     print(call_report_status)
-                    if call_report_status == 1:
+                    if int(call_report_status) == 1:
                         lead.status = "Converted"
-                    elif call_report_status == 2:
+                    elif int(call_report_status) == 2:
                         lead.status = "Rejected"
                     elif call_report_status == None:
                         lead.status = "Pending"
@@ -308,7 +308,7 @@ class LeadListAPIView(generics.ListAPIView):
 
         # Extract the numeric value before the comma
         try:
-            code = int(dtmf_codes.split(',')[0])
+            code = dtmf_codes.split(',')[0]
             return code
         except (ValueError, IndexError):
             return None
@@ -404,11 +404,11 @@ class CallReportAPIView(APIView):
             call_report = CallReport.objects.create(**extracted_data)
 
             if call_report:
-                call_report_status = int(call_report.dtmf_codes.split(',')[0])
+                call_report_status = call_report.dtmf_codes.split(',')[0]
                 print(call_report_status)
-                if call_report_status == 1:
+                if int(call_report_status) == 1:
                     lead.status = "CONVERTED"
-                elif call_report_status == 2:
+                elif int(call_report_status) == 2:
                     lead.status = "REJECTED"
                 elif call_report_status == 'null':
                     lead.status = "REJECTED"
