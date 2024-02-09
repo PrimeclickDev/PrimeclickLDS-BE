@@ -294,20 +294,34 @@ class LeadListAPIView(generics.ListAPIView):
 
         # Check if there are leads in the queryset
         if queryset.exists():
-            serializer = self.get_serializer(queryset, many=True)
+            leads_data = []
 
-            # Fetch call reports for each lead
-            call_reports_data = {}
+            # Iterate through each lead
             for lead in queryset:
-                call_reports = CallReport.objects.filter(
-                    to_number=lead.phone_number)
-                call_reports_data[lead.id] = CallReportSerializer(
-                    call_reports, many=True).data
+                # Fetch the corresponding call report for the lead, if any
+                call_report = CallReport.objects.filter(
+                    to_number=lead.phone_number).first()
+
+                # Determine the status based on call report, or set default status if no call report found
+                if call_report:
+                    call_report_status = call_report.dtmf_codes
+                    if call_report_status == 1:
+                        lead.status = "Converted"
+                    elif call_report_status == 2:
+                        lead.status = "Rejected"
+                    else:
+                        lead.status = "Pending"
+                else:
+                    # Set default status if no call report found
+                    lead.status = "Pending"
+
+                # Serialize the lead data and append to leads_data list
+                lead_data = LeadListSerializer(lead).data
+                leads_data.append(lead_data)
 
             # Modify this response_data based on your requirements
             response_data = {
-                'leads': serializer.data,
-                'call_reports': call_reports_data
+                'leads': leads_data,
             }
 
             return Response(response_data, status=status.HTTP_200_OK)
