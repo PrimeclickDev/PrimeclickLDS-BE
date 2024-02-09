@@ -275,6 +275,10 @@ class LeadListAPIView(generics.ListAPIView):
                         lead.status = "Converted"
                     elif call_report_status == 2:
                         lead.status = "Rejected"
+                    elif call_report_status == None:
+                        lead.status = "Rejected"
+                    elif call_report_status == "Null":
+                        lead.status = "Rejected"
                     else:
                         lead.status = "Pending"
 
@@ -398,22 +402,6 @@ class CallReportAPIView(APIView):
             print(extracted_data)
             # Saving the extracted data directly into the database
             call_report = CallReport.objects.create(**extracted_data)
-
-            if call_report:
-                call_report_status = int(call_report.dtmf_codes.split(',')[0])
-                print(call_report_status)
-                if call_report_status == 1:
-                    lead.status = "CONVERTED"
-                elif call_report_status == 2:
-                    lead.status = "REJECTED"
-                else:
-                    lead.status = "PENDING"
-
-            else:
-                # Set default status if no call report found
-                lead.status = "PENDING"
-
-            lead.save()
 
             return Response(status=status.HTTP_201_CREATED)
 
