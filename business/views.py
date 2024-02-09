@@ -438,7 +438,6 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
         # Call the parent class post method to perform creation
         response = super().post(request, *args, **kwargs)
         if response.status_code == status.HTTP_201_CREATED:
-            # Custom message for successful creation
             response.data['message'] = "Form design saved successfully"
         return response
 
