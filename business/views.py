@@ -299,25 +299,26 @@ class LeadListAPIView(generics.ListAPIView):
             # Iterate through each lead
             for lead in queryset:
                 # Fetch the corresponding call report for the lead, if any
-                print(lead)
-                print(f'This is my phone number: {lead.phone_number}')
                 call_report = CallReport.objects.filter(
                     to_number=lead.phone_number).first()
 
                 # Determine the status based on call report, or set default status if no call report found
                 if call_report:
-                    print(call_report)
-                    call_report_status = call_report.dtmf_codes
+                    call_report_status = self.extract_dtmf_code(
+                        call_report.dtmf_codes)
                     print(call_report_status)
                     if call_report_status == 1:
-                        lead.status = "CONVERTED"
-                    elif call_report_status == 2 or call_report_status == None:
-                        lead.status = "REJECTED"
+                        lead.status = "Converted"
+                    elif call_report_status == 2:
+                        lead.status = "Rejected"
                     else:
-                        lead.status = "PENDING"
+                        lead.status = "Pending"
                 else:
                     # Set default status if no call report found
-                    lead.status = "PENDING"
+                    lead.status = "Pending"
+
+                # Save the updated lead
+                lead.save()
 
                 # Serialize the lead data and append to leads_data list
                 lead_data = LeadListSerializer(lead).data
@@ -332,6 +333,19 @@ class LeadListAPIView(generics.ListAPIView):
         else:
             # Handle the case where there are no leads
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
+
+    def extract_dtmf_code(self, dtmf_codes):
+        print(dtmf_codes)
+        # Check if dtmf_codes is empty or not in correct format
+        if not dtmf_codes or not isinstance(dtmf_codes, str):
+            return None
+
+        # Extract the numeric value before the comma
+        try:
+            code = int(dtmf_codes.split(',')[0])
+            return code
+        except (ValueError, IndexError):
+            return None
 
 
 class LeadDetailAPIView(generics.RetrieveAPIView):
