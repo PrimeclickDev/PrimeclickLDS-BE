@@ -300,7 +300,9 @@ class LeadListAPIView(generics.ListAPIView):
             for lead in queryset:
                 # Fetch the corresponding call report for the lead, if any
                 print(lead)
-                call_report = CallReport.objects.filter(lead=lead).first()
+                print(f'This is my phone number: {lead.phone_number}')
+                call_report = CallReport.objects.filter(
+                    to_number=lead.phone_number).first()
 
                 # Determine the status based on call report, or set default status if no call report found
                 if call_report:
