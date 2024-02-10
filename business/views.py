@@ -119,7 +119,6 @@ class ContactOptionAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = ContactOptionSerializer
-    lookup_field = "campaign_id"
 
     def get_object(self):
         campaign_id = self.kwargs.get("campaign_id")
@@ -130,7 +129,6 @@ class CallCreateAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = CallAudioLinksSerializer
-    lookup_field = "campaign_id"
 
     def get_object(self):
         campaign_id = self.kwargs.get("campaign_id")
@@ -313,7 +311,6 @@ class LeadDetailAPIView(generics.RetrieveAPIView):
     # Use the serializer for individual lead details
     serializer_class = LeadListSerializer
     queryset = Lead.objects.all()  # Queryset for all leads
-    lookup_field = "lead_id"
 
     def get_object(self):
         # Get the lead_id from the URL
@@ -455,7 +452,6 @@ class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
     # Use the serializer for individual lead details
     serializer_class = FormDesignSerializer
     queryset = FormDesign.objects.all()  # Queryset for all leads
-    lookup_field = 'campaign_id'  # Specify 'campaign_id' as the lookup field
 
     def get_object(self):
         # Get the lead_id from the URL
@@ -472,7 +468,12 @@ class FormDesignUpdateAPIView(generics.UpdateAPIView):
     permission_classes = [AllowAny]
     queryset = FormDesign.objects.all()
     serializer_class = FormDesignSerializer
-    lookup_field = 'campaign_id'
+    # lookup_field = 'campaign_id'
+
+    def get_object(self):
+        campaign_id = self.kwargs.get("campaign_id")
+        design = get_object_or_404(Campaign, id=campaign_id)
+        return design
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
