@@ -72,8 +72,23 @@ class CampaignUploadView(generics.CreateAPIView):
                         phone_number_str = str(phone_number).replace(" ", "")
 
                         # Process the phone number based on your requirements
-                        processed_phone_number = int('234' + phone_number_str[1:]) if phone_number_str.startswith(
-                            '0') else int(phone_number_str) if phone_number_str.startswith('2') else int('234' + phone_number_str)
+            # Check if the phone number starts with '+'
+                        if phone_number_str.startswith('+'):
+                            # Remove the '+' and convert the remaining number to an integer
+                            processed_phone_number = int(phone_number_str[1:])
+                        # Check if the phone number starts with '0'
+                        elif phone_number_str.startswith('0'):
+                            # If it starts with '0', prepend '234' and convert it to an integer
+                            processed_phone_number = int(
+                                '234' + phone_number_str[1:])
+                        # Check if the phone number starts with '2'
+                        elif phone_number_str.startswith('2'):
+                            # If it starts with '2', convert it to an integer
+                            processed_phone_number = int(phone_number_str)
+                        else:
+                            # If none of the conditions are met, prepend '234' and convert it to an integer
+                            processed_phone_number = int(
+                                '234' + phone_number_str)
 
                         # Rest of your code...
                     else:
@@ -211,8 +226,21 @@ class LeadFormAPIView(generics.CreateAPIView):
             phone_number_str = str(phone_number).replace(" ", "")
 
             # Process the phone number based on your requirements
-            processed_phone_number = int('234' + phone_number_str[1:]) if phone_number_str.startswith(
-                '0') else int(phone_number_str) if phone_number_str.startswith('2') else int('234' + phone_number_str)
+# Check if the phone number starts with '+'
+            if phone_number_str.startswith('+'):
+                # Remove the '+' and convert the remaining number to an integer
+                processed_phone_number = int(phone_number_str[1:])
+            # Check if the phone number starts with '0'
+            elif phone_number_str.startswith('0'):
+                # If it starts with '0', prepend '234' and convert it to an integer
+                processed_phone_number = int('234' + phone_number_str[1:])
+            # Check if the phone number starts with '2'
+            elif phone_number_str.startswith('2'):
+                # If it starts with '2', convert it to an integer
+                processed_phone_number = int(phone_number_str)
+            else:
+                # If none of the conditions are met, prepend '234' and convert it to an integer
+                processed_phone_number = int('234' + phone_number_str)
 
             # Update the phone number in the lead data
             lead['phone_number'] = processed_phone_number
@@ -300,18 +328,18 @@ class LeadListAPIView(generics.ListAPIView):
             # Handle the case where there are no leads
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
 
-    def extract_dtmf_code(self, dtmf_codes):
-        print(dtmf_codes)
-        # Check if dtmf_codes is empty or not in correct format
-        if not dtmf_codes or not isinstance(dtmf_codes, str):
-            return None
+    # def extract_dtmf_code(self, dtmf_codes):
+    #     print(dtmf_codes)
+    #     # Check if dtmf_codes is empty or not in correct format
+    #     if not dtmf_codes or not isinstance(dtmf_codes, str):
+    #         return None
 
-        # Extract the numeric value before the comma
-        try:
-            code = dtmf_codes.split(',')[0]
-            return code
-        except (ValueError, IndexError):
-            return None
+    #     # Extract the numeric value before the comma
+    #     try:
+    #         code = dtmf_codes.split(',')[0]
+    #         return code
+    #     except (ValueError, IndexError):
+    #         return None
 
 
 class LeadDetailAPIView(generics.RetrieveAPIView):
@@ -407,19 +435,19 @@ class CallReportAPIView(APIView):
                 call_report_status = call_report.dtmf_codes.split(',')[0]
                 print(call_report_status)
                 if int(call_report_status) == 1:
-                    lead.status = "CONVERTED"
+                    lead.status = "Converted"
                 elif int(call_report_status) == 2:
-                    lead.status = "REJECTED"
+                    lead.status = "Rejected"
                 elif call_report_status == 'null':
-                    lead.status = "REJECTED"
+                    lead.status = "Rejected"
                 elif call_report_status == None:
-                    lead.status = "REJECTED"
+                    lead.status = "Rejected"
                 else:
-                    lead.status = "PENDING"
+                    lead.status = "Pending"
 
             else:
                 # Set default status if no call report found
-                lead.status = "PENDING"
+                lead.status = "Pending"
 
             lead.save()
 
