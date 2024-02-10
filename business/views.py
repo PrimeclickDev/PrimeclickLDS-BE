@@ -264,29 +264,29 @@ class LeadListAPIView(generics.ListAPIView):
 
             for lead in queryset:
                 # Fetch the corresponding call report for the lead, if any
-                call_report = CallReport.objects.filter(
-                    to_number=lead.phone_number).first()
+                # call_report = CallReport.objects.filter(
+                #     to_number=lead.phone_number).first()
 
-                if call_report:
-                    call_report_status = self.extract_dtmf_code(
-                        call_report.dtmf_codes)
-                    print(call_report_status)
-                    if int(call_report_status) == 1:
-                        lead.status = "Converted"
-                    elif int(call_report_status) == 2:
-                        lead.status = "Rejected"
-                    elif call_report_status == None:
-                        lead.status = "Pending"
-                    elif call_report_status == "null":
-                        lead.status = "Rejected"
-                    else:
-                        lead.status = "Pending"
+                # if call_report:
+                #     call_report_status = self.extract_dtmf_code(
+                #         call_report.dtmf_codes)
+                #     print(call_report_status)
+                #     if int(call_report_status) == 1:
+                #         lead.status = "Converted"
+                #     elif int(call_report_status) == 2:
+                #         lead.status = "Rejected"
+                #     elif call_report_status == None:
+                #         lead.status = "Pending"
+                #     elif call_report_status == "null":
+                #         lead.status = "Rejected"
+                #     else:
+                #         lead.status = "Pending"
 
-                else:
-                    # Set default status if no call report found
-                    lead.status = "Pending"
+                # else:
+                #     # Set default status if no call report found
+                #     lead.status = "Pending"
 
-                lead.save()
+                # lead.save()
 
                 lead_data = LeadListSerializer(lead).data
                 leads_data.append(lead_data)
