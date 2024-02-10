@@ -311,15 +311,17 @@ class LeadDetailAPIView(generics.RetrieveAPIView):
     # Use the serializer for individual lead details
     serializer_class = LeadListSerializer
     queryset = Lead.objects.all()  # Queryset for all leads
+    lookup_field = 'id'
+    lookup_url_kwarg = 'lead_id'
 
-    def get_object(self):
-        # Get the lead_id from the URL
-        lead_id = self.kwargs.get('lead_id')
+    # def get_object(self):
+    #     # Get the lead_id from the URL
+    #     lead_id = self.kwargs.get('lead_id')
 
-        # Get the lead based on lead_id
-        lead = get_object_or_404(self.get_queryset(), id=lead_id)
+    #     # Get the lead based on lead_id
+    #     lead = get_object_or_404(self.get_queryset(), id=lead_id)
 
-        return lead
+    #     return lead
 
 
 class CampaignListAPIView(generics.ListAPIView):
