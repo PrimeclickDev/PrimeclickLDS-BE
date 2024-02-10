@@ -19,9 +19,9 @@ class LeadAdmin(admin.ModelAdmin):
 
 
 class CallReportAdmin(admin.ModelAdmin):
-    list_display = ('sent_at', 'to_number', )
+    list_display = ('sent_at', 'campaign', 'lead', 'to_number',)
 
-    list_filter = ('lead',)
+    list_filter = ('campaign',)
 
 
 class FormDesignAdmin(admin.ModelAdmin):

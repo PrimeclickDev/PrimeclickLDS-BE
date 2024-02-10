@@ -358,6 +358,7 @@ class CallReportAPIView(APIView):
             # lead = Lead.objects.get(phone_number=to_number)
 
             extracted_data = {
+                'campaign': campaign,
                 'lead': lead,
                 'bulk_id': data.get('bulkId'),
                 'message_id': data.get('messageId'),

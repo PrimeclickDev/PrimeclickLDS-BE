@@ -99,7 +99,9 @@ class Lead(models.Model):
 
 class CallReport(models.Model):
     lead = models.ForeignKey(
-        Lead,  on_delete=models.CASCADE, related_name="call_reports", to_field='id')
+        Lead,  on_delete=models.CASCADE, related_name="call_reports_lead", to_field='id')
+    campaign = models.ForeignKey(
+        Campaign, on_delete=models.CASCADE, related_name="call_reports_campaign", to_field="id")
     bulk_id = models.CharField(max_length=255)
     message_id = models.CharField(max_length=255)
     from_number = models.CharField(max_length=50)
@@ -130,7 +132,7 @@ class CallReport(models.Model):
     error_permanent = models.BooleanField()
 
     def __str__(self):
-        return self.to_number
+        return self.lead.full_name
 
 
 class FormDesign(models.Model):
