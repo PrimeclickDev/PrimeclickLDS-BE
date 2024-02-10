@@ -119,6 +119,7 @@ class ContactOptionAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = ContactOptionSerializer
+    lookup_field = "campaign_id"
 
     def get_object(self):
         campaign_id = self.kwargs.get("campaign_id")
@@ -131,9 +132,9 @@ class CallCreateAPIView(generics.UpdateAPIView):
     serializer_class = CallAudioLinksSerializer
     lookup_field = "campaign_id"
 
-    # def get_object(self):
-    #     campaign_id = self.kwargs.get("campaign_id")
-    #     return Campaign.objects.get(id=campaign_id)
+    def get_object(self):
+        campaign_id = self.kwargs.get("campaign_id")
+        return Campaign.objects.get(id=campaign_id)
 
     def perform_update(self, serializer):
         user_data = self.request.data
@@ -314,14 +315,14 @@ class LeadDetailAPIView(generics.RetrieveAPIView):
     queryset = Lead.objects.all()  # Queryset for all leads
     lookup_field = "lead_id"
 
-    # def get_object(self):
-    #     # Get the lead_id from the URL
-    #     lead_id = self.kwargs.get('lead_id')
+    def get_object(self):
+        # Get the lead_id from the URL
+        lead_id = self.kwargs.get('lead_id')
 
-    #     # Get the lead based on lead_id
-    #     lead = get_object_or_404(self.get_queryset(), id=lead_id)
+        # Get the lead based on lead_id
+        lead = get_object_or_404(self.get_queryset(), id=lead_id)
 
-    #     return lead
+        return lead
 
 
 class CampaignListAPIView(generics.ListAPIView):
@@ -456,15 +457,15 @@ class FormDesignRetrieveAPIView(generics.RetrieveAPIView):
     queryset = FormDesign.objects.all()  # Queryset for all leads
     lookup_field = 'campaign_id'  # Specify 'campaign_id' as the lookup field
 
-    # def get_object(self):
-    #     # Get the lead_id from the URL
-    #     campaign_id = self.kwargs.get('campaign_id')
+    def get_object(self):
+        # Get the lead_id from the URL
+        campaign_id = self.kwargs.get('campaign_id')
 
-    #     # Get the lead based on lead_id
-    #     design = get_object_or_404(
-    #         self.get_queryset(), campaign_id=campaign_id)
+        # Get the lead based on lead_id
+        design = get_object_or_404(
+            self.get_queryset(), campaign_id=campaign_id)
 
-    #     return design
+        return design
 
 
 class FormDesignUpdateAPIView(generics.UpdateAPIView):
