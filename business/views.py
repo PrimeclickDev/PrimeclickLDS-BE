@@ -436,19 +436,19 @@ class CallReportAPIView(APIView):
                 call_report_status = call_report.dtmf_codes.split(',')[0]
                 print(call_report_status)
                 if int(call_report_status) == 1:
-                    lead.status = "CONVERTED"
+                    lead.status = "Converted"
                 elif int(call_report_status) == 2:
-                    lead.status = "REJECTED"
+                    lead.status = "Rejected"
                 elif call_report_status == 'null':
-                    lead.status = "REJECTED"
+                    lead.status = "Rejected"
                 elif call_report_status == None:
-                    lead.status = "REJECTED"
+                    lead.status = "Rejected"
                 else:
-                    lead.status = "PENDING"
+                    lead.status = "Pending"
 
             else:
                 # Set default status if no call report found
-                lead.status = "PENDING"
+                lead.status = "Pending"
 
             lead.save()
 

@@ -70,9 +70,9 @@ class Campaign(models.Model):
 
 class Lead(models.Model):
     STATUS_CHOICES = (
-        ('PENDING', 'Pending'),
-        ('CONVERTED', 'Converted'),
-        ('REJECTED', 'Rejected'),
+        ('Pending', 'Pending'),
+        ('Converted', 'Converted'),
+        ('Rejected', 'Rejected'),
     )
 
     id = models.CharField(max_length=4, primary_key=True,
