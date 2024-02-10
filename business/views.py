@@ -322,6 +322,7 @@ class LeadListAPIView(generics.ListAPIView):
             response_data = {
                 'leads': leads_data,
             }
+            print(response_data)
 
             return Response(response_data, status=status.HTTP_200_OK)
         else:
@@ -435,19 +436,19 @@ class CallReportAPIView(APIView):
                 call_report_status = call_report.dtmf_codes.split(',')[0]
                 print(call_report_status)
                 if int(call_report_status) == 1:
-                    lead.status = "Converted"
+                    lead.status = "CONVERTED"
                 elif int(call_report_status) == 2:
-                    lead.status = "Rejected"
+                    lead.status = "REJECTED"
                 elif call_report_status == 'null':
-                    lead.status = "Rejected"
+                    lead.status = "REJECTED"
                 elif call_report_status == None:
-                    lead.status = "Rejected"
+                    lead.status = "REJECTED"
                 else:
-                    lead.status = "Pending"
+                    lead.status = "PENDING"
 
             else:
                 # Set default status if no call report found
-                lead.status = "Pending"
+                lead.status = "PENDING"
 
             lead.save()
 
