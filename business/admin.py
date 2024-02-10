@@ -18,12 +18,18 @@ class LeadAdmin(admin.ModelAdmin):
     list_filter = ('campaign', 'campaign', 'status')
 
 
+class CallReportAdmin(admin.ModelAdmin):
+    list_display = ('sent_at', 'to_number', )
+
+    list_filter = ('lead',)
+
+
 class FormDesignAdmin(admin.ModelAdmin):
     list_display = ('id', 'design',)
 
 
 admin.site.register(FormDesign, FormDesignAdmin)
-admin.site.register(CallReport)
+admin.site.register(CallReport, CallReportAdmin)
 admin.site.register(Business, BusinessAdmin)
 admin.site.register(Campaign, CampaignAdmin)
 admin.site.register(Lead, LeadAdmin)
