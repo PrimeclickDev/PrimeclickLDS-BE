@@ -396,11 +396,12 @@ class CallReportAPIView(APIView):
 
             print(extracted_data)
             # Saving the extracted data directly into the database
-            call_report = CallReport.objects.create(**extracted_data)
+            CallReport.objects.create(**extracted_data)
+            call_report = CallReport.objects.filter(lead=lead).first()
 
-            if lead.call_reports_lead:
+            if call_report:
                 lead.status = "Contacted"
-                call_report_status = lead.call_reports_lead.dtmf_codes.split(',')[
+                call_report_status = call_report.dtmf_codes.split(',')[
                     0]
                 print(call_report_status)
                 if int(call_report_status) == 1:
