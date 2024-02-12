@@ -408,8 +408,10 @@ class CallReportAPIView(APIView):
                     lead.contacted_status = "Converted"
                 elif int(call_report_status) == 2:
                     lead.contacted_status = "Rejected"
-                elif call_report_status == "null" or call_report_status == None:
+                elif call_report_status == "null":
                     lead.contacted_status = "Rejected"
+                elif call_report_status == None:
+                    lead.contact_status = "Rejected"
                 else:
                     lead.contacted_status = "Rejected"
 
