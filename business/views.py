@@ -398,18 +398,13 @@ class CallReportAPIView(APIView):
             # Saving the extracted data directly into the database
             call_report = CallReport.objects.create(**extracted_data)
 
-            if call_report:
+            if lead.call_reports_lead:
                 lead.status = "Contacted"
-                call_report_status = call_report.dtmf_codes.split(',')[0]
+                call_report_status = lead.call_reports_lead.dtmf_codes.split(',')[
+                    0]
                 print(call_report_status)
                 if int(call_report_status) == 1:
                     lead.contacted_status = "Converted"
-                # elif int(call_report_status) == 2:
-                #     lead.status = "Rejected"
-                # elif call_report_status == 'null':
-                #     lead.status = "Rejected"
-                # elif call_report_status == None:
-                #     lead.status = "Rejected"
                 else:
                     lead.contacted_status = "Rejected"
 
