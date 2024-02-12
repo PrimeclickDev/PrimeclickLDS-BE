@@ -396,31 +396,26 @@ class CallReportAPIView(APIView):
 
             print(extracted_data)
             # Saving the extracted data directly into the database
-            CallReport.objects.create(**extracted_data)
-            call_report = CallReport.objects.filter(lead=lead).first()
+            call_report, created = CallReport.objects.get_or_create(
+                lead=lead, defaults=extracted_data)
 
-            if call_report:
+            if created:
+                # If a new instance was created, update the lead status
                 lead.status = "Contacted"
-                call_report_status = call_report.dtmf_codes.split(',')[
-                    0]
-                print(call_report_status)
-                if int(call_report_status) == 1:
-                    lead.contacted_status = "Converted"
-                elif int(call_report_status) == 2:
-                    lead.contacted_status = "Rejected"
-                elif call_report_status == "null":
-                    lead.contacted_status = "Rejected"
-                elif call_report_status == None:
-                    lead.contact_status = "Rejected"
-                else:
-                    lead.contacted_status = "Rejected"
-
+                # Additional logic for setting contacted_status
+                if call_report.dtmf_codes:
+                    call_report_status = call_report.dtmf_codes.split(',')[0]
+                    if call_report_status == '1':
+                        lead.contacted_status = "Converted"
+                    elif call_report_status == '2':
+                        lead.contacted_status = "Rejected"
+                    else:
+                        lead.contacted_status = "Rejected"
             else:
-                # Set default status if no call report found
-                lead.status = "Pending"
+                # If an existing instance was retrieved, no need to update the lead status
+                pass
 
             lead.save()
-
             return Response(status=status.HTTP_201_CREATED)
 
         except Exception as e:
