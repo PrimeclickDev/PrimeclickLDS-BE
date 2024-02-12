@@ -32,7 +32,7 @@ class LeadListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lead
         fields = ('id', 'full_name', 'email',
-                  'phone_number', 'created', 'status')
+                  'phone_number', 'created', 'status', 'contacted_status')
 
 
 class CampaginSerializer(serializers.ModelSerializer):

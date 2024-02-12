@@ -71,6 +71,10 @@ class Campaign(models.Model):
 class Lead(models.Model):
     STATUS_CHOICES = (
         ('Pending', 'Pending'),
+        ('Contacted', 'Contacted'),
+    )
+
+    CONTACTED_CHOICES = (
         ('Converted', 'Converted'),
         ('Rejected', 'Rejected'),
     )
@@ -86,6 +90,8 @@ class Lead(models.Model):
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default='Pending')
+    contacted_status = models.CharField(
+        max_length=20, choices=CONTACTED_CHOICES, blank=True, null=True)
     actions = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):

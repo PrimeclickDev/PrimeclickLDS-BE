@@ -3,10 +3,6 @@ import json
 
 from backend import settings
 
-# audio1 = "https://od.lk/s/NTZfMjc5MDM4Nzhf/Primeclick%20%281%29.mp3"
-# audio2 = "https://od.lk/s/NTZfMjc5MDkwNjJf/ivr_audio2.mp3"
-# audio3 = "https://od.lk/s/NTZfMjc5MDkxMjVf/ivr_audio3.mp3"
-
 
 def call(audio1=None, audio2=None, audio3=None):
     conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com", timeout=15)

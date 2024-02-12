@@ -14,7 +14,7 @@ class CampaignAdmin(admin.ModelAdmin):
 
 class LeadAdmin(admin.ModelAdmin):
     list_display = ('campaign', 'full_name', 'email',
-                    'phone_number', 'created', 'status')
+                    'phone_number', 'created', 'status', 'contacted_status')
     list_filter = ('campaign', 'campaign', 'status')
 
 
