@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 INFOBIP_AUTH_TOKEN = os.environ.get('INFOBIP_AUTH_TOKEN')
+INFOBIP_NUMBER = os.environ.get('INFOBIP_NUMBER')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = config('DEBUG', cast=bool)
