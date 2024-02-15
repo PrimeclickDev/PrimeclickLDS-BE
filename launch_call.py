@@ -20,7 +20,7 @@ def launch(nums, scenario_id):
         "messages": [
             {
                 "scenarioId": scenario_id,
-                "from": settings.INFOBIP_NUMBER,
+                "from": "2349038102091",
                 "destinations": nums,
                 "notifyUrl": "https://coral-app-kajof.ondigitalocean.app/call-report/",
                 "notifyContentType": "application/json",
