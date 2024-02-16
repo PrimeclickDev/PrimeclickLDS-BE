@@ -32,7 +32,7 @@ def launch(nums, scenario_id):
                     "maxPeriod": 10,
                     "maxCount": 3
                 },
-                "record": False,
+                "record": True,
                 "deliveryTimeWindow": {
                     "from": {
                         "hour": 0,
