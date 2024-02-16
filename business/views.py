@@ -345,6 +345,7 @@ class CallReportAPIView(APIView):
         try:
             print(request.data)
             data = request.data['results'][0]
+            print(data)
             voice_call_data = data.get('voiceCall', {})
             ivr_data = voice_call_data.get('ivr', {})
             status_data = data.get('status', {})
