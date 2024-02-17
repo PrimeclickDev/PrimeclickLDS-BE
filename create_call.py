@@ -25,7 +25,7 @@ def call(audio1=None, audio2=None, audio3=None):
             },
 
             {
-                "record": "null",
+                "record": 20,
                 "options": {
                     "escapeDigits": "123*",
                     "beep": True,
