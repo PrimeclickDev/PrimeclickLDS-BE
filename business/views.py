@@ -279,7 +279,7 @@ class LeadListAPIView(generics.ListAPIView):
         campaign_id = self.kwargs.get('campaign_id')
 
         # Get the leads for the specified campaign
-        leads = Lead.objects.filter(campaign_id=campaign_id)
+        leads = Lead.objects.filter(campaign__id=campaign_id)
 
         return leads
 
@@ -331,8 +331,8 @@ class CampaignListAPIView(generics.ListAPIView):
     def get_queryset(self):
         # Get the campaign_id from the URL
         business_id = self.kwargs.get('business_id')
-        business = get_object_or_404(Business, id=business_id)
-        campaigns = Campaign.objects.filter(business=business)
+        # business = get_object_or_404(Business, id=business_id)
+        campaigns = Campaign.objects.filter(business__id=business_id)
         # print(campaigns)
 
         return campaigns
@@ -352,6 +352,8 @@ class CallReportAPIView(APIView):
             error_data = data.get('error', {})
             to_number = data.get('to')
             scenario_id = ivr_data.get('scenarioId')
+
+            # lead = Lead.objects.filter(campaign__call_scenario_id=scenario_id, phone_number=to_number).first()
 
             campaign = Campaign.objects.get(call_scenario_id=scenario_id)
             lead = campaign.campaign_lead.filter(

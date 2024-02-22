@@ -1,12 +1,35 @@
 import http.client
 import json
-
 from backend import settings
 
 
-def call():
+def start_call_recording(call_id):
     conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com", timeout=15)
-    authorization_token = " "
+    authorization_token = settings.INFOBIP_AUTH_TOKEN
+    payload = {
+        "enabled": True,
+        # Replace this with your recording URL
+        "recordingUrl": "https://your-recording-url",
+        "recordingChannel": "ALL",  # You can specify 'INBOUND', 'OUTBOUND', or 'ALL'
+        "stopOnDTMF": True  # Optionally, you can specify to stop recording on DTMF input
+    }
+    headers = {
+        'Authorization': 'App ' + authorization_token,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+
+    conn.request(
+        "POST", f"/voice/ivr/1/calls/{call_id}/recordings", json.dumps(payload), headers)
+    res = conn.getresponse()
+    data = res.read().decode("utf-8")
+    print(data)
+    conn.close()
+
+
+def call(audio1=None, audio2=None, audio3=None):
+    conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com", timeout=15)
+    authorization_token = settings.INFOBIP_AUTH_TOKEN
     payload = json.dumps({
         "name": "Collect Digits",
         "description": "Collect user input and follow default branches for better user experience",
@@ -25,57 +48,43 @@ def call():
             },
 
             {
-                "record": 10,
+                "playFromUrl": audio1
+            },
+
+            {
+                "collectInto": "myVariable",
                 "options": {
-                    "escapeDigits": "123*",
-                    "beep": True,
-                    "maxSilence": 3,
-                    "identifier": "${varName}"
+                    "maxInputLength": 1,
+                    "timeout": 15,
+                    "sendToReports": "ALWAYS",
+                    "mappedValues": {
+                        "1": "pressed one",
+                        "2": "pressed two"
+                    }
                 }
             },
 
             {
-                "say": "Say yes or no"
-            },
-            {
-                "capture": "myVar",
-                "timeout": 3,
-                "speechOptions": {
-                    "language": "en-US",
-                    "keyPhrases": [
-                        "yes",
-                        "no"
+                "case": {
+                    "1": [
+                        {
+                            "playFromUrl": audio2
+                        }
+                    ],
+                    "2": [
+                        {
+                            "playFromUrl": audio3
+                        }
+                    ],
+                    "__default": [
+                        {
+                            "say": "You pressed some other key or didn't press any key yet. Kindly press one or two"
+                        }
                     ]
-                }
+                },
+                "switch": "myVariable"
             },
-            {
-                "if": "${myVar == 'yes'}",
-                "then": [
-                    {
-                        "say": "Ok. I will send you more details"
-                    }
-                ],
-                "else": []
-            },
-            {
-                "if": "${myVar == 'no'}",
-                "then": [
-                    {
-                        "say": "Thank you for listening."
-                    }
-                ],
-                "else": []
-            },
-            {
-                "if": "${myVar == ''}",
-                "then": [
-                    {
-                        "say": "I did not understand"
-                    }
-                ],
-                "else": []
-            },
-            "hangup"
+
         ]
     })
 
@@ -85,18 +94,13 @@ def call():
         'Accept': 'application/json'
     }
 
-    conn.request("POST", "/voice/ivr/1/scenarios",
-                 payload, headers)
+    conn.request("POST", "/voice/ivr/1/scenarios", payload, headers)
     res = conn.getresponse()
     data = res.read().decode("utf-8")
     print(data)
     response_data = json.loads(data)
-
     scenario_id = response_data.get('id')
-    # print("Scenario ID:", scenario_id)
-    return scenario_id
-
+    # Start call recording after call initiation
+    start_call_recording(response_data['callId'])
     conn.close()
-
-
-call()
+    return scenario_id

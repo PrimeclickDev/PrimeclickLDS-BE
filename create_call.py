@@ -25,16 +25,6 @@ def call(audio1=None, audio2=None, audio3=None):
             },
 
             {
-                "record": 20,
-                "options": {
-                    "escapeDigits": "123*",
-                    "beep": True,
-                    "maxSilence": 3,
-                    "identifier": "${varName}"
-                }
-            },
-
-            {
                 "playFromUrl": audio1
             },
 
@@ -86,7 +76,6 @@ def call(audio1=None, audio2=None, audio3=None):
     res = conn.getresponse()
     data = res.read().decode("utf-8")
     print(data)
-    print(settings.INFOBIP_AUTH_TOKEN)
     response_data = json.loads(data)
 
     scenario_id = response_data.get('id')
