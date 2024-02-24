@@ -344,9 +344,10 @@ class CallReportAPIView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             print(request.data)
-            data = request.data['results'][0]
-            to_number = data['to']
-            scenario_id = data['voiceCall']['ivr']['scenarioId']
+            data = request.data.get('results', [])[0]
+            to_number = data.get('to')
+            scenario_id = data.get('voiceCall', {}).get(
+                'ivr', {}).get('scenarioId')
             print(data)
             # voice_call_data = data.get('voiceCall', {})
             # ivr_data = voice_call_data.get('ivr', {})
@@ -409,8 +410,8 @@ class CallReportAPIView(APIView):
             if created:
                 # If a new instance was created, update the lead status
                 lead.status = "Contacted"
-                if call_report.report['callReport']['ivr']['dtmfCodes']:
-                    call_report_status = call_report.report['callReport']['ivr']['dtmfCodes'].split(',')[
+                if call_report.report.get('callReport', {}).get('ivr', {}).get('dtmfCodes'):
+                    call_report_status = call_report.report.get('callReport', {}).get('ivr', {}).get('dtmfCodes').split(',')[
                         0]
                     if call_report_status == '1':
                         lead.contacted_status = "Converted"
