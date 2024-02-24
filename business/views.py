@@ -410,8 +410,8 @@ class CallReportAPIView(APIView):
             if created:
                 # If a new instance was created, update the lead status
                 lead.status = "Contacted"
-                if call_report.report.get('callReport', {}).get('ivr', {}).get('dtmfCodes'):
-                    call_report_status = call_report.report.get('callReport', {}).get('ivr', {}).get('dtmfCodes').split(',')[
+                if call_report.report.get('voiceCall', {}).get('ivr', {}).get('dtmfCodes'):
+                    call_report_status = call_report.report.get('voiceCall', {}).get('ivr', {}).get('dtmfCodes').split(',')[
                         0]
                     if call_report_status == '1':
                         lead.contacted_status = "Converted"
