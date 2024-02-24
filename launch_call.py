@@ -5,12 +5,12 @@ from create_call import call
 from backend import settings
 
 
-conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
+conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com", timeout=30)
 authorization_token = settings.INFOBIP_AUTH_TOKEN
 
 
 def launch(nums, scenario_id):
-    send_at_time = datetime.now() + timedelta(seconds=30)
+    send_at_time = datetime.now() + timedelta(seconds=60)
     day_of_week = send_at_time.strftime("%A").upper()
     send_at_formatted = send_at_time.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     print(str(send_at_formatted))
@@ -20,7 +20,7 @@ def launch(nums, scenario_id):
         "messages": [
             {
                 "scenarioId": scenario_id,
-                "from": "2349038102091",
+                "from": "2347080631313",
                 "destinations": nums,
                 "notifyUrl": "https://coral-app-kajof.ondigitalocean.app/call-report/",
                 "notifyContentType": "application/json",
@@ -68,3 +68,6 @@ def launch(nums, scenario_id):
         print(f"Error: {e}")
 
     conn.close()
+
+
+# launch('2348166590317', '0B81105132050D502C247B35F96841CF')

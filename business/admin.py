@@ -19,7 +19,7 @@ class LeadAdmin(admin.ModelAdmin):
 
 
 class CallReportAdmin(admin.ModelAdmin):
-    list_display = ('sent_at', 'campaign', 'lead', 'to_number',)
+    list_display = ('campaign', 'lead', 'report')
 
     list_filter = ('campaign',)
 
