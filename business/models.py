@@ -111,7 +111,7 @@ class CallReport(models.Model):
     campaign = models.ForeignKey(
         Campaign, on_delete=models.CASCADE, related_name="call_reports_campaign", to_field="id")
     report = models.JSONField()
-    audio_file = CloudinaryField(upload_to='user_audio/', storage=MediaCloudinaryStorage(), blank=True, null=True)
+    # audio_file = CloudinaryField(upload_to='user_audio/', storage=MediaCloudinaryStorage(), blank=True, null=True)
 
     def __str__(self):
         return self.lead.full_name
