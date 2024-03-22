@@ -177,7 +177,7 @@ class LaunchCallAPIView(APIView):
         # For example, you can call the `launch` function passing the nums list and scenario_id
         try:
             launch(nums, scenario_id)
-            call_delete()
+            call_delete(scenario_id)
             return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
@@ -349,61 +349,10 @@ class CallReportAPIView(APIView):
             scenario_id = data.get('voiceCall', {}).get(
                 'ivr', {}).get('scenarioId')
             print(data)
-            # voice_call_data = data.get('voiceCall', {})
-            # ivr_data = voice_call_data.get('ivr', {})
-            # status_data = data.get('status', {})
-            # error_data = data.get('error', {})
-            # to_number = data.get('to')
-            # scenario_id = ivr_data.get('scenarioId')
-
-            # lead = Lead.objects.filter(campaign__call_scenario_id=scenario_id, phone_number=to_number).first()
 
             campaign = Campaign.objects.get(call_scenario_id=scenario_id)
             lead = campaign.campaign_lead.filter(
                 phone_number=to_number).first()
-            # lead = Lead.objects.get(phone_number=to_number)
-
-            # extracted_data = {
-            #     'campaign': campaign,
-            #     'lead': lead,
-            #     'bulk_id': data.get('bulkId'),
-            #     'message_id': data.get('messageId'),
-            #     'from_number': data.get('from'),
-            #     'to_number': to_number,
-            #     'sent_at': data.get('sentAt'),
-            #     'mcc_mnc': data.get('mccMnc'),
-            #     'call_back_data': data.get('callbackData'),
-            #     'feature': voice_call_data.get('feature'),
-            #     'start_time': voice_call_data.get('startTime'),
-            #     'answer_time': voice_call_data.get('answerTime'),
-            #     'end_time': voice_call_data.get('endTime'),
-            #     'duration': voice_call_data.get('duration'),
-            #     'charged_duration': voice_call_data.get('chargedDuration'),
-            #     'file_duration': voice_call_data.get('fileDuration'),
-            #     'dtmf_codes': voice_call_data.get('dtmfCodes'),
-            #     'scenario_id':  scenario_id,
-            #     'scenario_name': ivr_data.get('scenarioName'),
-            #     'group_id': status_data.get('groupId'),
-            #     'group_name': status_data.get('groupName'),
-            #     'status_id': status_data.get('id'),
-            #     'status_name': status_data.get('name'),
-            #     'status_description': status_data.get('description'),
-            #     'error_group_id': error_data.get('groupId'),
-            #     'error_group_name': error_data.get('groupName'),
-            #     'error_id': error_data.get('id'),
-            #     'error_name': error_data.get('name'),
-            #     'error_description': error_data.get('description'),
-            #     'error_permanent': error_data.get('permanent'),
-            # }
-
-            # for key, value in extracted_data.items():
-            #     if value is None:
-            #         extracted_data[key] = None
-
-            # print(extracted_data)
-            # Saving the extracted data directly into the database
-            # call_report, created = CallReport.objects.get_or_create(
-            #     lead=lead, defaults=extracted_data)
             call_report, created = CallReport.objects.get_or_create(
                 lead=lead, campaign=campaign, report=data)
 
@@ -419,15 +368,6 @@ class CallReportAPIView(APIView):
                         lead.contacted_status = "Rejected"
                     else:
                         lead.contacted_status = "Rejected"
-                # Additional logic for setting contacted_status
-                # if call_report.dtmf_codes:
-                #     call_report_status = call_report.dtmf_codes.split(',')[0]
-                #     if call_report_status == '1':
-                #         lead.contacted_status = "Converted"
-                #     elif call_report_status == '2':
-                #         lead.contacted_status = "Rejected"
-                #     else:
-                #         lead.contacted_status = "Rejected"
             else:
                 # If an existing instance was retrieved, no need to update the lead status
                 pass

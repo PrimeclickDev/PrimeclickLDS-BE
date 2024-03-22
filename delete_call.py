@@ -4,12 +4,12 @@ import json
 from backend import settings
 
 
-def call_delete():
+def call_delete(scenario_id):
     conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com")
     authorization_token = settings.INFOBIP_AUTH_TOKEN
 
     payload = json.dumps({
-        "id": "E56E44C8D256532D129440995F66548F"
+        "id": scenario_id
     })
 
     headers = {
@@ -23,3 +23,6 @@ def call_delete():
     print(data.decode("utf-8"))
 
     conn.close()
+
+
+

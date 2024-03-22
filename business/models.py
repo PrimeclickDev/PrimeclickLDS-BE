@@ -1,4 +1,6 @@
 import uuid
+
+from cloudinary.models import CloudinaryField
 from django.db import models
 import random
 import string
@@ -29,7 +31,6 @@ class Business(models.Model):
 
 
 class Campaign(models.Model):
-
     TYPE_OF_CAMPAIGN = (
         ('UPLOAD', 'Upload'),
         ('DIRECT', 'Direct')
@@ -57,6 +58,7 @@ class Campaign(models.Model):
     audio_link_2 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_3 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_4 = models.CharField(max_length=100, null=True, blank=True)
+
     # actions = models.CharField(max_length=50, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -105,38 +107,11 @@ class Lead(models.Model):
 
 class CallReport(models.Model):
     lead = models.ForeignKey(
-        Lead,  on_delete=models.CASCADE, related_name="call_reports_lead", to_field='id')
+        Lead, on_delete=models.CASCADE, related_name="call_reports_lead", to_field='id')
     campaign = models.ForeignKey(
         Campaign, on_delete=models.CASCADE, related_name="call_reports_campaign", to_field="id")
     report = models.JSONField()
-    # bulk_id = models.CharField(max_length=255)
-    # message_id = models.CharField(max_length=255)
-    # from_number = models.CharField(max_length=50)
-    # to_number = models.CharField(max_length=50)
-    # sent_at = models.CharField(max_length=100)
-    # mcc_mnc = models.CharField(max_length=50, null=True, blank=True)
-    # call_back_data = models.CharField(max_length=50)
-    # feature = models.CharField(max_length=15)
-    # start_time = models.CharField(max_length=100)
-    # answer_time = models.CharField(max_length=100)
-    # end_time = models.CharField(max_length=100)
-    # duration = models.IntegerField()
-    # charged_duration = models.IntegerField()
-    # file_duration = models.FloatField(null=True, blank=True)
-    # dtmf_codes = models.CharField(max_length=255)
-    # scenario_id = models.CharField(max_length=255)
-    # scenario_name = models.CharField(max_length=255)
-    # group_id = models.IntegerField()
-    # group_name = models.CharField(max_length=255)
-    # status_id = models.IntegerField()
-    # status_name = models.CharField(max_length=255)
-    # status_description = models.TextField()
-    # error_group_id = models.IntegerField()
-    # error_group_name = models.CharField(max_length=255)
-    # error_id = models.IntegerField()
-    # error_name = models.CharField(max_length=255)
-    # error_description = models.TextField()
-    # error_permanent = models.BooleanField()
+    audio_file = CloudinaryField(upload_to='user_audio/', storage=MediaCloudinaryStorage(), blank=True, null=True)
 
     def __str__(self):
         return self.lead.full_name

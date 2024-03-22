@@ -25,42 +25,135 @@ def call(audio1=None, audio2=None, audio3=None):
             },
 
             {
-                "playFromUrl": audio1
-            },
-
-            {
-                "collectInto": "myVariable",
+                "record": 3,
                 "options": {
-                    "maxInputLength": 1,
-                    "timeout": 15,
-                    "sendToReports": "ALWAYS",
-                    "mappedValues": {
-                        "1": "pressed one",
-                        "2": "pressed two"
-                    }
+                    "escapeDigits": "123*",
+                    "beep": False,
+                    "maxSilence": 10,
+                    "identifier": "${callRecord}"
                 }
             },
 
             {
-                "case": {
-                    "1": [
-                        {
-                            "playFromUrl": audio2
-                        }
-                    ],
-                    "2": [
-                        {
-                            "playFromUrl": audio3
-                        }
-                    ],
-                    "__default": [
-                        {
-                            "say": "You pressed some other key or didn't press any key yet. Kindly press one or two"
-                        }
+                "playFromUrl": audio1
+            },
+            {
+                "capture": "myVar",
+                "timeout": 3,
+                "speechOptions": {
+                    "language": "en-US",
+                    "keyPhrases": [
+                        "yes", "interested", "no", "not interested", "ok",
+                        "sure", "absolutely", "of course", "sure why not?"
+                        "Count me in", "Please do", "No", "Not interested",
+                        "No, thank you", "I'm not interested", "I'm afraid not", "Absolutely not",
                     ]
                 },
-                "switch": "myVariable"
+                "dtmfOptions": {
+                    "maxInputLength": 1
+                }
             },
+            {
+                "if": "${myVar == 'yes' || myVar == '1'}",
+                "then": [
+                    {
+                        "playFromUrl": audio2
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'interested'}",
+                "then": [
+                    {
+                        "playFromUrl": audio2
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'sure, why not?'}",
+                "then": [
+                    {
+                        "playFromUrl": audio2
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'sure'}",
+                "then": [
+                    {
+                        "playFromUrl": audio2
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'of course'}",
+                "then": [
+                    {
+                        "playFromUrl": audio2
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'absolutely'}",
+                "then": [
+                    {
+                        "playFromUrl": audio2
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'ok'}",
+                "then": [
+                    {
+                        "playFromUrl": audio2
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'no' || myVar == '2'}",
+                "then": [
+                    {
+                        "playFromUrl": audio3
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'not interested' || myVar == '2'}",
+                "then": [
+                    {
+                        "playFromUrl": audio3
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == 'sorry' || myVar == '2'}",
+                "then": [
+                    {
+                        "playFromUrl": audio3
+                    }
+                ],
+                "else": []
+            },
+            {
+                "if": "${myVar == ''}",
+                "then": [
+                    {
+                        "say": "I did not understand"
+                    }
+                ],
+                "else": []
+            },
+            "hangup"
+
 
         ]
     })
@@ -75,11 +168,15 @@ def call(audio1=None, audio2=None, audio3=None):
                  payload, headers)
     res = conn.getresponse()
     data = res.read().decode("utf-8")
-    print(data)
+    # print(data)
     response_data = json.loads(data)
 
     scenario_id = response_data.get('id')
-    # print("Scenario ID:", scenario_id)
+    print("Scenario ID:", scenario_id)
     return scenario_id
 
     conn.close()
+
+#
+# call("https://od.lk/s/NTZfMjg0MzYwNjdf/Confirmation%20final.m4a",
+#      "https://od.lk/s/NTZfMjg0MzYwNzhf/Positive%20repsonse..m4a", "https://od.lk/s/NTZfMjg0MzYwOTJf/negative%20response.m4a")

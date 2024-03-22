@@ -1,7 +1,6 @@
 import http.client
 import json
 from datetime import datetime, timedelta
-from create_call import call
 from backend import settings
 
 
@@ -10,7 +9,7 @@ authorization_token = settings.INFOBIP_AUTH_TOKEN
 
 
 def launch(nums, scenario_id):
-    send_at_time = datetime.now() + timedelta(seconds=60)
+    send_at_time = datetime.now() + timedelta(minutes=2)
     day_of_week = send_at_time.strftime("%A").upper()
     send_at_formatted = send_at_time.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     print(str(send_at_formatted))
@@ -62,12 +61,13 @@ def launch(nums, scenario_id):
     try:
         conn.request("POST", "/voice/ivr/1/messages", payload, headers)
         res = conn.getresponse()
-        data = res.read()
-        print(data.decode("utf-8"))
+        data = res.read().decode("utf-8")
+        response_data = json.loads(data)
+        print(response_data)
     except Exception as e:
         print(f"Error: {e}")
 
     conn.close()
 
 
-# launch('2348166590317', '0B81105132050D502C247B35F96841CF')
+

@@ -19,3 +19,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+recorded_files.py
+call_recording.py
+speech_digits.py
+test2.py
+test_call.py
