@@ -41,9 +41,9 @@ def intro_response():
     response = '<?xml version="1.0"?>'
     response += '<Response>'
     # response += '<GetDigits numDigits="1" finishOnKey="#" timeout="15" callbackUrl="http://something.com">'
-    response += '<Say voice="woman">'
-    response += "Welcome to Voice Memo. Press 1 followed by the pound sign. Press 2 followed by the pound sign to exit."
-    response += '</Say>'
+    # response += '<Say voice="woman">'
+    # response += "Welcome to Voice Memo. Press 1 followed by the pound sign. Press 2 followed by the pound sign to exit."
+    # response += '</Say>'
     response += '<Play url="https://od.lk/s/NTZfMjg0MzYwNjdf/Confirmation%20final.m4a">'
     response += '</Play>'
     # response += '</GetDigits>'
