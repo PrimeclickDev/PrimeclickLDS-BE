@@ -448,6 +448,7 @@ class FormDesignUpdateAPIView(generics.UpdateAPIView):
 
 
 class AITAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, format=None):
         xml_data = intro_response()
         return HttpResponse(xml_data, content_type='text/xml')
