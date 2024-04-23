@@ -44,7 +44,7 @@ def intro_response():
     # response += '<Say voice="man">'
     # response += "Welcome to Primeclick Autoleads voice demo. We are still working on this. Thanks for your patience."
     # response += '</Say>'
-    response += '<Play url="https://od.lk/s/NTZfMjc5MDM4Nzdf/Primeclick%20%281%29.mp3">'
+    response += '<Play url="https://od.lk/s/NTZfMjk4NjI0OThf/Primeclick.mp3">'
     response += '</Play>'
     # response += '</GetDigits>'
     response += '</Response>'
