@@ -2,13 +2,14 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.views import APIView
 import pandas as pd
+from AIT.ait import intro_response
 from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
-from create_call import call
-from delete_call import call_delete
-from launch_call import launch
+from infobip_utils.create_call import call
+from infobip_utils.delete_call import call_delete
+from infobip_utils.launch_call import launch
 from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import FormDesign, Lead, Campaign, Business, CallReport
@@ -17,7 +18,7 @@ from django.db import transaction
 import time
 import io
 import csv
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer, FormDesignSerializer,
                           LeadFormSerializer,
                           LeadListSerializer,
@@ -444,3 +445,9 @@ class FormDesignUpdateAPIView(generics.UpdateAPIView):
 
         else:
             return Response({"message": "failed", "details": serializer.errors})
+
+
+class AITAPIView(APIView):
+    def get(self, request, format=None):
+        xml_data = intro_response()
+        return HttpResponse(xml_data, content_type='text/xml')
