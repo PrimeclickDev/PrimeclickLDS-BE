@@ -31,7 +31,7 @@ def make_voice_call(username, api_key, from_number, to_numbers):
 username = "pmba"
 api_key = "85f8738d5a557dd54d5c54cd124b518ad568fc02c9309f402e9953c30d03504a"
 from_number = "+2347080629896"
-to_numbers = ["+2348166590317"]
+to_numbers = ["+2348120148527"]
 
 make_voice_call(username, api_key, from_number, to_numbers)
 
@@ -41,11 +41,11 @@ def intro_response():
     response = '<?xml version="1.0"?>'
     response += '<Response>'
     # response += '<GetDigits numDigits="1" finishOnKey="#" timeout="15" callbackUrl="http://something.com">'
-    # response += '<Say voice="woman">'
-    # response += "Welcome to Primeclick Autoleads voice demo. We are still working on this. Thanks for your patience."
-    # response += '</Say>'
-    response += '<Play url="https://od.lk/s/NTZfMjg0MzYwNjdf/Confirmation%20final.m4a">'
-    response += '</Play>'
+    response += '<Say voice="man">'
+    response += "Welcome to Primeclick Autoleads voice demo. We are still working on this. Thanks for your patience."
+    response += '</Say>'
+    # response += '<Play url="https://od.lk/s/NTZfMjg0MzYwNjdf/Confirmation%20final.m4a">'
+    # response += '</Play>'
     # response += '</GetDigits>'
     response += '</Response>'
     return response
