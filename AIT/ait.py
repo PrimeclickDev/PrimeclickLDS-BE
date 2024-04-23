@@ -19,7 +19,8 @@ def make_voice_call(username, api_key, from_number, to_numbers):
         if response.status_code == 201 or response.status_code == 200:
             print("Call initiated successfully")
             # Print the response data
-            print("Response data:", response.json()['entries'][0]['sessionId'])
+            print("Response data:", response.json())
+            # print("Response data:", response.json()['entries'][0]['sessionId'])
         else:
             print("Failed to initiate call. Status code:", response.status_code)
     except Exception as e:
