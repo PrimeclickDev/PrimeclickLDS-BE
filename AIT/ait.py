@@ -31,6 +31,6 @@ def make_voice_call(username, api_key, from_number, to_numbers):
 username = "pmba"
 api_key = "85f8738d5a557dd54d5c54cd124b518ad568fc02c9309f402e9953c30d03504a"
 from_number = "+2347080629896"
-to_numbers = ["+2348120148527"]
+to_numbers = ["+2348120148527", "+2348166590317"]
 
 make_voice_call(username, api_key, from_number, to_numbers)
