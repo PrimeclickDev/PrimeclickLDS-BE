@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response, positive_flow
+from AIT.xlm_res import intro_response, positive_flow, negative_flow
 from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
@@ -470,6 +470,9 @@ class AITFlowAPIView(APIView):
 
             if data  == "1" or data == 1:
                 res = positive_flow()
+                return HttpResponse(res, content_type='text/xml')
+            elif data == "2" or data == 2:
+                res = negative_flow()
                 return HttpResponse(res, content_type='text/xml')
             else:
                 # Provide a default response if the condition isn't met

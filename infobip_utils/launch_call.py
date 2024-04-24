@@ -73,4 +73,4 @@ def launch(scenario_id):
 
     conn.close()
 
-launch("02DDC0C250D37CA9EA0A6E09C2765CCD")
+# launch("02DDC0C250D37CA9EA0A6E09C2765CCD")
