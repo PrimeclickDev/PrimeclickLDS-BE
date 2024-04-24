@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response
+from AIT.xlm_res import intro_response, positive_flow
 from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
@@ -460,7 +460,13 @@ class AITFlowAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            print(request.data)
+            data = request.POST.get("dtmfDigits")
+            print(data)
+
+            if data == "1":
+                return positive_flow()
+            else:
+                return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
