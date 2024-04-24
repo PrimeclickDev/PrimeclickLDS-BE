@@ -467,7 +467,7 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             print(data)
 
-            if data is not None and data == "1":
+            if data is not None and data == 1:
                 return positive_flow()
             else:
                 # Provide a default response if the condition isn't met
@@ -477,5 +477,3 @@ class AITFlowAPIView(APIView):
             # Handling other exceptions
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Ensure a response is always returned
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
