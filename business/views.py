@@ -468,7 +468,8 @@ class AITFlowAPIView(APIView):
             print(data)
 
             if data is not None and data == "1":
-                return positive_flow()
+                res = positive_flow()
+                return HttpResponse(res, content_type='text/xml')
             else:
                 # Provide a default response if the condition isn't met
                 return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
