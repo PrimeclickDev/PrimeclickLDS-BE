@@ -19,3 +19,4 @@ def positive_flow():
     response += 'Thank you for showing interest in our product. Will be in touch!'
     response += '</Say>'
     response += '</Response>'
+    return response
