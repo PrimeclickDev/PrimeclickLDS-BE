@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.ait import intro_response
+from AIT.xlm_res import intro_response
 from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
@@ -453,3 +453,14 @@ class AITAPIView(APIView):
     def post(self, request, format=None):
         xml_data = intro_response()
         return HttpResponse(xml_data, content_type='text/xml')
+    
+
+class AITFlowAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            print(request.data)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
