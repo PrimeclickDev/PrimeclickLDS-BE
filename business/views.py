@@ -467,7 +467,7 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             print(data)
 
-            if data is not None and data == 1:
+            if data is not None and data == "1":
                 return positive_flow()
             else:
                 # Provide a default response if the condition isn't met
