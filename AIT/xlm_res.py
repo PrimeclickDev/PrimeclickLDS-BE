@@ -10,3 +10,12 @@ def intro_response():
     response += '</GetDigits>'
     response += '</Response>'
     return response
+
+
+def positive_flow():
+    response = '<?xml version="1.0"?>'
+    response += '<Response>'
+    response += '<Say voice="man">'
+    response += 'Thank you for showing interest in our product. Will be in touch!'
+    response += '</Say>'
+    response += '</Response>'
