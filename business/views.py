@@ -466,6 +466,7 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             print(data)
+            print(type(data))
 
             if data  == "1" or data == 1:
                 res = positive_flow()
