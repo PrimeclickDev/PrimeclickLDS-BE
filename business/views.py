@@ -455,18 +455,27 @@ class AITAPIView(APIView):
         return HttpResponse(xml_data, content_type='text/xml')
     
 
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+
 class AITFlowAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         try:
-            data = request.POST.get("dtmfDigits")
+            data = request.data.get("dtmfDigits")
             print(data)
 
-            if data == "1":
+            if data is not None and data == "1":
                 return positive_flow()
             else:
+                # Provide a default response if the condition isn't met
                 return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
+            # Handling other exceptions
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Ensure a response is always returned
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
