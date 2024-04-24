@@ -5,7 +5,7 @@ def intro_response():
     # response += '<Say voice="man">'
     # response += "Welcome to Primeclick Autoleads voice demo. Please press 1 to continue and 2 to quit."
     # response += '</Say>'
-    response += '<Play url="https://drive.google.com/file/d/17Uxj1pEdYMzLdHyYAdLDpqwB24TnuiPA/view?usp=sharing">'
+    response += '<Play url="https://od.lk/s/NTZfMjc5MDkwNDVf/ivr_audio.mp3">'
     response += '</Play>'
     response += '</GetDigits>'
     response += '</Response>'
