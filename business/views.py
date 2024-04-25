@@ -168,7 +168,7 @@ class LaunchCallAPIView(APIView):
         # Extract numbers from the Leads associated with the Campaign
         leads_phone_numbers = Lead.objects.filter(
             campaign=campaign).values_list('phone_number', flat=True)
-        nums = [{"to": number} for number in leads_phone_numbers]
+        nums = [number for number in leads_phone_numbers]
 
         scenario_id = campaign.call_scenario_id
 
