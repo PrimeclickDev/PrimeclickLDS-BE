@@ -17,7 +17,7 @@ def intro_response():
 def positive_flow():
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<Play url="https://autoleads.s3.eu-north-1.amazonaws.com/Positive.m4a">'
+    response += '<Play url="https://autoleads.s3.eu-north-1.amazonaws.com/Positive.mp3">'
     response += '</Play>'
     # response += '<Say voice="man">'
     # response += 'Thank you for showing interest in our product. Will be in touch!'
@@ -28,7 +28,7 @@ def positive_flow():
 def negative_flow():
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<Play url="https://autoleads.s3.eu-north-1.amazonaws.com/negative.m4a">'
+    response += '<Play url="https://autoleads.s3.eu-north-1.amazonaws.com/negative.mp3">'
     response += '</Play>'
     # response += '<Say voice="man">'
     # response += 'Alright! We will keep your record incase we have offers that you may be interested in in the future'
