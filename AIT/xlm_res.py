@@ -3,10 +3,8 @@ def intro_response():
     response += '<Response>'
     response += '<GetDigits numDigits="1" finishOnKey="#" timeout="5" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
     response += '<Say voice="man">'
-    response += "Welcome to Primeclick Autoleads voice demo. Please press 1 to continue and 2 to quit."
+    response += "Welcome to Primeclick Autoleads voice call demo. Please press 1 to continue and 2 to quit."
     response += '</Say>'
-    # response += '<Play url="https://jolly-heisenberg-meninsky.at-internal.com/jocofullinterview41.mp3">'
-    # response += '</Play>''
     response += '</GetDigits>'
     response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callBackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
     response += '</Record>'
