@@ -34,7 +34,7 @@ def negative_flow():
 def record_call():
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callBackUrl="http://something.something">'
+    response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callBackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
     # response += '<Say voice="woman">'
     # response += 'Press the pound sign to end the recording'
     # response += '</Say>'
