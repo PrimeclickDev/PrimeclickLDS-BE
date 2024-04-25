@@ -1,5 +1,7 @@
 import requests
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 def make_voice_call(username, api_key, from_number, to_numbers):
     url = 'https://voice.africastalking.com/call'
@@ -28,8 +30,8 @@ def make_voice_call(username, api_key, from_number, to_numbers):
 
 
 # Example usage with your provided numbers
-username = "pmba"
-api_key = "85f8738d5a557dd54d5c54cd124b518ad568fc02c9309f402e9953c30d03504a"
+username = os.getenv("AIT_USERNAME")
+api_key = os.getenv("AIT_API_KEY")
 from_number = "+2347080629896"
 to_numbers = ["+2348120148527", "+2348166590317"]
 
