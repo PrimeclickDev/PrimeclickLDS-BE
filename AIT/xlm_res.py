@@ -5,7 +5,7 @@ def intro_response():
     # response += '<Say voice="man">'
     # response += "Welcome to Primeclick Autoleads voice call demo. Please press 1 to continue and 2 to quit."
     # response += '</Say>'
-    response += '<Play url="https://autoleads.s3.eu-north-1.amazonaws.com/Confirmation.m4a">'
+    response += '<Play url="https://autoleads.s3.eu-north-1.amazonaws.com/Primeclick.mp3">'
     response += '</Play>'
     response += '</GetDigits>'
     response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callBackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
