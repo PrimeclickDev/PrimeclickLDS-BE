@@ -1,7 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from backend.utils import send_email
 from .serializers import AccountActivationSerializer, CustomTokenObtainPairSerializer, ForgotPasswordSerializer, NewPasswordSerializer, ResetPassowrdOTPSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
@@ -43,8 +42,8 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         otp = str(random.randint(100000, 999999))
         print(otp)
 
-        # Sending the OTP
-        send_email(email, otp)
+        # # Sending the OTP
+        # send_email(email, otp)
 
         # Save OTP in user model
         user = serializer.save(is_active=False)
@@ -125,7 +124,7 @@ class ForgotPasswordAPIView(APIView):
         # Generate a six-digit OTP
         otp = str(random.randint(100000, 999999))
 
-        send_email(email, otp)
+        # send_email(email, otp)
         print(email, otp)
 
         # Save the OTP in the user's session

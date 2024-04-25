@@ -3,14 +3,12 @@ from rest_framework import generics
 from rest_framework.views import APIView
 import pandas as pd
 from AIT.xlm_res import intro_response, positive_flow, negative_flow, record_call
-from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 from infobip_utils.create_call import call
 from infobip_utils.delete_call import call_delete
 from infobip_utils.launch_call import launch
-from .googlesheets import get_google_sheets_data
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import FormDesign, Lead, Campaign, Business, CallReport
 from django.db import transaction
