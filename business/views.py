@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response, positive_flow, negative_flow
+from AIT.xlm_res import intro_response, positive_flow, negative_flow, record_call
 from backend.settings import GOOGLE_SHEET_API_CREDS
 from rest_framework.response import Response
 from rest_framework import status
@@ -455,9 +455,6 @@ class AITAPIView(APIView):
         return HttpResponse(xml_data, content_type='text/xml')
     
 
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.views import APIView
 
 class AITFlowAPIView(APIView):
     permission_classes = [AllowAny]
@@ -482,3 +479,12 @@ class AITFlowAPIView(APIView):
             # Handling other exceptions
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+class AITRecordAPIView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request, format=None):
+        xml_data = request.data
+        print(xml_data)
+        return Response({"message": "File data gotten!"})

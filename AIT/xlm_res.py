@@ -29,3 +29,15 @@ def negative_flow():
     response += '</Say>'
     response += '</Response>'
     return response
+
+
+def record_call():
+    response = '<?xml version="1.0"?>'
+    response += '<Response>'
+    response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callBackUrl="http://something.something">'
+    # response += '<Say voice="woman">'
+    # response += 'Press the pound sign to end the recording'
+    # response += '</Say>'
+    response += '</Record>'
+    response += '</Response>'
+    return response
