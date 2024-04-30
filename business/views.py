@@ -456,7 +456,7 @@ class AITAPIView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request, format=None):
-        destination_number = request.data.get("destinationNumber")
+        destination_number = request.data.get("callerNumber")
         print(destination_number)
         dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
         print(dest_number_campaign)
@@ -477,7 +477,7 @@ class AITFlowAPIView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data.get("dtmfDigits")
-            destination_number = request.data.get("destinationNumber")
+            destination_number = request.data.get("callerNumber")
             dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
             print(dest_number_campaign)
             if dest_number_campaign:
