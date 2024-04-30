@@ -456,7 +456,7 @@ class AITAPIView(APIView):
     
     def post(self, request, format=None):
         destination_number = request.data.get("destinationNumber")
-        dest_number_campaign = Campaign.objects.select_related('campaign_lead').filter(lead__phone_number=destination_number).first()
+        dest_number_campaign = Campaign.objects.select_related('campaign_lead').filter(campaign_lead__phone_number=destination_number).first()
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
         else:
@@ -474,7 +474,7 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("destinationNumber")
-            dest_number_campaign = Campaign.objects.select_related('campaign_lead').filter(lead__phone_number=destination_number).first()
+            dest_number_campaign = Campaign.objects.select_related('campaign_lead').filter(campaign_lead__phone_number=destination_number).first()
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_1
                 audio_link_3 = dest_number_campaign.audio_link_3
