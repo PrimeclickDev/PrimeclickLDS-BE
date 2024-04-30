@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -70,27 +71,20 @@ class CampaignUploadView(generics.CreateAPIView):
                     if phone_number is not None:
                         # Convert to string and remove spaces
                         phone_number_str = str(phone_number).replace(" ", "")
+                        pattern = re.compile(r'^(\d{1})?(\d{10})$')
 
-                        # Process the phone number based on your requirements
-            # Check if the phone number starts with '+'
-                        if phone_number_str.startswith('+'):
-                            # Remove the '+' and convert the remaining number to an integer
-                            processed_phone_number = int(phone_number_str)
-                        # Check if the phone number starts with '0'
-                        elif phone_number_str.startswith('0'):
-                            # If it starts with '0', prepend '234' and convert it to an integer
-                            processed_phone_number = int(
-                                '+234' + phone_number_str[1:])
-                        # Check if the phone number starts with '2'
-                        elif phone_number_str.startswith('2'):
-                            # If it starts with '2', convert it to an integer
-                            processed_phone_number = int('+' + phone_number_str)
+                        # Check if the phone number matches the pattern
+                        match = pattern.match(phone_number_str)
+                        if match:
+                    # If the phone number starts with '0', strip it and prepend '+234'
+                            if match.group(1) == '0':
+                                processed_phone_number = '+234' + match.group(2)
+                            else:
+                                # If it doesn't start with '0', directly prepend '+234'
+                                processed_phone_number = '+234' + phone_number_str
                         else:
-                            # If none of the conditions are met, prepend '234' and convert it to an integer
-                            processed_phone_number = int(
-                                '+234' + phone_number_str)
-
-                        # Rest of your code...
+                    # If it doesn't match the pattern, handle the error or log it
+                            print(f"Invalid phone number format: {phone_number_str}")
                     else:
                         # Handle the case when phone_number is None
                         processed_phone_number = None
@@ -222,31 +216,24 @@ class LeadFormAPIView(generics.CreateAPIView):
 
         # Process the phone number before saving to the database
         if phone_number is not None:
-                        # Convert to string and remove spaces
+            # Convert to string and remove spaces
             phone_number_str = str(phone_number).replace(" ", "")
+            pattern = re.compile(r'^(\d{1})?(\d{10})$')
 
-            # Process the phone number based on your requirements
-# Check if the phone number starts with '+'
-            if phone_number_str.startswith('+'):
-                # Remove the '+' and convert the remaining number to an integer
-                processed_phone_number = int(phone_number_str)
-            # Check if the phone number starts with '0'
-            elif phone_number_str.startswith('0'):
-                # If it starts with '0', prepend '234' and convert it to an integer
-                processed_phone_number = int(
-                    '+234' + phone_number_str[1:])
-            # Check if the phone number starts with '2'
-            elif phone_number_str.startswith('2'):
-                # If it starts with '2', convert it to an integer
-                processed_phone_number = int('+' + phone_number_str)
+            # Check if the phone number matches the pattern
+            match = pattern.match(phone_number_str)
+            if match:
+        # If the phone number starts with '0', strip it and prepend '+234'
+                if match.group(1) == '0':
+                    processed_phone_number = '+234' + match.group(2)
+                else:
+                    # If it doesn't start with '0', directly prepend '+234'
+                    processed_phone_number = '+234' + phone_number_str
             else:
-                # If none of the conditions are met, prepend '234' and convert it to an integer
-                processed_phone_number = int(
-                    '+234' + phone_number_str)
-
-            # Rest of your code...
+        # If it doesn't match the pattern, handle the error or log it
+                print(f"Invalid phone number format: {phone_number_str}")
         else:
-                        # Handle the case when phone_number is None
+            # Handle the case when phone_number is None
             processed_phone_number = None
 
         if processed_phone_number:
@@ -459,6 +446,7 @@ class AITAPIView(APIView):
         destination_number = request.data.get("callerNumber")
         print(destination_number)
         dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
+        print("PRINT CAMPAIGN HERE!")
         print(dest_number_campaign)
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
@@ -479,14 +467,13 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
+            print("PRINT CAMPAIGN HERE!")
             print(dest_number_campaign)
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_1
                 audio_link_3 = dest_number_campaign.audio_link_3
             else:
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
-            print(data)
-            print(type(data))
 
             if data  == "1" or data == 1:
                 res = positive_flow(audio_link_2)
