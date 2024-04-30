@@ -175,7 +175,7 @@ class LaunchCallAPIView(APIView):
         # Now you have the nums list and scenario_id, and you can use them in your further logic
         # For example, you can call the `launch` function passing the nums list and scenario_id
         try:
-            make_voice_call(campaign_id, nums)
+            make_voice_call(nums)
             # call_delete(scenario_id)
             return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
