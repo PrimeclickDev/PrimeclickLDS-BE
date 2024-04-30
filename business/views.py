@@ -459,13 +459,15 @@ class AITAPIView(APIView):
         destination_number = request.data.get("destinationNumber")
         print(destination_number)
         dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
+        print(dest_number_campaign)
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
+            xml_data = intro_response(audio_link_1)
+            return HttpResponse(xml_data, content_type='text/xml')
         else:
-            raise Exception("Requested campaign does not exist!")
+            return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
         
-        xml_data = intro_response(audio_link_1)
-        return HttpResponse(xml_data, content_type='text/xml')
+
     
 
 
@@ -477,11 +479,12 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("destinationNumber")
             dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
+            print(dest_number_campaign)
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_1
                 audio_link_3 = dest_number_campaign.audio_link_3
             else:
-                raise("Requested campaign does not exist!")
+                return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
             print(data)
             print(type(data))
 
