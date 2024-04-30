@@ -53,7 +53,7 @@ class Campaign(models.Model):
         max_length=30, choices=TYPE_OF_CAMPAIGN)
     converted = models.IntegerField(default=0)
     contact_option = models.CharField(max_length=30, choices=CONTACT_OPTION)
-    call_scenario_id = models.CharField(max_length=50, null=True, blank=True)
+    # call_scenario_id = id = models.UUIDField(default=uuid.uuid4, editable=False)
     audio_link_1 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_2 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_3 = models.CharField(max_length=100, null=True, blank=True)

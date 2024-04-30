@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework.views import APIView
 import pandas as pd
 from AIT.xlm_res import intro_response, positive_flow, negative_flow, record_call
+from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
@@ -74,20 +75,20 @@ class CampaignUploadView(generics.CreateAPIView):
             # Check if the phone number starts with '+'
                         if phone_number_str.startswith('+'):
                             # Remove the '+' and convert the remaining number to an integer
-                            processed_phone_number = int(phone_number_str[1:])
+                            processed_phone_number = int(phone_number_str)
                         # Check if the phone number starts with '0'
                         elif phone_number_str.startswith('0'):
                             # If it starts with '0', prepend '234' and convert it to an integer
                             processed_phone_number = int(
-                                '234' + phone_number_str[1:])
+                                '+234' + phone_number_str[1:])
                         # Check if the phone number starts with '2'
                         elif phone_number_str.startswith('2'):
                             # If it starts with '2', convert it to an integer
-                            processed_phone_number = int(phone_number_str)
+                            processed_phone_number = int('+' + phone_number_str)
                         else:
                             # If none of the conditions are met, prepend '234' and convert it to an integer
                             processed_phone_number = int(
-                                '234' + phone_number_str)
+                                '+234' + phone_number_str)
 
                         # Rest of your code...
                     else:
@@ -138,19 +139,18 @@ class CallCreateAPIView(generics.UpdateAPIView):
         audio1 = user_data.get('audio_link_1')
         audio2 = user_data.get('audio_link_2')
         audio3 = user_data.get('audio_link_3')
-        scenario_id = call(audio1, audio2,  audio3)
+        # scenario_id = call(audio1, audio2,  audio3)
 
         campaign = self.get_object()  # Retrieve the Campaign object
         serializer.save(
-            call_scenario_id=scenario_id,
+            # call_scenario_id=scenario_id,
             audio_link_1=audio1,
             audio_link_2=audio2,
             audio_link_3=audio3
         )
 
         return Response(
-            {"message": "Update successful", "scenario_id": scenario_id,
-                "campaign_id": campaign.id},  # Use campaign.id
+            {"message": "Update successful", "campaign_id": campaign.id},  # Use campaign.id
             status=status.HTTP_200_OK
         )
 
@@ -170,13 +170,13 @@ class LaunchCallAPIView(APIView):
             campaign=campaign).values_list('phone_number', flat=True)
         nums = [number for number in leads_phone_numbers]
 
-        scenario_id = campaign.call_scenario_id
+        # scenario_id = campaign.call_scenario_id
 
         # Now you have the nums list and scenario_id, and you can use them in your further logic
         # For example, you can call the `launch` function passing the nums list and scenario_id
         try:
-            launch(nums, scenario_id)
-            call_delete(scenario_id)
+            make_voice_call(campaign_id, nums)
+            # call_delete(scenario_id)
             return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
@@ -221,30 +221,37 @@ class LeadFormAPIView(generics.CreateAPIView):
 
         # Process the phone number before saving to the database
         if phone_number is not None:
-            # Convert to string and remove spaces
+                        # Convert to string and remove spaces
             phone_number_str = str(phone_number).replace(" ", "")
 
             # Process the phone number based on your requirements
 # Check if the phone number starts with '+'
             if phone_number_str.startswith('+'):
                 # Remove the '+' and convert the remaining number to an integer
-                processed_phone_number = int(phone_number_str[1:])
+                processed_phone_number = int(phone_number_str)
             # Check if the phone number starts with '0'
             elif phone_number_str.startswith('0'):
                 # If it starts with '0', prepend '234' and convert it to an integer
-                processed_phone_number = int('234' + phone_number_str[1:])
+                processed_phone_number = int(
+                    '+234' + phone_number_str[1:])
             # Check if the phone number starts with '2'
             elif phone_number_str.startswith('2'):
                 # If it starts with '2', convert it to an integer
-                processed_phone_number = int(phone_number_str)
+                processed_phone_number = int('+' + phone_number_str)
             else:
                 # If none of the conditions are met, prepend '234' and convert it to an integer
-                processed_phone_number = int('234' + phone_number_str)
+                processed_phone_number = int(
+                    '+234' + phone_number_str)
 
-            # Update the phone number in the lead data
+            # Rest of your code...
+        else:
+                        # Handle the case when phone_number is None
+            processed_phone_number = None
+
+        if processed_phone_number:
             lead['phone_number'] = processed_phone_number
 
-            num = [{"to": processed_phone_number}]
+            num = [processed_phone_number]
         else:
             num = []
 
@@ -252,11 +259,10 @@ class LeadFormAPIView(generics.CreateAPIView):
 
         campaign.leads += 1
         campaign.save()
-        scenario_id = campaign.call_scenario_id
+        # scenario_id = campaign.call_scenario_id
 
         try:
-            launch(num, scenario_id)
-            call_delete()
+            make_voice_call(campaign_id, num)
             return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
@@ -449,7 +455,14 @@ class AITAPIView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request, format=None):
-        xml_data = intro_response()
+        destination_number = request.data.get("destinationNumber")
+        dest_number_campaign = Campaign.objects.select_related('lead').filter(lead__phone_number=destination_number).first()
+        if dest_number_campaign:
+            audio_link_1 = dest_number_campaign.audio_link_1
+        else:
+            raise("Requested campaign does not exist!")
+        
+        xml_data = intro_response(audio_link_1)
         return HttpResponse(xml_data, content_type='text/xml')
     
 
@@ -460,14 +473,21 @@ class AITFlowAPIView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data.get("dtmfDigits")
+            destination_number = request.data.get("destinationNumber")
+            dest_number_campaign = Campaign.objects.select_related('lead').filter(lead__phone_number=destination_number).first()
+            if dest_number_campaign:
+                audio_link_2 = dest_number_campaign.audio_link_1
+                audio_link_3 = dest_number_campaign.audio_link_3
+            else:
+                raise("Requested campaign does not exist!")
             print(data)
             print(type(data))
 
             if data  == "1" or data == 1:
-                res = positive_flow()
+                res = positive_flow(audio_link_2)
                 return HttpResponse(res, content_type='text/xml')
             elif data == "2" or data == 2:
-                res = negative_flow()
+                res = negative_flow(audio_link_3)
                 return HttpResponse(res, content_type='text/xml')
             else:
                 # Provide a default response if the condition isn't met
