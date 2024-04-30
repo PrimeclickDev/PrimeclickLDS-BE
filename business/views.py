@@ -462,7 +462,7 @@ class AITAPIView(APIView):
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
         else:
-            raise("Requested campaign does not exist!")
+            raise Exception("Requested campaign does not exist!")
         
         xml_data = intro_response(audio_link_1)
         return HttpResponse(xml_data, content_type='text/xml')
