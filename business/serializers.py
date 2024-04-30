@@ -61,7 +61,7 @@ class ContactOptionSerializer(serializers.ModelSerializer):
 class CallAudioLinksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Campaign
-        fields = ("call_scenario_id", "audio_link_1",
+        fields = ("audio_link_1",
                   "audio_link_2", "audio_link_3", "audio_link_4")
 
 
