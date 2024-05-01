@@ -450,6 +450,7 @@ class AITAPIView(APIView):
         print(dest_number_campaign)
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
+            print(audio_link_1)
             xml_data = intro_response(audio_link_1)
             return HttpResponse(xml_data, content_type='text/xml')
         else:
