@@ -165,14 +165,9 @@ class LaunchCallAPIView(APIView):
         nums = [number for number in leads_phone_numbers]
         print(nums)
 
-        # scenario_id = campaign.call_scenario_id
-
-        # Now you have the nums list and scenario_id, and you can use them in your further logic
-        # For example, you can call the `launch` function passing the nums list and scenario_id
         try:
             make_voice_call(nums)
-            # call_delete(scenario_id)
-            return Response({"message": "Call launched and scenario deleted successfully"})
+            return Response({"message": "Call launched successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
