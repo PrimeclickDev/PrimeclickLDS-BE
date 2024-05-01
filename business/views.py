@@ -443,7 +443,9 @@ class AITAPIView(APIView):
         destination_number = request.data.get("callerNumber")
         if destination_number:
             lead = Lead.objects.filter(phone_number=destination_number).first()
+            print("PRINT LEAD HERE")
             lead.status = "Contacted"
+            print(lead.status)
         print(destination_number)
         dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
         print("PRINT CAMPAIGN HERE!")
@@ -468,6 +470,8 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             lead = Lead.objects.filter(phone_number=destination_number).first()
+            print("PRINT LEAD HERE")
+            print(lead)
             dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
             print("PRINT CAMPAIGN HERE!")
             print(dest_number_campaign)
