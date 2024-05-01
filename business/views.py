@@ -244,20 +244,19 @@ class LeadFormAPIView(generics.CreateAPIView):
 
         campaign.leads += 1
         campaign.save()
-      
-
-        try:
-            make_voice_call(num)
-            return Response({"message": "Call launched and scenario deleted successfully"})
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        response_data = {"message": "Lead added successfully"}
-        return Response(response_data, status=status.HTTP_200_OK)
+        try:
+            make_voice_call(self.num)
+            call_suc_res = {"message": "Call launched and scenario deleted successfully"}
+            response_data = {"message": "Lead added successfully"}
+            return Response(response_data, call_suc_res, status=status.HTTP_200_OK)
+        except Exception as e:
+            call_fail_res = {"error": str(e)}
+            return Response(call_fail_res, status=500)
 
 
 class LeadListAPIView(generics.ListAPIView):
