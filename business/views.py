@@ -213,28 +213,24 @@ class LeadFormAPIView(generics.CreateAPIView):
         lead = serializer.validated_data
         phone_number = lead['phone_number']
 
-        # Process the phone number before saving to the database
         if phone_number is not None:
-            # Convert to string and remove spaces
             phone_number_str = str(phone_number).replace(" ", "")
             pattern = re.compile(r'^(\+?\d{1,3})?(\d{10})$')
 
-            # Check if the phone number matches the pattern
             match = pattern.match(phone_number_str)
             if match:
-        # If the phone number starts with '0', strip it and prepend '+234'
                 if match.group(1) == '0':
                         processed_phone_number = '+234' + match.group(2)
-                elif match.group(1) == '234':  # If the phone number starts with '234', add '+'
+                elif match.group(1) == '234':  
                     processed_phone_number = '+' + match.group(1) + match.group(2)
                 else:
-                    # If it doesn't start with '0' or '234', directly prepend '+234'
+                    
                     processed_phone_number = '+234' + phone_number_str
             else:
-        # If it doesn't match the pattern, handle the error or log it
+       
                 print(f"Invalid phone number format: {phone_number_str}")
         else:
-            # Handle the case when phone_number is None
+           
             processed_phone_number = None
 
         if processed_phone_number:
@@ -248,7 +244,7 @@ class LeadFormAPIView(generics.CreateAPIView):
 
         campaign.leads += 1
         campaign.save()
-        # scenario_id = campaign.call_scenario_id
+      
 
         try:
             make_voice_call(campaign_id, num)
@@ -445,6 +441,9 @@ class AITAPIView(APIView):
     
     def post(self, request, format=None):
         destination_number = request.data.get("callerNumber")
+        if destination_number:
+            lead = Lead.objects.filter(phone_number=destination_number).first()
+            lead.status = "Contacted"
         print(destination_number)
         dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
         print("PRINT CAMPAIGN HERE!")
@@ -468,6 +467,7 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
+            lead = Lead.objects.filter(phone_number=destination_number).first()
             dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
             print("PRINT CAMPAIGN HERE!")
             print(dest_number_campaign)
@@ -479,9 +479,11 @@ class AITFlowAPIView(APIView):
 
             if data  == "1" or data == 1:
                 res = positive_flow(audio_link_2)
+                lead.contacted_status = "Converted"
                 return HttpResponse(res, content_type='text/xml')
             elif data == "2" or data == 2:
                 res = negative_flow(audio_link_3)
+                lead.contacted_status = "Rejected"
                 return HttpResponse(res, content_type='text/xml')
             else:
                 # Provide a default response if the condition isn't met
