@@ -210,53 +210,46 @@ class LeadFormAPIView(generics.CreateAPIView):
         campaign_id = self.kwargs.get('campaign_id')
         campaign = get_object_or_404(Campaign, id=campaign_id)
 
-        lead = serializer.validated_data
-        phone_number = lead['phone_number']
+        lead_data = serializer.validated_data
+        phone_number = lead_data.get('phone_number')
 
         if phone_number is not None:
+            # Process phone number
             phone_number_str = str(phone_number).replace(" ", "")
             pattern = re.compile(r'^(\+?\d{1,3})?(\d{10})$')
-
             match = pattern.match(phone_number_str)
             if match:
                 if match.group(1) == '0':
-                        processed_phone_number = '+234' + match.group(2)
+                    processed_phone_number = '+234' + match.group(2)
                 elif match.group(1) == '234':  
                     processed_phone_number = '+' + match.group(1) + match.group(2)
                 else:
-                    
                     processed_phone_number = '+234' + phone_number_str
             else:
-       
                 print(f"Invalid phone number format: {phone_number_str}")
         else:
-           
             processed_phone_number = None
 
         if processed_phone_number:
-            lead['phone_number'] = processed_phone_number
-
-            num = [processed_phone_number]
+            lead_data['phone_number'] = processed_phone_number
         else:
-            num = []
+            # If phone number is invalid or None, handle it accordingly
+            pass
 
-        lead_instance = serializer.save(campaign=campaign)
+        # Create Lead object and associate it with the campaign
+        lead_instance = Lead.objects.create(campaign=campaign, **lead_data)
 
+        # Increment leads count of the campaign
         campaign.leads += 1
         campaign.save()
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        # Call the function
+        num = [processed_phone_number] if processed_phone_number else []
         try:
-            make_voice_call(self.num)
-            call_suc_res = {"message": "Call launched and scenario deleted successfully"}
-            response_data = {"message": "Lead added successfully"}
-            return Response(response_data, call_suc_res, status=status.HTTP_200_OK)
+            make_voice_call(num)
+            return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
-            call_fail_res = {"error": str(e)}
-            return Response(call_fail_res, status=500)
+            return Response({"error": str(e)}, status=500)
 
 
 class LeadListAPIView(generics.ListAPIView):
