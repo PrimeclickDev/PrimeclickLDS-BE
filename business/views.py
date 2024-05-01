@@ -445,6 +445,7 @@ class AITAPIView(APIView):
             lead = Lead.objects.filter(phone_number=destination_number).first()
             print("PRINT LEAD HERE")
             lead.status = "Contacted"
+            lead.save()
             print(lead.status)
         print(destination_number)
         dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
@@ -484,10 +485,12 @@ class AITFlowAPIView(APIView):
             if data  == "1" or data == 1:
                 res = positive_flow(audio_link_2)
                 lead.contacted_status = "Converted"
+                lead.save()
                 return HttpResponse(res, content_type='text/xml')
             elif data == "2" or data == 2:
                 res = negative_flow(audio_link_3)
                 lead.contacted_status = "Rejected"
+                lead.save()
                 return HttpResponse(res, content_type='text/xml')
             else:
                 # Provide a default response if the condition isn't met
