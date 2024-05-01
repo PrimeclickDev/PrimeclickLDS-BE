@@ -21,8 +21,7 @@ def make_voice_call(to_numbers):
         response = requests.post(url, headers=headers, data=payload)
         if response.status_code == 201 or response.status_code == 200:
             print("Call initiated successfully")
-            # print(payload['to'])
-            # Print the response data
+
             print("Response data:", response.json())
             return response.json()['entries'][0]['sessionId']
         else:
@@ -30,13 +29,3 @@ def make_voice_call(to_numbers):
     except Exception as e:
         print("Encountered an error while making the call:", str(e))
 
-
-# Example usage with your provided numbers
-# username = os.getenv("AIT_USERNAME")
-# username = settings.AIT_USERNAME
-# api_key = os.getenv("AIT_API_KEY")
-# api_key = settings.AIT_API_KEY
-# from_number = "+2347080629896"
-# to_numbers = ["+2348120148527", "+2348166590317", "+2349027538937"]
-
-# make_voice_call(username, api_key, from_number, to_numbers)
