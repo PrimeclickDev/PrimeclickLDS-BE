@@ -73,7 +73,7 @@ class CampaignUploadView(generics.CreateAPIView):
                     processed_number = format_number_before_save(phone_number)
                     if processed_number:
                         lead_data['phone_number'] = processed_number
-                        
+
                 elif 'email' in column.lower():
                     lead_data['email'] = row[column]
                 # Add more conditions for other keywords or fields as needed
@@ -339,7 +339,7 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
         if existing_record:
             # If a record exists, inform the user
             raise serializers.ValidationError(
-                "A form design already exists for this campaign.")
+                "A form design already exists for this campaign.", code=status.HTTP_409_CONFLICT)
         else:
             # If no record exists, create a new one
             serializer.save(campaign=campaign)
