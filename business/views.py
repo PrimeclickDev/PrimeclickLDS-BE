@@ -8,6 +8,7 @@ from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
+from backend.utils import format_number_before_save
 from infobip_utils.create_call import call
 from infobip_utils.delete_call import call_delete
 from infobip_utils.launch_call import launch
@@ -69,31 +70,10 @@ class CampaignUploadView(generics.CreateAPIView):
                     # Process phone numbers
                     phone_number = row[column]
 
-                    # Check if phone_number is not None
-                    if phone_number is not None:
-                        # Convert to string and remove spaces
-                        phone_number_str = str(phone_number).replace(" ", "")
-                        pattern = re.compile(r'^(\+?\d{1,3})?(\d{10})$')
-
-                        # Check if the phone number matches the pattern
-                        match = pattern.match(phone_number_str)
-                        if match:
-                            # If the phone number starts with '0', strip it and prepend '+234'
-                            if match.group(1) == '0':
-                                processed_phone_number = '+234' + match.group(2)
-                            elif match.group(1) == '234':  # If the phone number starts with '234', add '+'
-                                processed_phone_number = '+' + match.group(1) + match.group(2)
-                            else:
-                                # If it doesn't start with '0' or '234', directly prepend '+234'
-                                processed_phone_number = '+234' + phone_number_str
-                        else:
-                            # If it doesn't match the pattern, handle the error or log it
-                            print(f"Invalid phone number format: {phone_number_str}")
-                    else:
-                        # Handle the case when phone_number is None
-                        processed_phone_number = None
-
-                    lead_data['phone_number'] = processed_phone_number
+                    processed_number = format_number_before_save(phone_number)
+                    if processed_number:
+                        lead_data['phone_number'] = processed_number
+                        
                 elif 'email' in column.lower():
                     lead_data['email'] = row[column]
                 # Add more conditions for other keywords or fields as needed
@@ -213,25 +193,10 @@ class LeadFormAPIView(generics.CreateAPIView):
         lead_data = serializer.validated_data
         phone_number = lead_data.get('phone_number')
 
-        if phone_number is not None:
-            # Process phone number
-            phone_number_str = str(phone_number).replace(" ", "")
-            pattern = re.compile(r'^(\+?\d{1,3})?(\d{10})$')
-            match = pattern.match(phone_number_str)
-            if match:
-                if match.group(1) == '0':
-                    processed_phone_number = '+234' + match.group(2)
-                elif match.group(1) == '234':  
-                    processed_phone_number = '+' + match.group(1) + match.group(2)
-                else:
-                    processed_phone_number = '+234' + phone_number_str
-            else:
-                print(f"Invalid phone number format: {phone_number_str}")
-        else:
-            processed_phone_number = None
+        processed_number = format_number_before_save(phone_number)
 
-        if processed_phone_number:
-            lead_data['phone_number'] = processed_phone_number
+        if processed_number:
+            lead_data['phone_number'] = processed_number
         else:
             # If phone number is invalid or None, handle it accordingly
             pass
@@ -244,7 +209,7 @@ class LeadFormAPIView(generics.CreateAPIView):
         campaign.save()
 
         # Call the function
-        num = [processed_phone_number] if processed_phone_number else []
+        num = [processed_number] if processed_number else []
         try:
             make_voice_call(num)
             return Response({"message": "Call launched and scenario deleted successfully"})

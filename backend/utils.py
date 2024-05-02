@@ -1,31 +1,30 @@
-# import requests
+import re
 
-# from .settings import SENDCHAMP_API_KEY 
 
-# def send_email(to_email, otp):
-#     sendchamp_url = 'https://api.sendchamp.com/api/v1/verification/create'
+def format_number_before_save(phone_number):
+    if phone_number is not None:
+        # Convert to string and remove spaces
+        phone_number_str = str(phone_number).replace(" ", "")
+        pattern = re.compile(r'^(\+?\d{1,3})?(\d{10})$')
 
-#     headers = {
-#         'Authorization': f'Bearer {SENDCHAMP_API_KEY}',
-#         'Content-Type': 'application/json',
-#     }
-
-#     payload = {
-#         "channel": "email",
-#         "sender": "PrimeClick Media",
-#         "token_type": "numeric",
-#         "token_length": 4,
-#         "expiration_time": 5,
-#         "customer_email_address": to_email,
-#         "customer_mobile_number": "",
-#         "meta_data": {},
-#         "token": otp
-#     }
-
-#     response = requests.request('POST', sendchamp_url, headers=headers, json=payload)
-#     #     response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
-#     #     return response.json()  # Response data if needed
-#     # except requests.exceptions.RequestException as e:
-#     #     # Handle request exceptions (e.g., network errors)
-#     #     print(f"SendChamp API request failed: {e}")
-#     #     return None
+        # Check if the phone number matches the pattern
+        match = pattern.match(phone_number_str)
+        if match:
+            # If the phone number starts with '0', strip it and prepend '+234'
+            if match.group(1) == '+234':
+                processed_phone_number = phone_number_str
+            # If the phone number starts with '0', strip it and prepend '+234'
+            elif match.group(1) == '0':
+                processed_phone_number = '+234' + match.group(2)
+            elif match.group(1) == '234':  # If the phone number starts with '234', add '+'
+                processed_phone_number = '+' + match.group(1) + match.group(2)
+            else:
+                # If it doesn't start with '0' or '234', directly prepend '+234'
+                processed_phone_number = '+234' + phone_number_str
+        else:
+            # If it doesn't match the pattern, handle the error or log it
+            print(f"Invalid phone number format: {phone_number_str}")
+    else:
+        # Handle the case when phone_number is None
+        processed_phone_number = None
+    return processed_phone_number
