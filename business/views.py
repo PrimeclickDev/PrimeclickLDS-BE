@@ -117,11 +117,9 @@ class CallCreateAPIView(generics.UpdateAPIView):
         audio1 = user_data.get('audio_link_1')
         audio2 = user_data.get('audio_link_2')
         audio3 = user_data.get('audio_link_3')
-        # scenario_id = call(audio1, audio2,  audio3)
 
-        campaign = self.get_object()  # Retrieve the Campaign object
+        campaign = self.get_object() 
         serializer.save(
-            # call_scenario_id=scenario_id,
             audio_link_1=audio1,
             audio_link_2=audio2,
             audio_link_3=audio3
@@ -198,13 +196,10 @@ class LeadFormAPIView(generics.CreateAPIView):
         if processed_number:
             lead_data['phone_number'] = processed_number
         else:
-            # If phone number is invalid or None, handle it accordingly
             pass
 
-        # Create Lead object and associate it with the campaign
         lead_instance = Lead.objects.create(campaign=campaign, **lead_data)
 
-        # Increment leads count of the campaign
         campaign.leads += 1
         campaign.save()
 
@@ -261,14 +256,6 @@ class LeadDetailAPIView(generics.RetrieveAPIView):
     lookup_field = 'id'
     lookup_url_kwarg = 'lead_id'
 
-    # def get_object(self):
-    #     # Get the lead_id from the URL
-    #     lead_id = self.kwargs.get('lead_id')
-
-    #     # Get the lead based on lead_id
-    #     lead = get_object_or_404(self.get_queryset(), id=lead_id)
-
-    #     return lead
 
 
 class CampaignListAPIView(generics.ListAPIView):
@@ -283,47 +270,6 @@ class CampaignListAPIView(generics.ListAPIView):
         # print(campaigns)
 
         return campaigns
-
-
-class CallReportAPIView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        try:
-            print(request.data)
-            data = request.data.get('results', [])[0]
-            to_number = data.get('to')
-            scenario_id = data.get('voiceCall', {}).get(
-                'ivr', {}).get('scenarioId')
-            print(data)
-
-            campaign = Campaign.objects.get(call_scenario_id=scenario_id)
-            lead = campaign.campaign_lead.filter(
-                phone_number=to_number).first()
-            call_report, created = CallReport.objects.get_or_create(
-                lead=lead, campaign=campaign, report=data)
-
-            if created:
-                # If a new instance was created, update the lead status
-                lead.status = "Contacted"
-                if call_report.report.get('voiceCall', {}).get('dtmfCodes'):
-                    call_report_status = call_report.report.get('voiceCall', {}).get('dtmfCodes').split(',')[
-                        0]
-                    if call_report_status == '1':
-                        lead.contacted_status = "Converted"
-                    elif call_report_status == '2':
-                        lead.contacted_status = "Rejected"
-                    else:
-                        lead.contacted_status = "Rejected"
-            else:
-                # If an existing instance was retrieved, no need to update the lead status
-                pass
-
-            lead.save()
-            return Response(status=status.HTTP_201_CREATED)
-
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class FormDesignCreateAPIView(generics.CreateAPIView):
@@ -400,17 +346,13 @@ class AITAPIView(APIView):
         destination_number = request.data.get("callerNumber")
         if destination_number:
             lead = Lead.objects.filter(phone_number=destination_number).first()
-            print("PRINT LEAD HERE")
             lead.status = "Contacted"
             lead.save()
             print(lead.status)
         print(destination_number)
         dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
-        print("PRINT CAMPAIGN HERE!")
-        print(dest_number_campaign)
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
-            print(audio_link_1)
             xml_data = intro_response(audio_link_1)
             return HttpResponse(xml_data, content_type='text/xml')
         else:
