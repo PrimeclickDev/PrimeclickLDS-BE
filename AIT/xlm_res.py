@@ -5,8 +5,7 @@ def intro_response(audio1):
     response += f'<Play url="{audio1}">'
     response += '</Play>'
     response += '</GetDigits>'
-    response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callBackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
-    response += '</Record>'
+    response += '<Record />'
     response += '</Response>'
     return response
 
