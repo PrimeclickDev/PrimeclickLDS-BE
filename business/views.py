@@ -13,7 +13,7 @@ from infobip_utils.create_call import call
 from infobip_utils.delete_call import call_delete
 from infobip_utils.launch_call import launch
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import FormDesign, Lead, Campaign, Business, CallReport
+from .models import FormDesign, Lead, Campaign, Business
 from django.db import transaction
 # from launch_call import arrange_nums, launch
 import time
@@ -26,7 +26,7 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           LeadUploadSerializer,
                           CampaignNameSerializer,
                           CampaginSerializer,
-                          GoogleSheetURLSerializer, CallReportSerializer)
+                          GoogleSheetURLSerializer)
 
 
 class CampaignUploadView(generics.CreateAPIView):

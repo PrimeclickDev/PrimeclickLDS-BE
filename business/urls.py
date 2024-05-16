@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (AITAPIView, AITFlowAPIView, AITRecordAPIView, CallCreateAPIView, CallReportAPIView, CampaignUploadView,
+from .views import (AITAPIView, AITFlowAPIView, AITRecordAPIView, CallCreateAPIView, CampaignUploadView,
                     ContactOptionAPIView, FormDesignCreateAPIView, FormDesignRetrieveAPIView, FormDesignUpdateAPIView,
                     LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView,
                     LeadListAPIView, CampaignNameAPIView, CampaignListAPIView)
