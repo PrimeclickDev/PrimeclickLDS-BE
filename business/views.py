@@ -115,6 +115,7 @@ class CallCreateAPIView(generics.UpdateAPIView):
     def perform_update(self, serializer):
         user_data = self.request.data
         audio1 = user_data.get('audio_link_1')
+        print("CHECKING---------", audio1)
         audio2 = user_data.get('audio_link_2')
         audio3 = user_data.get('audio_link_3')
 
