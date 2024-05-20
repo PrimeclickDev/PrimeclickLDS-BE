@@ -346,7 +346,7 @@ class AITAPIView(APIView):
     def post(self, request, format=None):
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
-        print("SESSION ID HERE-------", type(session_id))
+        print("SESSION ID HERE-------", session_id)
 
         # Ensure session_id is properly formatted
         if session_id:

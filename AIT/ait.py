@@ -37,11 +37,11 @@ def make_voice_call(nums, camp_id):
                     session_id = response.json().get('entries', [{}])[0].get('sessionId')
                     if session_id:
                         if campaign.call_session_id:
-                            print(f"Existing call session ID: {type(campaign.call_session_id)}")
+                            print(f"Existing call session ID: {campaign.call_session_id}")
                         else:
                             campaign.call_session_id = str(session_id)
                             campaign.save()
-                            print("New session ID saved to campaign:", type(campaign.call_session_id))
+                            print("New session ID saved to campaign:", campaign.call_session_id)
                         # session_ids.append(session_id)
                     else:
                         print(f"No session ID found in the response for {num}")
