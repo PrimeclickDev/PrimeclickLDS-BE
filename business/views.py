@@ -346,6 +346,7 @@ class AITAPIView(APIView):
     def post(self, request, format=None):
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
+        print("SESSION ID HERE-------", session_id)
         dest_number_campaign = Campaign.objects.get(call_session_id=session_id)
         print("CAMPAIGN HERE-------", dest_number_campaign)
         if destination_number:
