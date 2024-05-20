@@ -342,28 +342,32 @@ class FormDesignUpdateAPIView(generics.UpdateAPIView):
 
 class AITAPIView(APIView):
     permission_classes = [AllowAny]
-    
+
     def post(self, request, format=None):
         destination_number = request.data.get("callerNumber")
-        # session_id = str(request.data.get("sessionId"))
-        # print("SESSION ID HERE-------", session_id)
-        dest_number_campaign = Campaign.objects.filter(call_session_id=request.data.get("sessionId")).first()
+        session_id = request.data.get("sessionId")
+        print("SESSION ID HERE-------", session_id)
+
+        # Ensure session_id is properly formatted
+        if session_id:
+            session_id = str(session_id).strip()
+
+        dest_number_campaign = Campaign.objects.filter(call_session_id=session_id).first()
         print("CAMPAIGN HERE-------", dest_number_campaign)
+
         if destination_number:
             lead = Lead.objects.filter(phone_number=destination_number, campaign=dest_number_campaign).first()
             print("LEAD HERE-------", lead)
             if lead:
                 lead.status = "Contacted"
                 lead.save()
+
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
             xml_data = intro_response(audio_link_1)
             return HttpResponse(xml_data, content_type='text/xml')
         else:
             return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
-        
-
-    
 
 
 class AITFlowAPIView(APIView):
