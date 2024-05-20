@@ -7,7 +7,7 @@ load_dotenv()
 
 
 def make_voice_call(nums, camp_id):
-    from business.models import Campaign
+    from business.models import Campaign, Lead
     url = 'https://voice.africastalking.com/call'
     headers = {
         'Accept': 'application/json',
@@ -24,6 +24,7 @@ def make_voice_call(nums, camp_id):
         return session_ids
 
     for num in nums:
+        lead = Lead.objects.filter(campaign=campaign, phone_number=num).first()
         payload = {
             'username': settings.AIT_USERNAME,
             'to': num,
@@ -36,12 +37,12 @@ def make_voice_call(nums, camp_id):
                 try:
                     session_id = response.json().get('entries', [{}])[0].get('sessionId')
                     if session_id:
-                        if campaign.call_session_id:
-                            print(f"Existing call session ID: {campaign.call_session_id}")
+                        if lead.call_session_id:
+                            print(f"Existing call session ID: {lead.call_session_id}")
                         else:
-                            campaign.call_session_id = str(session_id)
-                            campaign.save()
-                            print("New session ID saved to campaign:", campaign.call_session_id)
+                            lead.call_session_id = session_id
+                            lead.save()
+                            print("New session ID saved to campaign:", lead.call_session_id)
                         # session_ids.append(session_id)
                     else:
                         print(f"No session ID found in the response for {num}")

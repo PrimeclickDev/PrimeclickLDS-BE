@@ -348,19 +348,21 @@ class AITAPIView(APIView):
         session_id = request.data.get("sessionId")
         print("SESSION ID HERE-------", session_id)
 
-        # Ensure session_id is properly formatted
-        if session_id:
-            session_id = str(session_id).strip()
+        # if session_id:
+        #     session_id = str(session_id).strip()
 
-        dest_number_campaign = Campaign.objects.filter(call_session_id=session_id).first()
-        print("CAMPAIGN HERE-------", dest_number_campaign)
+        # Fetch the lead with the related campaign in a single query
+        lead = Lead.objects.select_related('campaign').filter(call_session_id=session_id,
+                                                              phone_number=destination_number).first()
+        print("LEAD HERE-------", lead)
 
-        if destination_number:
-            lead = Lead.objects.filter(phone_number=destination_number, campaign=dest_number_campaign).first()
-            print("LEAD HERE-------", lead)
-            if lead:
-                lead.status = "Contacted"
-                lead.save()
+        if lead:
+            # Access the related campaign from the lead object
+            dest_number_campaign = lead.campaign
+            lead.status = "Contacted"
+            lead.save()
+        else:
+            dest_number_campaign = None
 
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
@@ -378,10 +380,11 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             # record_url = request.data.get("recordingUrl")
-            # session_id = str(request.data.get("sessionId"))
-            dest_number_campaign = Campaign.objects.filter(call_session_id=request.data.get("sessionId")).first()
+            session_id = request.data.get("sessionId")
+            lead = Lead.objects.select_related('campaign').filter(call_session_id=session_id,
+                                                                  phone_number=destination_number).first()
             # print("RECORDING ---------- ", record_url)
-            lead = Lead.objects.filter(phone_number=destination_number, campaign=dest_number_campaign).first()
+            dest_number_campaign = lead.campaign
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
                 audio_link_3 = dest_number_campaign.audio_link_3

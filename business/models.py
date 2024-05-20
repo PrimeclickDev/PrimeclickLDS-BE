@@ -58,7 +58,6 @@ class Campaign(models.Model):
     audio_link_2 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_3 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_4 = models.CharField(max_length=100, null=True, blank=True)
-    call_session_id = models.CharField(max_length=100, null=True, blank=True)
 
     # actions = models.CharField(max_length=50, blank=True, null=True)
 
@@ -96,6 +95,7 @@ class Lead(models.Model):
     contacted_status = models.CharField(
         max_length=20, choices=CONTACTED_CHOICES, blank=True, null=True)
     actions = models.CharField(max_length=255)
+    call_session_id = models.CharField(max_length=100, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.id:
