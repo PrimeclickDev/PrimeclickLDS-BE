@@ -4,7 +4,8 @@ from backend import settings
 import os
 load_dotenv()
 
-def make_voice_call(nums):
+def make_voice_call(nums, camp_id):
+    from business.models import Campaign
     url = 'https://voice.africastalking.com/call'
     headers = {
         'Accept': 'application/json',
@@ -24,12 +25,15 @@ def make_voice_call(nums):
             response = requests.post(url, headers=headers, data=payload)
             if response.status_code == 201 or response.status_code == 200:
                 print(f"Call initiated successfully for {num}")
-                session_ids.append(response.json()['entries'][0]['sessionId'])
+                session_id = response.json()['entries'][0]['sessionId']
+                session_ids.append(session_id)
             else:
                 print(f"Failed to initiate call for {num}. Status code:", response.status_code)
         except Exception as e:
             print("Encountered an error while making the call for", num, ":", str(e))
 
-        print(session_ids)
+    campaign = Campaign.objects.get(id=camp_id)
+    campaign.call_session_id = session_ids[0]
+    campaign.save()
     
     return session_ids

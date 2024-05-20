@@ -149,7 +149,7 @@ class LaunchCallAPIView(APIView):
         print(nums)
 
         try:
-            make_voice_call(nums)
+            make_voice_call(nums, campaign_id)
             return Response({"message": "Call launched successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
@@ -345,13 +345,15 @@ class AITAPIView(APIView):
     
     def post(self, request, format=None):
         destination_number = request.data.get("callerNumber")
+        session_id = request.data.get("sessionId")
+        campaign = Campaign.objects.filter(call_session_id=session_id).first()
         if destination_number:
-            lead = Lead.objects.filter(phone_number=destination_number).first()
+            lead = Lead.objects.filter(phone_number=destination_number, campaign=campaign).first()
             lead.status = "Contacted"
             lead.save()
             print(lead.status)
         print(destination_number)
-        dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
+        dest_number_campaign = campaign
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
             xml_data = intro_response(audio_link_1)
@@ -371,9 +373,11 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             record_url = request.data.get("recordingUrl")
-            print("RECORDING ---------- ", record_url)
-            lead = Lead.objects.filter(phone_number=destination_number).first()
-            dest_number_campaign = Campaign.objects.filter(campaign_lead__phone_number=destination_number).first()
+            session_id = request.data.get("sessionId")
+            campaign = Campaign.objects.filter(call_session_id=session_id).first()
+            # print("RECORDING ---------- ", record_url)
+            lead = Lead.objects.filter(phone_number=destination_number, campaign=campaign).first()
+            dest_number_campaign = campaign
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
                 audio_link_3 = dest_number_campaign.audio_link_3
