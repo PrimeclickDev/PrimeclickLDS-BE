@@ -29,7 +29,7 @@ def make_voice_call(nums, camp_id):
                 session_id = response.json()['entries'][0]['sessionId']
                 # session_ids.append(session_id)
                 if campaign.call_session_id:
-                    campaign.save()
+                    print(f"Existing call session ID: {campaign.call_session_id}")
                 else:
                     campaign.call_session_id = session_id
                     campaign.save()
