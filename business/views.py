@@ -352,7 +352,7 @@ class AITAPIView(APIView):
         #     session_id = str(session_id).strip()
 
         # Fetch the lead with the related campaign in a single query
-        lead = Lead.objects.select_related('campaign').filter(call_session_id=session_id,
+        lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                               phone_number=destination_number).first()
         print("LEAD HERE-------", lead)
 
@@ -381,7 +381,7 @@ class AITFlowAPIView(APIView):
             destination_number = request.data.get("callerNumber")
             # record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
-            lead = Lead.objects.select_related('campaign').filter(call_session_id=session_id,
+            lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
             # print("RECORDING ---------- ", record_url)
             dest_number_campaign = lead.campaign
