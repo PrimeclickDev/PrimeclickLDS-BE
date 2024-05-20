@@ -207,7 +207,7 @@ class LeadFormAPIView(generics.CreateAPIView):
         # Call the function
         num = [processed_number] if processed_number else []
         try:
-            make_voice_call(num)
+            make_voice_call(num, campaign_id)
             return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
