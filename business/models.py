@@ -95,7 +95,6 @@ class Lead(models.Model):
     contacted_status = models.CharField(
         max_length=20, choices=CONTACTED_CHOICES, blank=True, null=True)
     actions = models.CharField(max_length=255)
-    call_session_id = models.CharField(max_length=100, null=True, blank=True)
     session_id = models.CharField(max_length=100, null=True, blank=True)
 
     def save(self, *args, **kwargs):
