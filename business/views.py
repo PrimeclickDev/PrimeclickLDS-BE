@@ -346,15 +346,14 @@ class AITAPIView(APIView):
     def post(self, request, format=None):
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
-        campaign = Campaign.objects.filter(call_session_id=session_id).first()
-        print("CAMPAIGN HERE-------", campaign)
+        dest_number_campaign = Campaign.objects.get(call_session_id=session_id)
+        print("CAMPAIGN HERE-------", dest_number_campaign)
         if destination_number:
-            lead = Lead.objects.filter(phone_number=destination_number, campaign=campaign).first()
+            lead = Lead.objects.filter(phone_number=destination_number, campaign=dest_number_campaign).first()
             print("LEAD HERE-------", lead)
             if lead:
                 lead.status = "Contacted"
                 lead.save()
-        dest_number_campaign = campaign
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
             xml_data = intro_response(audio_link_1)
@@ -375,10 +374,9 @@ class AITFlowAPIView(APIView):
             destination_number = request.data.get("callerNumber")
             record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
-            campaign = Campaign.objects.filter(call_session_id=session_id).first()
+            dest_number_campaign = Campaign.objects.filter(call_session_id=session_id).first()
             # print("RECORDING ---------- ", record_url)
-            lead = Lead.objects.filter(phone_number=destination_number, campaign=campaign).first()
-            dest_number_campaign = campaign
+            lead = Lead.objects.filter(phone_number=destination_number, campaign=dest_number_campaign).first()
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
                 audio_link_3 = dest_number_campaign.audio_link_3
