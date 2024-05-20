@@ -35,20 +35,19 @@ def make_voice_call(nums, camp_id):
                 print(f"Call initiated successfully for {num}")
                 try:
                     session_id = response.json().get('entries', [{}])[0].get('sessionId')
+                    if session_id:
+                        if campaign.call_session_id:
+                            print(f"Existing call session ID: {campaign.call_session_id}")
+                        else:
+                            campaign.call_session_id = str(session_id)
+                            campaign.save()
+                            print("New session ID saved to campaign:", campaign.call_session_id)
+                        # session_ids.append(session_id)
+                    else:
+                        print(f"No session ID found in the response for {num}")
                 except (IndexError, KeyError, TypeError) as e:
                     print(f"Failed to extract sessionId from response for {num}: {e}")
                     continue
-
-                if session_id:
-                    if campaign.call_session_id:
-                        print(f"Existing call session ID: {campaign.call_session_id}")
-                    else:
-                        campaign.call_session_id = str(session_id)
-                        campaign.save()
-                        print("New session ID saved to campaign:", campaign.call_session_id)
-                    session_ids.append(session_id)
-                else:
-                    print(f"No session ID found in the response for {num}")
             else:
                 print(f"Failed to initiate call for {num}. Status code:", response.status_code)
         except requests.RequestException as e:
