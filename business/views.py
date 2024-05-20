@@ -347,12 +347,13 @@ class AITAPIView(APIView):
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
         campaign = Campaign.objects.filter(call_session_id=session_id).first()
+        print("CAMPAIGN HERE-------", campaign)
         if destination_number:
             lead = Lead.objects.filter(phone_number=destination_number, campaign=campaign).first()
-            lead.status = "Contacted"
-            lead.save()
-            print(lead.status)
-        print(destination_number)
+            print("LEAD HERE-------", lead)
+            if lead:
+                lead.status = "Contacted"
+                lead.save()
         dest_number_campaign = campaign
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
