@@ -12,7 +12,7 @@ def make_voice_call(nums):
         'apiKey': settings.AIT_API_KEY
     }
 
-    session_ids = []  # List to store session IDs for each call
+    session_ids = []
 
     for num in nums:
         payload = {
@@ -29,5 +29,7 @@ def make_voice_call(nums):
                 print(f"Failed to initiate call for {num}. Status code:", response.status_code)
         except Exception as e:
             print("Encountered an error while making the call for", num, ":", str(e))
+
+        print(session_ids)
     
     return session_ids
