@@ -43,7 +43,7 @@ def make_voice_call(nums, camp_id):
                     if campaign.call_session_id:
                         print(f"Existing call session ID: {campaign.call_session_id}")
                     else:
-                        campaign.call_session_id = session_id
+                        campaign.call_session_id = str(session_id)
                         campaign.save()
                         print("New session ID saved to campaign:", campaign.call_session_id)
                     session_ids.append(session_id)

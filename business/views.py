@@ -345,9 +345,9 @@ class AITAPIView(APIView):
     
     def post(self, request, format=None):
         destination_number = request.data.get("callerNumber")
-        session_id = request.data.get("sessionId")
+        session_id = str(request.data.get("sessionId"))
         print("SESSION ID HERE-------", session_id)
-        dest_number_campaign = Campaign.objects.get(call_session_id=session_id)
+        dest_number_campaign = Campaign.objects.filter(call_session_id=session_id).first()
         print("CAMPAIGN HERE-------", dest_number_campaign)
         if destination_number:
             lead = Lead.objects.filter(phone_number=destination_number, campaign=dest_number_campaign).first()
@@ -374,7 +374,7 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             record_url = request.data.get("recordingUrl")
-            session_id = request.data.get("sessionId")
+            session_id = str(request.data.get("sessionId"))
             dest_number_campaign = Campaign.objects.filter(call_session_id=session_id).first()
             # print("RECORDING ---------- ", record_url)
             lead = Lead.objects.filter(phone_number=destination_number, campaign=dest_number_campaign).first()
