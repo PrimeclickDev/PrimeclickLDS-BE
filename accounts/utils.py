@@ -1,10 +1,35 @@
 
 from backend import settings
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+from django.template.loader import render_to_string
+import random
+
+
+def generate_otp(length=6):
+    digits = '0123456789'
+    otp = ''.join(random.choices(digits, k=length))
+    return otp
+
 
 def send_otp_via_email(email, otp):
-    subject = 'Your OTP Code'
-    message = f'Your OTP code is {otp}.'
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [email]
-    send_mail(subject, message, email_from, recipient_list)
+    subject = 'Your Autoleads OTP Code'
+    from_email = settings.EMAIL_HOST_USER
+    to_email = [email]
+
+    # Render HTML content
+    html_content = render_to_string('otp.html', {'otp': otp})
+
+    # Create email
+    email_message = EmailMultiAlternatives(subject, '', from_email, to_email)
+    email_message.attach_alternative(html_content, 'text/html')
+    email_message.send()
+
+
+# def send_otp_via_email(email, otp):
+#     subject = 'Your OTP Code'
+#     message = f'Your OTP code is {otp}.'
+#     email_from = settings.EMAIL_HOST_USER
+#     recipient_list = [email]
+#     send_mail(subject, message, email_from, recipient_list)
