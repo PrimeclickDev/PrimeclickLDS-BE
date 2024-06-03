@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import datetime
 import random
 
-from .utils import send_otp_via_email, generate_otp
+from .utils import OtpModule
 
 User = get_user_model()
 
@@ -41,11 +41,12 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         email = serializer.validated_data['email']
 
         # Generate a six-digit OTP
-        otp = generate_otp(length=6)
+        otp_process = OtpModule()
+        otp = otp_process.generate_otp()
         print(otp)
 
         # # Sending the OTP
-        send_otp_via_email(email, otp)
+        otp_process.send_otp_via_email(email)
 
         # Save OTP in user model
         user = serializer.save(is_active=False)
@@ -124,10 +125,12 @@ class ForgotPasswordAPIView(APIView):
             return Response({"message": "No active user found with the provided email."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Generate a six-digit OTP
-        otp = str(random.randint(100000, 999999))
+        otp_process = OtpModule
+        otp = otp_process.generate_otp(length=6)
+        print(otp)
 
-        send_otp_via_email(email, otp)
-        print(email, otp)
+        # # Sending the OTP
+        otp_process.send_otp_via_email(email, otp)
 
         # Save the OTP in the user's session
         request.session['reset_password_otp'] = otp

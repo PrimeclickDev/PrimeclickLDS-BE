@@ -228,8 +228,8 @@ SIMPLE_JWT = {
 #     }
 # }
 
-# GOOGLE_SHEET_API_CREDS = os.path.join(
-#     BASE_DIR, 'autoleads-402705-e07105ff59b4.json')
+GOOGLE_SHEET_API_CREDS = os.path.join(
+    BASE_DIR, 'autoleads-402705-e07105ff59b4.json')
 
 MIN_PASSWORD_LENGTH = 8
 
