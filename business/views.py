@@ -93,6 +93,29 @@ class CampaignUploadView(generics.CreateAPIView):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
+class GoogleSheetWebhookView(APIView):
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        user_data_from_sheet = []
+        full_name = data.get('name')
+        user_data_from_sheet.append(full_name)
+        email = data.get('email')
+        user_data_from_sheet.append(email)
+        phone_number = data.get('phone') or data.get('number')
+        user_data_from_sheet.append(phone_number)
+
+        print("THIS IS THE ADDED DATA FROM  GOOGLE SHEET", user_data_from_sheet)
+
+        # if phone_number:
+        #     phone_number = format_number_before_save(phone_number)
+        #
+        # lead = Lead(full_name=full_name, email=email, phone_number=phone_number)
+        # lead.save()
+
+        return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+
+
+
 class ContactOptionAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
     permission_classes = [IsAuthenticated]

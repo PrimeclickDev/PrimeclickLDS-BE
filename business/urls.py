@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (AITAPIView, AITFlowAPIView, AITRecordAPIView, CallCreateAPIView, CampaignUploadView,
                     ContactOptionAPIView, FormDesignCreateAPIView, FormDesignRetrieveAPIView, FormDesignUpdateAPIView,
                     LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView,
-                    LeadListAPIView, CampaignNameAPIView, CampaignListAPIView)
+                    LeadListAPIView, CampaignNameAPIView, CampaignListAPIView, GoogleSheetWebhookView)
 
 
 urlpatterns = [
@@ -32,5 +32,6 @@ urlpatterns = [
          FormDesignUpdateAPIView.as_view(), name='update-form-design'),         
     path('intro/', AITAPIView.as_view(), name='ait-call-trigger'),
     path('call/user/input/', AITFlowAPIView.as_view(), name='call-user-input'),
-    path('record/call/', AITRecordAPIView.as_view(), name='record-call')
+    path('record/call/', AITRecordAPIView.as_view(), name='record-call'),
+    path('google-sheet-webhook/', GoogleSheetWebhookView.as_view(), name='google_sheet_webhook')
 ]
