@@ -94,6 +94,7 @@ class CampaignUploadView(generics.CreateAPIView):
 
 
 class GoogleSheetWebhookView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         data = request.data
         user_data_from_sheet = []
