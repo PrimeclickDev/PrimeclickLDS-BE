@@ -133,8 +133,5 @@ class FormDesign(models.Model):
         Campaign, on_delete=models.CASCADE, related_name="form_design", to_field="id")
     design = models.TextField()
 
-    class Meta:
-        ordering = ['-created']
-
     def __str__(self):
         return f"{self.campaign}'s form custom design"
