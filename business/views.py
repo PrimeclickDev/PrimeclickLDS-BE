@@ -449,20 +449,20 @@ class GoogleSheetWebhookView(APIView):
         # Map header names to standard keys (name, email, phone)
         for idx, header in enumerate(headers):
             if 'name' in header.lower():
-                extracted_data['name'] = values[idx]
+                extracted_data['full_name'] = values[idx]
             elif 'email' in header.lower():
                 extracted_data['email'] = values[idx]
             elif 'phone' in header.lower():
-                extracted_data['phone'] = values[idx]
+                extracted_data['phone_number'] = values[idx]
 
-        processed_number = format_number_before_save(extracted_data['phone'])
+        processed_number = format_number_before_save(extracted_data['phone_number'])
 
         if processed_number:
-            extracted_data['phone'] = processed_number
+            extracted_data['phone_number'] = processed_number
         else:
             pass
 
-        lead_instance = Lead.objects.create(campaign=campaign, **extracted_data)
+        Lead.objects.create(campaign=campaign, **extracted_data)
         campaign.leads += 1
         campaign.save()
 
