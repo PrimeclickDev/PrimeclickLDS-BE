@@ -27,7 +27,7 @@ class Business(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['created']
+        ordering = ['-created']
 
     def __str__(self):
         return self.name
@@ -65,7 +65,7 @@ class Campaign(models.Model):
     # actions = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        ordering = ['created']
+        ordering = ['-created']
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -105,7 +105,7 @@ class Lead(models.Model):
 
 
     class Meta:
-        ordering = ['created']
+        ordering = ['-created']
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -134,7 +134,7 @@ class FormDesign(models.Model):
     design = models.TextField()
 
     class Meta:
-        ordering = ['created']
+        ordering = ['-created']
 
     def __str__(self):
         return f"{self.campaign}'s form custom design"
