@@ -108,48 +108,31 @@ class GoogleSheetWebhookView(APIView):
         data = request.data
         print("THIS IS THE RAW DATA", data)
 
-        # Extracting values
-        values = data.get('values')
-        if not values or not isinstance(values, list) or len(values) < 1:
+        # Extract values, headers, and sheet_name
+        values = data.get('values', [])
+        headers = data.get('headers', [])
+        sheet_name = data.get('sheet_name', '')  # Get the sheet_name from request data
+
+        # Ensure headers and values are present
+        if not values or not headers or len(values) != len(headers):
             return Response({"error": "Invalid data format"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Initialize variables to store found columns
-        name = None
-        email = None
-        phone = None
+        # Initialize variables to store extracted data
+        extracted_data = {}
 
-        # Mapping of keywords to column headers
-        keywords_mapping = {
-            'name': ['name', 'full_name'],  # Add variations like 'full_name' here
-            'email': ['email', 'email_address'],  # Add variations like 'email_address' here
-            'phone': ['phone', 'phone_number', 'number']  # Add variations like 'phone_number', 'number' here
-        }
-
-        # Loop through the headers (first row) to find columns containing the keywords using icontains
-        headers = values[0] if values else []
+        # Map header names to standard keys (name, email, phone)
         for idx, header in enumerate(headers):
-            for key, keywords in keywords_mapping.items():
-                if not locals()[key] and any(keyword.lower() in header.lower() for keyword in keywords):
-                    locals()[key] = values[0][idx] if len(values[0]) > idx else ''
-
-            # Exit loop early if all columns are found
-            if name and email and phone:
-                break
-
-        # Check if all required columns were found
-        if not (name and email and phone):
-            return Response({"error": "Missing required columns"}, status=status.HTTP_400_BAD_REQUEST)
-
-        extracted_data = {
-            'name': name,
-            'email': email,
-            'phone': phone
-        }
+            if 'name' in header.lower():
+                extracted_data['name'] = values[idx]
+            elif 'email' in header.lower():
+                extracted_data['email'] = values[idx]
+            elif 'phone' in header.lower():
+                extracted_data['phone'] = values[idx]
 
         print("Extracted Data:", extracted_data)
+        print("Sheet Name:", sheet_name)  # Print the sheet_name in Django console
 
-        # Process your extracted data further as needed
-        # For example, save to database or perform other operations
+        # Perform further processing with extracted data (e.g., save to database)
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
 
