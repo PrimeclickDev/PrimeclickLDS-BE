@@ -8,6 +8,8 @@ from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
+
+from backend import settings
 from backend.utils import format_number_before_save
 from infobip_utils.create_call import call
 from infobip_utils.delete_call import call_delete
@@ -20,7 +22,8 @@ import time
 import io
 import csv
 from django.http import HttpResponse, JsonResponse
-from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer, FormDesignSerializer,
+from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer,
+                          FormDesignSerializer,
                           LeadFormSerializer,
                           LeadListSerializer,
                           LeadUploadSerializer,
@@ -95,8 +98,14 @@ class CampaignUploadView(generics.CreateAPIView):
 
 class GoogleSheetWebhookView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
+        api_key = request.headers.get('Api-Key')
+        if api_key != settings.SECRET_KEY:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
         data = request.data
+        print("THIS IS THE RAW DATA", data)
         user_data_from_sheet = []
         full_name = data.get('name')
         user_data_from_sheet.append(full_name)
@@ -114,7 +123,6 @@ class GoogleSheetWebhookView(APIView):
         # lead.save()
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
-
 
 
 class ContactOptionAPIView(generics.UpdateAPIView):
@@ -143,7 +151,7 @@ class CallCreateAPIView(generics.UpdateAPIView):
         audio2 = user_data.get('audio_link_2')
         audio3 = user_data.get('audio_link_3')
 
-        campaign = self.get_object() 
+        campaign = self.get_object()
         serializer.save(
             audio_link_1=audio1,
             audio_link_2=audio2,
@@ -238,7 +246,7 @@ class LeadFormAPIView(generics.CreateAPIView):
 
 
 class LeadListAPIView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = LeadListSerializer
 
     def get_queryset(self):
@@ -258,7 +266,6 @@ class LeadListAPIView(generics.ListAPIView):
             leads_data = []
 
             for lead in queryset:
-
                 lead_data = LeadListSerializer(lead).data
                 leads_data.append(lead_data)
 
@@ -282,9 +289,8 @@ class LeadDetailAPIView(generics.RetrieveAPIView):
     lookup_url_kwarg = 'lead_id'
 
 
-
 class CampaignListAPIView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = CampaginSerializer
 
     def get_queryset(self):
@@ -344,6 +350,7 @@ class FormDesignUpdateAPIView(generics.UpdateAPIView):
     permission_classes = [AllowAny]
     queryset = FormDesign.objects.all()
     serializer_class = FormDesignSerializer
+
     # lookup_field = 'campaign_id'
 
     def get_object(self):
@@ -415,7 +422,7 @@ class AITFlowAPIView(APIView):
             else:
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-            if data  == "1" or data == 1:
+            if data == "1" or data == 1:
                 res = positive_flow(audio_link_2)
                 lead.contacted_status = "Converted"
                 lead.save()
@@ -434,10 +441,9 @@ class AITFlowAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class AITRecordAPIView(APIView):
     permission_classes = [AllowAny]
-    
+
     def post(self, request, format=None):
         xml_data = request.data
         print(xml_data)
