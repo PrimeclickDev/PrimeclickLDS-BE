@@ -455,7 +455,9 @@ class GoogleSheetWebhookView(APIView):
             elif 'phone' in header.lower():
                 extracted_data['phone_number'] = values[idx]
 
-        processed_number = format_number_before_save(extracted_data['phone_number'])
+        extracted_phone = extracted_data['phone_number']
+        if extracted_phone:
+            processed_number = format_number_before_save(extracted_phone)
 
         if processed_number:
             extracted_data['phone_number'] = processed_number
