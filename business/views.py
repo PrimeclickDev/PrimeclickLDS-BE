@@ -96,50 +96,64 @@ class CampaignUploadView(generics.CreateAPIView):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
+
 class GoogleSheetWebhookView(APIView):
-    permission_classes = [AllowAny]  # No specific permissions required for this example
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         api_key = request.headers.get('Api-Key')
         if api_key != settings.SECRET_KEY:
-            logger.error("Unauthorized access attempt.")
             return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
         data = request.data
-        logger.info(f"THIS IS THE RAW DATA {data}")
+        print("THIS IS THE RAW DATA", data)
 
-        headers = data.get('headers')
+        # Extracting values
         values = data.get('values')
+        if not values or not isinstance(values, list) or len(values) < 1:
+            return Response({"error": "Invalid data format"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not headers or not values:
-            logger.error("Headers or values missing in the request data.")
-            return Response({"error": "Incomplete data"}, status=status.HTTP_400_BAD_REQUEST)
+        # Initialize variables to store found columns
+        name = None
+        email = None
+        phone = None
 
-        # Find indices of relevant columns
-        name_index = next((i for i, header in enumerate(headers) if 'name' in header.lower()), None)
-        email_index = next((i for i, header in enumerate(headers) if 'email' in header.lower()), None)
-        phone_index = next((i for i, header in enumerate(headers) if 'phone' in header.lower()), None)
+        # Mapping of keywords to column headers
+        keywords_mapping = {
+            'name': ['name', 'full_name'],  # Add variations like 'full_name' here
+            'email': ['email', 'email_address'],  # Add variations like 'email_address' here
+            'phone': ['phone', 'phone_number', 'number']  # Add variations like 'phone_number', 'number' here
+        }
 
-        if name_index is None or email_index is None or phone_index is None:
-            logger.error("Required columns (name, email, phone) not found.")
-            return Response({"error": "Required columns not found"}, status=status.HTTP_400_BAD_REQUEST)
+        # Loop through the headers (first row) to find columns containing the keywords using icontains
+        headers = values[0] if values else []
+        for idx, header in enumerate(headers):
+            for key, keywords in keywords_mapping.items():
+                if not locals()[key] and any(keyword.lower() in header.lower() for keyword in keywords):
+                    locals()[key] = values[0][idx] if len(values[0]) > idx else ''
 
-        user_data_from_sheet = [
-            values[name_index] if name_index is not None else None,
-            values[email_index] if email_index is not None else None,
-            values[phone_index] if phone_index is not None else None,
-        ]
+            # Exit loop early if all columns are found
+            if name and email and phone:
+                break
 
-        logger.info(f"THIS IS THE ADDED DATA FROM GOOGLE SHEET {user_data_from_sheet}")
+        # Check if all required columns were found
+        if not (name and email and phone):
+            return Response({"error": "Missing required columns"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Uncomment and use this code after verifying the data
-        # if user_data_from_sheet[2]:
-        #     user_data_from_sheet[2] = format_number_before_save(user_data_from_sheet[2])
-        #
-        # lead = Lead(full_name=user_data_from_sheet[0], email=user_data_from_sheet[1], phone_number=user_data_from_sheet[2])
-        # lead.save()
+        extracted_data = {
+            'name': name,
+            'email': email,
+            'phone': phone
+        }
+
+        print("Extracted Data:", extracted_data)
+
+        # Process your extracted data further as needed
+        # For example, save to database or perform other operations
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+
+
 
 class ContactOptionAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
