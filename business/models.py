@@ -26,6 +26,9 @@ class Business(models.Model):
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['created']
+
     def __str__(self):
         return self.name
 
@@ -60,6 +63,9 @@ class Campaign(models.Model):
     audio_link_4 = models.CharField(max_length=100, null=True, blank=True)
 
     # actions = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        ordering = ['created']
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -97,6 +103,10 @@ class Lead(models.Model):
     actions = models.CharField(max_length=255)
     session_id = models.CharField(max_length=100, null=True, blank=True)
 
+
+    class Meta:
+        ordering = ['created']
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = random_id()
@@ -122,6 +132,9 @@ class FormDesign(models.Model):
     campaign = models.ForeignKey(
         Campaign, on_delete=models.CASCADE, related_name="form_design", to_field="id")
     design = models.TextField()
+
+    class Meta:
+        ordering = ['created']
 
     def __str__(self):
         return f"{self.campaign}'s form custom design"
