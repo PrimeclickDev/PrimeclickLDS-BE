@@ -8,7 +8,7 @@ from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
-
+import logging
 from backend import settings
 from backend.utils import format_number_before_save
 from infobip_utils.create_call import call
@@ -30,7 +30,7 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           CampaignNameSerializer,
                           CampaginSerializer,
                           GoogleSheetURLSerializer)
-
+logger = logging.getLogger(__name__)
 
 class CampaignUploadView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -97,33 +97,49 @@ class CampaignUploadView(generics.CreateAPIView):
 
 
 class GoogleSheetWebhookView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # No specific permissions required for this example
 
     def post(self, request, *args, **kwargs):
         api_key = request.headers.get('Api-Key')
         if api_key != settings.SECRET_KEY:
+            logger.error("Unauthorized access attempt.")
             return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
         data = request.data
-        print("THIS IS THE RAW DATA", data)
-        user_data_from_sheet = []
-        full_name = data.get('name')
-        user_data_from_sheet.append(full_name)
-        email = data.get('email')
-        user_data_from_sheet.append(email)
-        phone_number = data.get('phone') or data.get('number')
-        user_data_from_sheet.append(phone_number)
+        logger.info(f"THIS IS THE RAW DATA {data}")
 
-        print("THIS IS THE ADDED DATA FROM  GOOGLE SHEET", user_data_from_sheet)
+        headers = data.get('headers')
+        values = data.get('values')
 
-        # if phone_number:
-        #     phone_number = format_number_before_save(phone_number)
+        if not headers or not values:
+            logger.error("Headers or values missing in the request data.")
+            return Response({"error": "Incomplete data"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Find indices of relevant columns
+        name_index = next((i for i, header in enumerate(headers) if 'name' in header.lower()), None)
+        email_index = next((i for i, header in enumerate(headers) if 'email' in header.lower()), None)
+        phone_index = next((i for i, header in enumerate(headers) if 'phone' in header.lower()), None)
+
+        if name_index is None or email_index is None or phone_index is None:
+            logger.error("Required columns (name, email, phone) not found.")
+            return Response({"error": "Required columns not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_data_from_sheet = [
+            values[name_index] if name_index is not None else None,
+            values[email_index] if email_index is not None else None,
+            values[phone_index] if phone_index is not None else None,
+        ]
+
+        logger.info(f"THIS IS THE ADDED DATA FROM GOOGLE SHEET {user_data_from_sheet}")
+
+        # Uncomment and use this code after verifying the data
+        # if user_data_from_sheet[2]:
+        #     user_data_from_sheet[2] = format_number_before_save(user_data_from_sheet[2])
         #
-        # lead = Lead(full_name=full_name, email=email, phone_number=phone_number)
+        # lead = Lead(full_name=user_data_from_sheet[0], email=user_data_from_sheet[1], phone_number=user_data_from_sheet[2])
         # lead.save()
 
         return Response({"status": "success"}, status=status.HTTP_201_CREATED)
-
 
 class ContactOptionAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
