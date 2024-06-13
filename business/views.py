@@ -96,48 +96,6 @@ class CampaignUploadView(generics.CreateAPIView):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
-
-class GoogleSheetWebhookView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        api_key = request.headers.get('Api-Key')
-        if api_key != settings.SECRET_KEY:
-            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        data = request.data
-        print("THIS IS THE RAW DATA", data)
-
-        # Extract values, headers, and sheet_name
-        values = data.get('values', [])
-        headers = data.get('headers', [])
-        sheet_name = data.get('sheet_name', '')  # Get the sheet_name from request data
-
-        # Ensure headers and values are present
-        if not values or not headers or len(values) != len(headers):
-            return Response({"error": "Invalid data format"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Initialize variables to store extracted data
-        extracted_data = {}
-
-        # Map header names to standard keys (name, email, phone)
-        for idx, header in enumerate(headers):
-            if 'name' in header.lower():
-                extracted_data['name'] = values[idx]
-            elif 'email' in header.lower():
-                extracted_data['email'] = values[idx]
-            elif 'phone' in header.lower():
-                extracted_data['phone'] = values[idx]
-
-        print("Extracted Data:", extracted_data)
-        print("Sheet Name:", sheet_name)  # Print the sheet_name in Django console
-
-        # Perform further processing with extracted data (e.g., save to database)
-
-        return Response({"status": "success"}, status=status.HTTP_201_CREATED)
-
-
-
 class ContactOptionAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
     permission_classes = [IsAuthenticated]
@@ -461,3 +419,56 @@ class AITRecordAPIView(APIView):
         xml_data = request.data
         print(xml_data)
         return Response({"message": "File data gotten!"})
+
+
+class GoogleSheetWebhookView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        api_key = request.headers.get('Api-Key')
+        if api_key != settings.SECRET_KEY:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        data = request.data
+        print("THIS IS THE RAW DATA", data)
+
+        # Extract values, headers, and sheet_name
+        values = data.get('values', [])
+        headers = data.get('headers', [])
+        campaign_id = data.get('sheet_name', '')  # Get the sheet_name from request data
+
+        campaign = Campaign.objects.filter(id=campaign_id).first()
+
+        # Ensure headers and values are present
+        if not values or not headers or len(values) != len(headers):
+            return Response({"error": "Invalid data format"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Initialize variables to store extracted data
+        extracted_data = {}
+
+        # Map header names to standard keys (name, email, phone)
+        for idx, header in enumerate(headers):
+            if 'name' in header.lower():
+                extracted_data['name'] = values[idx]
+            elif 'email' in header.lower():
+                extracted_data['email'] = values[idx]
+            elif 'phone' in header.lower():
+                extracted_data['phone'] = values[idx]
+
+        processed_number = format_number_before_save(extracted_data['phone'])
+
+        if processed_number:
+            extracted_data['phone'] = processed_number
+        else:
+            pass
+
+        lead_instance = Lead.objects.create(campaign=campaign, **extracted_data)
+        campaign.leads += 1
+        campaign.save()
+
+        num = [processed_number] if processed_number else []
+        try:
+            make_voice_call(num, campaign_id)
+            return Response({"message": "Call launched from googlesheet successfully"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
