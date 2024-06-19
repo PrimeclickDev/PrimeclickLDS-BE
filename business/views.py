@@ -436,6 +436,7 @@ class GoogleSheetWebhookView(APIView):
         values = data.get('values', {})
         headers = data.get('headers', [])
         campaign_id = data.get('sheet_name', '')  # Get the sheet_name from request data
+        print("THIS IS THE SHEET NAME HERE", campaign_id)
 
         campaign = Campaign.objects.filter(id=campaign_id).first()
         if not campaign:
