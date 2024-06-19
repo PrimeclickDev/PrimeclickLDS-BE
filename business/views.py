@@ -432,50 +432,47 @@ class GoogleSheetWebhookView(APIView):
         data = request.data
         print("THIS IS THE RAW DATA", data)
 
-        # Extract values, headers, and sheet_name
-        values = data.get('values', {})
-        headers = data.get('headers', [])
-        campaign_id = data.get('sheet_name', '')  # Get the sheet_name from request data
-        print("THIS IS THE SHEET NAME HERE", campaign_id)
-
-        campaign = Campaign.objects.filter(id=campaign_id).first()
-        if not campaign:
-            return Response({"error": "Campaign not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        # Ensure headers and values are present
-        if not values or not headers:
+        # Ensure data is structured correctly
+        if 'data' not in data or not isinstance(data['data'], list):
             return Response({"error": "Invalid data format"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Initialize variables to store extracted data
-        extracted_data = {}
+        # Extract sheet_name from top level
+        sheet_name = data.get('sheet_name', '')
+        print("Sheet Name:", sheet_name)
 
-        # Map header names to standard keys (name, email, phone)
-        for header in headers:
-            header_key = header.lower()
-            if 'name' in header_key:
-                extracted_data['full_name'] = values.get(header, '').strip()
-            elif 'email' in header_key:
-                extracted_data['email'] = values.get(header, '').strip()
-            elif 'phone' in header_key:
-                extracted_data['phone_number'] = values.get(header, '').strip()
+        # Iterate through each row of data
+        for row in data['data']:
+            full_name = row.get('FULL NAME', '').strip()
+            email = row.get('EMAIL', '').strip()
+            phone_number = row.get('PHONE NUMBER', '').strip()
 
-        extracted_phone = extracted_data.get('phone_number', '')
-        if extracted_phone:
-            processed_number = format_number_before_save(extracted_phone)
+            # Validate and process each field as needed
+            processed_number = format_number_before_save(phone_number)
 
-        if processed_number:
-            extracted_data['phone_number'] = processed_number
-        else:
-            extracted_data.pop('phone_number', None)
+            # Find or create the campaign based on sheet_name
+            campaign = Campaign.objects.filter(name=sheet_name).first()
+            if not campaign:
+                return Response({"error": f"Campaign '{sheet_name}' not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        Lead.objects.create(campaign=campaign, **extracted_data)
-        campaign.leads += 1
-        campaign.save()
+            # Create lead record
+            lead_data = {
+                'campaign': campaign,
+                'full_name': full_name,
+                'email': email,
+                'phone_number': processed_number if processed_number else None
+            }
+            Lead.objects.create(**lead_data)
 
-        num = [processed_number] if processed_number else []
-        try:
-            make_voice_call(num, campaign_id)
-            return Response({"message": "Call launched from Google Sheets successfully"})
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            # Perform additional actions (e.g., making a voice call)
+            try:
+                if processed_number:
+                    make_voice_call([processed_number], campaign.id)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Update campaign stats
+            campaign.leads += 1
+            campaign.save()
+
+        return Response({"message": "Data processed successfully"})
 
