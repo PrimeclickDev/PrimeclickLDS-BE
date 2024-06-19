@@ -450,7 +450,7 @@ class GoogleSheetWebhookView(APIView):
             processed_number = format_number_before_save(phone_number)
 
             # Find or create the campaign based on sheet_name
-            campaign = Campaign.objects.filter(name=sheet_name).first()
+            campaign = Campaign.objects.filter(id=sheet_name).first()
             if not campaign:
                 return Response({"error": f"Campaign '{sheet_name}' not found"}, status=status.HTTP_404_NOT_FOUND)
 
