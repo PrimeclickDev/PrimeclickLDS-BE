@@ -433,36 +433,39 @@ class GoogleSheetWebhookView(APIView):
         print("THIS IS THE RAW DATA", data)
 
         # Extract values, headers, and sheet_name
-        values = data.get('values', [])
+        values = data.get('values', {})
         headers = data.get('headers', [])
         campaign_id = data.get('sheet_name', '')  # Get the sheet_name from request data
 
         campaign = Campaign.objects.filter(id=campaign_id).first()
+        if not campaign:
+            return Response({"error": "Campaign not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Ensure headers and values are present
-        if not values or not headers or len(values) != len(headers):
+        if not values or not headers:
             return Response({"error": "Invalid data format"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Initialize variables to store extracted data
         extracted_data = {}
 
         # Map header names to standard keys (name, email, phone)
-        for idx, header in enumerate(headers):
-            if 'name' in header.lower():
-                extracted_data['full_name'] = values[idx]
-            elif 'email' in header.lower():
-                extracted_data['email'] = values[idx]
-            elif 'phone' in header.lower():
-                extracted_data['phone_number'] = values[idx]
+        for header in headers:
+            header_key = header.lower()
+            if 'name' in header_key:
+                extracted_data['full_name'] = values.get(header, '').strip()
+            elif 'email' in header_key:
+                extracted_data['email'] = values.get(header, '').strip()
+            elif 'phone' in header_key:
+                extracted_data['phone_number'] = values.get(header, '').strip()
 
-        extracted_phone = extracted_data['phone_number']
+        extracted_phone = extracted_data.get('phone_number', '')
         if extracted_phone:
             processed_number = format_number_before_save(extracted_phone)
 
         if processed_number:
             extracted_data['phone_number'] = processed_number
         else:
-            pass
+            extracted_data.pop('phone_number', None)
 
         Lead.objects.create(campaign=campaign, **extracted_data)
         campaign.leads += 1
@@ -471,6 +474,7 @@ class GoogleSheetWebhookView(APIView):
         num = [processed_number] if processed_number else []
         try:
             make_voice_call(num, campaign_id)
-            return Response({"message": "Call launched from googlesheet successfully"})
+            return Response({"message": "Call launched from Google Sheets successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
