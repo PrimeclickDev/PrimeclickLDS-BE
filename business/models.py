@@ -115,21 +115,20 @@ class Lead(models.Model):
 
 
     def delete(self, *args, **kwargs):
-        # Fetch the associated campaign
-        campaign = self.campaign
-
         # Perform custom logic before deletion
-        print(f"Deleting lead: {self.full_name} from campaign: {campaign.title}")
-
-        # Decrement the leads count in the campaign
-        campaign.leads = F('leads') - 1
-        campaign.save(update_fields=['leads'])
+        print(f"Deleting lead: {self.full_name} from campaign: {self.campaign.title}")
 
         # Call the superclass method to perform the actual deletion
         super(Lead, self).delete(*args, **kwargs)
 
+        # Recalculate the leads count for the associated campaign
+        campaign = self.campaign
+        campaign.leads = campaign.campaign_lead.count()
+        campaign.save(update_fields=['leads'])
+
         # Optionally, perform custom logic after deletion
         print(f"Lead deleted: {self.full_name}")
+
 
     def __str__(self):
         return self.full_name
