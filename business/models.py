@@ -112,6 +112,11 @@ class Lead(models.Model):
             self.id = random_id()
         super(Lead, self).save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        lead_camp = Campaign.objects.filter(campaign_lead__id=self.id).first()
+        lead_camp.lead -= 1
+        return super(Lead, self).delete(*args, **kwargs)
+
     def __str__(self):
         return self.full_name
 
