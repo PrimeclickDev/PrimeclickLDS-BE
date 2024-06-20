@@ -5,6 +5,7 @@ from django.db import models
 import random
 import string
 from cloudinary_storage.storage import MediaCloudinaryStorage
+from django.db.models import F
 
 
 def generate_random_id(length=4):
@@ -112,10 +113,23 @@ class Lead(models.Model):
             self.id = random_id()
         super(Lead, self).save(*args, **kwargs)
 
+
     def delete(self, *args, **kwargs):
-        lead_camp = Campaign.objects.filter(campaign_lead__id=self.id).first()
-        lead_camp.lead -= 1
-        return super(Lead, self).delete(*args, **kwargs)
+        # Fetch the associated campaign
+        campaign = self.campaign
+
+        # Perform custom logic before deletion
+        print(f"Deleting lead: {self.full_name} from campaign: {campaign.title}")
+
+        # Decrement the leads count in the campaign
+        campaign.leads = F('leads') - 1
+        campaign.save(update_fields=['leads'])
+
+        # Call the superclass method to perform the actual deletion
+        super(Lead, self).delete(*args, **kwargs)
+
+        # Optionally, perform custom logic after deletion
+        print(f"Lead deleted: {self.full_name}")
 
     def __str__(self):
         return self.full_name
