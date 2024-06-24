@@ -2,6 +2,7 @@ import re
 
 
 def format_number_before_save(phone_number):
+    processed_phone_number = None
     if phone_number is not None:
         # Convert to string and remove spaces
         phone_number_str = str(phone_number).replace(" ", "")
