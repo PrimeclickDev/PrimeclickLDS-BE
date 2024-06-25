@@ -85,10 +85,10 @@ class CampaignUploadView(generics.CreateAPIView):
             lead_data['campaign'] = new_campaign
             lead = Lead(**lead_data)
             lead.save()
-            total_lead_count += 1
+            # total_lead_count += 1
 
         # Update the total_leads field in the campaign
-        new_campaign.leads = total_lead_count
+        new_campaign.leads = Lead.objects.filter(campaign=new_campaign).count()
         new_campaign.save()
 
         response_data = {"status": "success", "campaign_id": new_campaign.id}
@@ -204,7 +204,7 @@ class LeadFormAPIView(generics.CreateAPIView):
 
         lead_instance = Lead.objects.create(campaign=campaign, **lead_data)
 
-        campaign.leads += 1
+        campaign.leads = Lead.objects.filter(campaign=campaign).count()
         campaign.save()
 
         # Call the function
@@ -471,7 +471,7 @@ class GoogleSheetWebhookView(APIView):
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             # Update campaign stats
-            campaign.leads += 1
+            campaign.leads = Lead.objects.filter(campaign=campaign).count()
             campaign.save()
 
         return Response({"message": "Data processed successfully"})
