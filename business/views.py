@@ -139,7 +139,6 @@ class LaunchCallAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, campaign_id, *args, **kwargs):
-        # Retrieve the Campaign object based on the provided campaign_id
         try:
             campaign = Campaign.objects.get(id=campaign_id)
         except Campaign.DoesNotExist:
