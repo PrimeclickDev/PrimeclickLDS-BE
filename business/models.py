@@ -1,11 +1,13 @@
 import uuid
 
 from cloudinary.models import CloudinaryField
-from django.db import models
+from django.db import models, transaction
 import random
 import string
 from cloudinary_storage.storage import MediaCloudinaryStorage
 from django.db.models import F
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 def generate_random_id(length=4):
@@ -104,7 +106,6 @@ class Lead(models.Model):
     actions = models.CharField(max_length=255)
     session_id = models.CharField(max_length=100, null=True, blank=True)
 
-
     class Meta:
         ordering = ['-created']
 
@@ -112,23 +113,6 @@ class Lead(models.Model):
         if not self.id:
             self.id = random_id()
         super(Lead, self).save(*args, **kwargs)
-
-
-    def delete(self, *args, **kwargs):
-        # Perform custom logic before deletion
-        print(f"Deleting lead: {self.full_name} from campaign: {self.campaign.title}")
-
-        # Call the superclass method to perform the actual deletion
-        super(Lead, self).delete(*args, **kwargs)
-
-        # Recalculate the leads count for the associated campaign
-        campaign = self.campaign
-        campaign.leads = campaign.campaign_lead.count()
-        campaign.save(update_fields=['leads'])
-
-        # Optionally, perform custom logic after deletion
-        print(f"Lead deleted: {self.full_name}")
-
 
     def __str__(self):
         return self.full_name
@@ -140,6 +124,7 @@ class CallReport(models.Model):
     campaign = models.ForeignKey(
         Campaign, on_delete=models.CASCADE, related_name="call_reports_campaign", to_field="id")
     report = models.JSONField()
+
     # audio_file = CloudinaryField(upload_to='user_audio/', storage=MediaCloudinaryStorage(), blank=True, null=True)
 
     def __str__(self):
@@ -153,3 +138,11 @@ class FormDesign(models.Model):
 
     def __str__(self):
         return f"{self.campaign}'s form custom design"
+
+
+@receiver(post_delete, sender=Lead)
+def recount_leads(sender, instance, **kwargs):
+    with transaction.atomic():
+        campaign = instance.campaign
+        campaign.leads = campaign.leads.count()
+        campaign.save()
