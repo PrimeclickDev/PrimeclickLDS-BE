@@ -59,13 +59,11 @@ class Campaign(models.Model):
         max_length=30, choices=TYPE_OF_CAMPAIGN)
     converted = models.IntegerField(default=0)
     contact_option = models.CharField(max_length=30, choices=CONTACT_OPTION)
-    # call_scenario_id = id = models.UUIDField(default=uuid.uuid4, editable=False)
     audio_link_1 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_2 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_3 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_4 = models.CharField(max_length=100, null=True, blank=True)
 
-    # actions = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         ordering = ['-created']
@@ -105,6 +103,7 @@ class Lead(models.Model):
         max_length=20, choices=CONTACTED_CHOICES, blank=True, null=True)
     actions = models.CharField(max_length=255)
     session_id = models.CharField(max_length=100, null=True, blank=True)
+    check_it = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         ordering = ['-created']
