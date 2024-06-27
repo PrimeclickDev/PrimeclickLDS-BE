@@ -142,5 +142,6 @@ class FormDesign(models.Model):
 def recount_leads(sender, instance, **kwargs):
     with transaction.atomic():
         campaign = instance.campaign
-        campaign.leads = campaign.leads.count()
-        campaign.save()
+        if campaign:
+            campaign.leads = Lead.objects.filter(campaign=campaign).count()
+            campaign.save()
