@@ -20,7 +20,7 @@ class OtpModule:
         to_email = [email]
 
         # Render HTML content
-        html_content = render_to_string('otp.html', {'otp': self.otp})
+        html_content = render_to_string('otp.html', {'otp': self.generate_otp()})
 
         # Create email
         email_message = EmailMultiAlternatives(subject, '', from_email, to_email)
