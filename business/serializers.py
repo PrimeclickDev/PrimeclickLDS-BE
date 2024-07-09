@@ -75,7 +75,7 @@ class FormDesignSerializer(serializers.ModelSerializer):
 
 class CollectEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    campaign_id = serializers.IntegerField(required=True)
+    campaign_id = serializers.CharField(required=True)
 
     def create(self, validated_data):
         campaign_id = validated_data['campaign_id']
