@@ -398,6 +398,7 @@ class AITFlowAPIView(APIView):
             if data == "1" or data == 1:
                 res = positive_flow(audio_link_2)
                 lead.contacted_status = "Converted"
+                lead.campaign.converted += 1
                 lead.save()
                 return HttpResponse(res, content_type='text/xml')
             elif data == "2" or data == 2:
