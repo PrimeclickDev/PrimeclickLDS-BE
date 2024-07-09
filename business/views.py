@@ -277,6 +277,7 @@ class CampaignListAPIView(generics.ListAPIView):
 
 class FormDesignCreateAPIView(generics.CreateAPIView):
     serializer_class = FormDesignSerializer
+    permission_classes = [IsAuthenticated, ]
 
     def perform_create(self, serializer):
         # Get the campaign_id from URL
@@ -478,7 +479,7 @@ class GoogleSheetWebhookView(APIView):
 
 
 class CollectEmailView(APIView):
-
+    permission_classes = [IsAuthenticated, ]
     def post(self, request):
         serializer = CollectEmailSerializer(data=request.data)
         if serializer.is_valid():
