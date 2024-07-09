@@ -18,7 +18,7 @@ class IsLinkValid(BasePermission):
             return False
 
         # Check if the link is within the 12-hour window
-        if timezone.now() > view_link_time.sent_time + timezone.timedelta(hours=12):
+        if timezone.now() > view_link_time.sent_time + timezone.timedelta(minutes=10):
             return False
 
         return True
