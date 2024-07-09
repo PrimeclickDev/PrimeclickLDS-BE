@@ -42,11 +42,11 @@ class UserRegistrationAPIView(generics.CreateAPIView):
 
         # Generate a six-digit OTP
         otp_process = OtpModule()
-        otp = otp_process.generate_otp()
-        print(otp)
+        # otp = otp_process.generate_otp()
+        # print(otp)
 
         # # Sending the OTP
-        otp_process.send_otp_via_email(email)
+        otp = otp_process.send_otp_via_email(email)
 
         # Save OTP in user model
         user = serializer.save(is_active=False)
