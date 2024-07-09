@@ -22,6 +22,8 @@ import time
 import io
 import csv
 from django.http import HttpResponse, JsonResponse
+
+from .permissions import IsLinkValid
 from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer,
                           FormDesignSerializer,
                           LeadFormSerializer,
@@ -29,7 +31,7 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           LeadUploadSerializer,
                           CampaignNameSerializer,
                           CampaginSerializer,
-                          GoogleSheetURLSerializer)
+                          GoogleSheetURLSerializer, CollectEmailSerializer)
 logger = logging.getLogger(__name__)
 
 class CampaignUploadView(generics.CreateAPIView):
@@ -251,7 +253,7 @@ class LeadListAPIView(generics.ListAPIView):
 
 
 class LeadDetailAPIView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     # Use the serializer for individual lead details
     serializer_class = LeadListSerializer
     queryset = Lead.objects.all()  # Queryset for all leads
@@ -472,3 +474,33 @@ class GoogleSheetWebhookView(APIView):
                 campaign.save()
 
         return Response({"message": "Data processed successfully"})
+
+
+
+class CollectEmailView(APIView):
+
+    def post(self, request):
+        serializer = CollectEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Link sent successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LeadsViewOnlyView(generics.ListAPIView):
+    serializer_class = LeadListSerializer
+    permission_classes = [IsLinkValid]
+
+    def get_queryset(self):
+        campaign_id = self.kwargs.get('campaign_id')
+        return Lead.objects.filter(campaign__id=campaign_id)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        if queryset.exists():
+            leads_data = [LeadListSerializer(lead).data for lead in queryset]
+            response_data = {'leads': leads_data}
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)

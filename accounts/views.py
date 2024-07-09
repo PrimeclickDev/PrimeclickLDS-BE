@@ -39,6 +39,7 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
+        first_name = serializer.validated_data['first_name']
 
         # Generate a six-digit OTP
         otp_process = OtpModule()
@@ -46,7 +47,7 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         # print(otp)
 
         # # Sending the OTP
-        otp = otp_process.send_otp_via_email(email)
+        otp = otp_process.send_otp_via_email(email, first_name)
 
         # Save OTP in user model
         user = serializer.save(is_active=False)

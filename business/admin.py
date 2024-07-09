@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Business, CallReport, Campaign, Lead, FormDesign
+from .models import Business, CallReport, Campaign, Lead, FormDesign, ViewTimeHistory
 
 
 class BusinessAdmin(admin.ModelAdmin):
@@ -33,3 +33,4 @@ admin.site.register(CallReport, CallReportAdmin)
 admin.site.register(Business, BusinessAdmin)
 admin.site.register(Campaign, CampaignAdmin)
 admin.site.register(Lead, LeadAdmin)
+admin.site.register(ViewTimeHistory)

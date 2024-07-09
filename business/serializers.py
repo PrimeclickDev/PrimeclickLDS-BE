@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Business, CallReport, Campaign, FormDesign, Lead
+
+from accounts.utils import send_invite_lint_email
+from .models import Business, CallReport, Campaign, FormDesign, Lead, ViewTimeHistory
 
 
 class BusinessSerializer(serializers.ModelSerializer):
@@ -69,3 +71,21 @@ class FormDesignSerializer(serializers.ModelSerializer):
     class Meta:
         model = FormDesign
         fields = ("design",)
+
+
+class CollectEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    campaign_id = serializers.IntegerField()
+
+    def create(self, validated_data):
+        campaign_id = validated_data['campaign_id']
+        email = validated_data['email']
+        campaign = Campaign.objects.get(id=campaign_id)
+        view_link_time = ViewTimeHistory.objects.create(
+            campaign=campaign,
+            email=email,
+            link=f"http://primeclick-autoleads.vercel.app/dashboard/{campaign_id}/{email}"
+        )
+        link = view_link_time.link
+        send_invite_lint_email(email, link)
+        return view_link_time

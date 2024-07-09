@@ -1,29 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-    <title>Autoleads Signup OTP Code</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Access</title>
     <style>
         body {
-            font-family: "IBM Plex Sans", sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
-            color: #333;
             margin: 0;
             padding: 0;
         }
         .container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
             max-width: 600px;
-            margin: 20px auto;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
         }
         .header {
             background-color: #007bff;
             color: #ffffff;
-            text-align: center;
             padding: 10px;
+            text-align: center;
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
         }
@@ -31,11 +32,10 @@
             padding: 20px;
             text-align: center;
         }
-        .otp-code {
-            font-size: 24px;
-            font-weight: bold;
-            color: #082fe5;
-            margin-bottom: 20px;
+        .content p {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333333;
         }
         .button {
             display: inline-block;
@@ -45,7 +45,6 @@
             background-color: #007bff;
             text-decoration: none;
             border-radius: 5px;
-            margin-top: 20px;
         }
         .footer {
             text-align: center;
@@ -58,13 +57,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Autoleads Signup OTP Code</h1>
+            <h1>View Campaign Access</h1>
         </div>
         <div class="content">
-            <p>Hello {{ user.first_name }},</p>
-            <p>Your One-Time Password (OTP) is:</p>
-            <p class="otp-code">{{ otp }}</p>
-            <p>Use this code to complete your registration. The code is valid for 10 minutes.</p>
+            <p>Hello,</p>
+            <p>You have been granted access to view this campaign. Click the button below to view your dashboard. Please note that this link is valid for 12 hours.</p>
+            <a href="{{ link }}" class="button">View Dashboard</a>
+            <p>If the button above does not work, copy and paste the following URL into your browser:</p>
+            <p>{{ link }}</p>
         </div>
         <div class="footer">
             <p>&copy; 2024 Autoleads. All rights reserved.</p>

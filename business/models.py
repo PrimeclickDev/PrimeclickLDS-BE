@@ -1,4 +1,5 @@
 import uuid
+from django.utils import timezone
 
 from cloudinary.models import CloudinaryField
 from django.db import models, transaction
@@ -136,6 +137,17 @@ class FormDesign(models.Model):
 
     def __str__(self):
         return f"{self.campaign}'s form custom design"
+
+
+class ViewTimeHistory(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name="view_time")
+    email = models.EmailField()
+    sent_time = models.DateTimeField(default=timezone.now)
+    link = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.email
 
 
 @receiver(post_delete, sender=Lead)
