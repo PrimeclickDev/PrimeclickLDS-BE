@@ -145,6 +145,7 @@ class ViewTimeHistory(models.Model):
     email = models.EmailField()
     sent_time = models.DateTimeField(default=timezone.now)
     link = models.CharField(max_length=255)
+    counts = models.IntegerField(default=1)
 
     def __str__(self):
         return self.email
