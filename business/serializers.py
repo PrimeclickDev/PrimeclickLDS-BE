@@ -96,7 +96,7 @@ class CollectEmailSerializer(serializers.Serializer):
             # Add email as query parameter to the link
             link_params = {'user': email}
             query_string = urlencode(link_params)
-            link = f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}/?{query_string}"
+            link = f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}?{query_string}"
 
             view_link_time = ViewTimeHistory.objects.create(
                 campaign=campaign,
