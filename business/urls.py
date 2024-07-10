@@ -36,5 +36,5 @@ urlpatterns = [
     path('record/call/', AITRecordAPIView.as_view(), name='record-call'),
     path('google-sheet-webhook/', GoogleSheetWebhookView.as_view(), name='google_sheet_webhook'),
     path('collect-email/', CollectEmailView.as_view(), name='collect-email'),
-    path('dashboard/<str:campaign_id>/<str:email>/', LeadsViewOnlyView.as_view(), name='campaign-leads'),
+    path('dashboard/<str:campaign_id>/<str:path>/', LeadsViewOnlyView.as_view(), name='campaign-leads'),
 ]

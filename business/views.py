@@ -31,7 +31,7 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           LeadUploadSerializer,
                           CampaignNameSerializer,
                           CampaginSerializer,
-                          GoogleSheetURLSerializer, CollectEmailSerializer)
+                          GoogleSheetURLSerializer, InviteEmailSerializer)
 logger = logging.getLogger(__name__)
 
 class CampaignUploadView(generics.CreateAPIView):
@@ -484,7 +484,7 @@ class GoogleSheetWebhookView(APIView):
 class CollectEmailView(APIView):
     permission_classes = [IsAuthenticated, ]
     def post(self, request):
-        serializer = CollectEmailSerializer(data=request.data)
+        serializer = InviteEmailSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Link sent successfully'}, status=status.HTTP_200_OK)

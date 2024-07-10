@@ -144,8 +144,9 @@ class ViewTimeHistory(models.Model):
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name="view_time")
     email = models.EmailField()
     sent_time = models.DateTimeField(default=timezone.now)
-    link = models.CharField(max_length=255)
-    counts = models.IntegerField(default=1)
+    link = models.CharField(max_length=255, null=True, blank=True)
+    path = models.CharField(max_length=255, null=True, blank=True)
+    access_code = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.email

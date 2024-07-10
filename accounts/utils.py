@@ -29,11 +29,11 @@ class OtpModule:
         email_message.send()
         return otp
 
-def send_invite_lint_email(email, link):
+def send_invite_lint_email(email, link, access_code):
     subject = "View Campaign Access"
     from_email = settings.EMAIL_HOST_USER
     to_email = [email]
-    html_content = render_to_string('view_email.html', {'link': link})
+    html_content = render_to_string('view_email.html', {'link': link, 'access_code': access_code})
     email_message = EmailMultiAlternatives(subject, '', from_email, to_email)
     email_message.attach_alternative(html_content, 'text/html')
     email_message.send()

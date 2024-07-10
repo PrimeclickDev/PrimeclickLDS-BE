@@ -1,3 +1,6 @@
+import random
+import string
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import serializers
@@ -75,7 +78,13 @@ class FormDesignSerializer(serializers.ModelSerializer):
         fields = ("design",)
 
 
-class CollectEmailSerializer(serializers.Serializer):
+
+def generate_random_token(length):
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(length))
+
+
+class InviteEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     campaign_id = serializers.CharField(required=True)
 
@@ -93,20 +102,27 @@ class CollectEmailSerializer(serializers.Serializer):
             if old_link:
                 old_link.delete()
 
-            # Add email as query parameter to the link
-            link_params = {'user': email}
-            query_string = urlencode(link_params)
-            link = f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}?{query_string}"
+            # Generate tokens
+            path_token = generate_random_token(32)
+            access_code = generate_random_token(6)
+
+            # Create link with path token
+            link = f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}?token={path_token}"
 
             view_link_time = ViewTimeHistory.objects.create(
                 campaign=campaign,
                 email=email,
-                link=link
+                link=link,
+                path=path_token,
+                access_code=access_code
             )
-        # link = view_link_time.link
+
+        # Send email with link and access code
         try:
-            send_invite_lint_email(email, link)
+            send_invite_lint_email(email, link, access_code)
         except Exception as e:
             # Handle the exception (e.g., log it, retry sending the email, etc.)
             raise RuntimeError("Failed to send email.") from e
+
         return view_link_time
+
