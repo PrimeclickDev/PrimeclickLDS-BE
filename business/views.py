@@ -226,7 +226,7 @@ class LeadListAPIView(generics.ListAPIView):
         campaign_id = self.kwargs.get('campaign_id')
 
         # Get the leads for the specified campaign
-        leads = Lead.objects.filter(campaign__id=campaign_id)
+        leads = Lead.objects.filter(campaign__id=campaign_id).select_related("campaign")
 
         return leads
 
@@ -242,7 +242,9 @@ class LeadListAPIView(generics.ListAPIView):
                 leads_data.append(lead_data)
 
             response_data = {
-                'leads': leads_data,
+                'campaign_name': queryset[0].campaign.title,
+                'campaign_id': queryset[0].campaign.id,
+                'leads': leads_data
             }
             print(response_data)
 
@@ -495,14 +497,17 @@ class LeadsViewOnlyView(generics.ListAPIView):
 
     def get_queryset(self):
         campaign_id = self.kwargs.get('campaign_id')
-        return Lead.objects.filter(campaign__id=campaign_id)
+        return Lead.objects.filter(campaign__id=campaign_id).select_related('campaign')
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
         if queryset.exists():
             leads_data = [LeadListSerializer(lead).data for lead in queryset]
-            response_data = {'leads': leads_data}
+            response_data = {
+                'campaign_name': queryset[0].campaign.title,
+                'leads': leads_data
+            }
             return Response(response_data, status=status.HTTP_200_OK)
         else:
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
