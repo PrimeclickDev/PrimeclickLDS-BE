@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from rest_framework import serializers
-
+from urllib.parse import urlencode
 from accounts.utils import send_invite_lint_email
 from .models import Business, CallReport, Campaign, FormDesign, Lead, ViewTimeHistory
 
@@ -87,14 +88,25 @@ class CollectEmailSerializer(serializers.Serializer):
         except ObjectDoesNotExist:
             raise ValueError("Campaign does not exist.")
 
-        old_link = ViewTimeHistory.objects.filter(campaign=campaign, email=email)
-        if old_link:
-            old_link.delete()
-        view_link_time = ViewTimeHistory.objects.create(
-            campaign=campaign,
-            email=email,
-            link=f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}/{email}/"
-        )
-        link = view_link_time.link
-        send_invite_lint_email(email, link)
+        with transaction.atomic():
+            old_link = ViewTimeHistory.objects.filter(campaign=campaign, email=email)
+            if old_link:
+                old_link.delete()
+
+            # Add email as query parameter to the link
+            link_params = {'user': email}
+            query_string = urlencode(link_params)
+            link = f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}/?{query_string}"
+
+            view_link_time = ViewTimeHistory.objects.create(
+                campaign=campaign,
+                email=email,
+                link=link
+            )
+        # link = view_link_time.link
+        try:
+            send_invite_lint_email(email, link)
+        except Exception as e:
+            # Handle the exception (e.g., log it, retry sending the email, etc.)
+            raise RuntimeError("Failed to send email.") from e
         return view_link_time
