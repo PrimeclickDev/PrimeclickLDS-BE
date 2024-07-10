@@ -93,7 +93,7 @@ class CollectEmailSerializer(serializers.Serializer):
         view_link_time = ViewTimeHistory.objects.create(
             campaign=campaign,
             email=email,
-            link=f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}/"
+            link=f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}/{email}/"
         )
         link = view_link_time.link
         send_invite_lint_email(email, link)
