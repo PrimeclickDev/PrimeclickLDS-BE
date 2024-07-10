@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from accounts.utils import send_invite_lint_email
@@ -80,11 +81,19 @@ class CollectEmailSerializer(serializers.Serializer):
     def create(self, validated_data):
         campaign_id = validated_data['campaign_id']
         email = validated_data['email']
-        campaign = Campaign.objects.get(id=campaign_id)
+
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+        except ObjectDoesNotExist:
+            raise ValueError("Campaign does not exist.")
+
+        old_link = ViewTimeHistory.objects.filter(campaign=campaign, email=email)
+        if old_link:
+            old_link.delete()
         view_link_time = ViewTimeHistory.objects.create(
             campaign=campaign,
             email=email,
-            link=f"http://primeclick-autoleads.vercel.app/dashboard/{campaign_id}/{email}"
+            link=f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}/"
         )
         link = view_link_time.link
         send_invite_lint_email(email, link)
