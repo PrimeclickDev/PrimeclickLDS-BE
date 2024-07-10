@@ -493,7 +493,7 @@ class CollectEmailView(APIView):
 
 class LeadsViewOnlyView(generics.ListAPIView):
     serializer_class = LeadListSerializer
-    permission_classes = [IsLinkValid]
+    permission_classes = [AllowAny, IsLinkValid]
 
     def get_queryset(self):
         campaign_id = self.kwargs.get('campaign_id')
