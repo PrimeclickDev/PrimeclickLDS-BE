@@ -1,4 +1,3 @@
-
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
@@ -6,14 +5,23 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.hashers import make_password
 from backend import settings
 from business.models import Business
+
 User = get_user_model()
 
 
+class BusinessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Business
+        fields = ['id', 'name']
+
+
 class UserSerializer(serializers.ModelSerializer):
+    businesses = BusinessSerializer(many=True, read_only=True)
+
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name',
-                  'email', 'phone_number', 'business_id']
+                  'email', 'phone_number', 'businesses']
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
