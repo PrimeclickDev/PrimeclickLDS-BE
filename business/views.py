@@ -514,6 +514,7 @@ class LeadsViewOnlyView(generics.ListAPIView):
 
 
 class VerifyAccessCodeAPIView(APIView):
+    permission_classes = [AllowAny,]
     def get(self, request, *args, **kwargs):
         token = request.query_params.get('token')
         access_code = request.query_params.get('access_code')
