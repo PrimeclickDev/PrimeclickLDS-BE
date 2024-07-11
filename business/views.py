@@ -515,9 +515,10 @@ class LeadsViewOnlyView(generics.ListAPIView):
 
 class VerifyAccessCodeAPIView(APIView):
     permission_classes = [AllowAny,]
-    def get(self, request, *args, **kwargs):
-        token = request.query_params.get('token')
-        access_code = request.query_params.get('access_code')
+
+    def post(self, request, *args, **kwargs):
+        token = request.data.get('token')
+        access_code = request.data.get('access_code')
 
         try:
             view_time_history = ViewTimeHistory.objects.get(path=token, access_code=access_code)
