@@ -107,13 +107,12 @@ class InviteEmailSerializer(serializers.Serializer):
             access_code = generate_random_token(6)
 
             # Create link with path token
-            link = f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}?token={path_token}"
+            link = f"http://primeclick-autoleads.vercel.app/guest/dashboard/{campaign_id}"
 
             view_link_time = ViewTimeHistory.objects.create(
                 campaign=campaign,
                 email=email,
                 link=link,
-                path=path_token,
                 access_code=access_code
             )
 

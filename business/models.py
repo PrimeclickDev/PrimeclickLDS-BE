@@ -145,7 +145,6 @@ class ViewTimeHistory(models.Model):
     email = models.EmailField()
     sent_time = models.DateTimeField(default=timezone.now)
     link = models.CharField(max_length=255, null=True, blank=True)
-    path = models.CharField(max_length=255, null=True, blank=True)
     access_code = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):

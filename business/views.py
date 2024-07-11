@@ -512,16 +512,3 @@ class LeadsViewOnlyView(generics.ListAPIView):
         else:
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
 
-
-class VerifyAccessCodeAPIView(APIView):
-    permission_classes = [AllowAny,]
-
-    def post(self, request, *args, **kwargs):
-        token = request.data.get('token')
-        access_code = request.data.get('access_code')
-
-        try:
-            view_time_history = ViewTimeHistory.objects.get(path=token, access_code=access_code)
-            return Response({'valid': True, 'campaign_id': view_time_history.campaign.id}, status=status.HTTP_200_OK)
-        except ViewTimeHistory.DoesNotExist:
-            return Response({'valid': False}, status=status.HTTP_400_BAD_REQUEST)
