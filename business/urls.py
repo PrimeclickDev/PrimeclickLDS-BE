@@ -3,7 +3,7 @@ from .views import (AITAPIView, AITFlowAPIView, AITRecordAPIView, CallCreateAPIV
                     ContactOptionAPIView, FormDesignCreateAPIView, FormDesignRetrieveAPIView, FormDesignUpdateAPIView,
                     LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView,
                     LeadListAPIView, CampaignNameAPIView, CampaignListAPIView, GoogleSheetWebhookView, CollectEmailView,
-                    LeadsViewOnlyView)
+                    LeadsViewOnlyView, VerifyAccessCodeAPIView)
 
 
 urlpatterns = [
@@ -37,4 +37,5 @@ urlpatterns = [
     path('google-sheet-webhook/', GoogleSheetWebhookView.as_view(), name='google_sheet_webhook'),
     path('collect-email/', CollectEmailView.as_view(), name='collect-email'),
     path('dashboard/<str:campaign_id>/<str:path>/', LeadsViewOnlyView.as_view(), name='campaign-leads'),
+    path('verify-access-code/', VerifyAccessCodeAPIView.as_view(), name='verify_access_code'),
 ]

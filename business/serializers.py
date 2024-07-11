@@ -119,7 +119,7 @@ class InviteEmailSerializer(serializers.Serializer):
 
         # Send email with link and access code
         try:
-            send_invite_lint_email(email, link, access_code)
+            send_invite_lint_email(email, link, access_code, campaign_name=campaign.title)
         except Exception as e:
             # Handle the exception (e.g., log it, retry sending the email, etc.)
             raise RuntimeError("Failed to send email.") from e

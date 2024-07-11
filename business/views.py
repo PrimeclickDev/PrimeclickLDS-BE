@@ -15,7 +15,7 @@ from infobip_utils.create_call import call
 from infobip_utils.delete_call import call_delete
 from infobip_utils.launch_call import launch
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import FormDesign, Lead, Campaign, Business
+from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory
 from django.db import transaction
 # from launch_call import arrange_nums, launch
 import time
@@ -511,3 +511,15 @@ class LeadsViewOnlyView(generics.ListAPIView):
             return Response(response_data, status=status.HTTP_200_OK)
         else:
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
+
+
+class VerifyAccessCodeAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        token = request.query_params.get('token')
+        access_code = request.query_params.get('access_code')
+
+        try:
+            view_time_history = ViewTimeHistory.objects.get(path=token, access_code=access_code)
+            return Response({'valid': True, 'campaign_id': view_time_history.campaign.id}, status=status.HTTP_200_OK)
+        except ViewTimeHistory.DoesNotExist:
+            return Response({'valid': False}, status=status.HTTP_400_BAD_REQUEST)
