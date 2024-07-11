@@ -68,13 +68,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validated_data['email'] = validated_data['email'].lower()
 
         # Create a new Business instance and save it
-        business, created = Business.objects.get_or_create(name=business_name)
 
         # Link the user to the business
         user = User(**validated_data)
-        user.business_id = business
         user.is_active = False
         user.save()
+        business = Business.objects.create(name=business_name)
+        business.users.add(user)
 
         return user
 

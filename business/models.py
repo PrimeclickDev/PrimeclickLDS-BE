@@ -1,6 +1,6 @@
 import uuid
 from django.utils import timezone
-
+from accounts.models import User
 from cloudinary.models import CloudinaryField
 from django.db import models, transaction
 import random
@@ -23,7 +23,8 @@ def random_id(length=4):
 
 class Business(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    users = models.ManyToManyField(User, related_name="businesses", blank=True)
     email = models.EmailField()
     avatar = models.ImageField(
         upload_to='user_avatar/', storage=MediaCloudinaryStorage(), blank=True, null=True)

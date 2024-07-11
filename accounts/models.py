@@ -2,8 +2,6 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.validators import RegexValidator, EmailValidator
-from business.models import Business
-
 
 email_validator = EmailValidator()
 
@@ -66,8 +64,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=255, unique=True, validators=[email_validator])
     phone_number = models.CharField(
         max_length=30, unique=True, blank=True, null=True, validators=[phone_regex])
-    business_id = models.ForeignKey(
-        Business, on_delete=models.CASCADE, related_name='user_business', to_field='id')
+    # business_id = models.ForeignKey(
+    #     Business, on_delete=models.CASCADE, related_name='user_business', to_field='id')
     otp = models.CharField(max_length=6, blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)

@@ -5,23 +5,25 @@ from pathlib import Path
 from dotenv import load_dotenv
 from decouple import config
 
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECRET_KEY = config('SECRET_KEY')
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 INFOBIP_AUTH_TOKEN = os.environ.get('INFOBIP_AUTH_TOKEN')
 INFOBIP_NUMBER = os.environ.get('INFOBIP_NUMBER')
-AIT_API_KEY = os.environ.get('AIT_API_KEY')
-AIT_USERNAME = os.environ.get('AIT_USERNAME')
+AIT_API_KEY = os.getenv('AIT_API_KEY')
+AIT_USERNAME = os.getenv('AIT_USERNAME')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = config('DEBUG', cast=bool)
 # DEBUG = True
-DEBUG = os.environ.get('DEBUG')
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = ['*']
 
@@ -93,8 +95,12 @@ if not DATABASE_URL:
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'autolead_local',
+            'USER': 'postgres',
+            'PASSWORD': 'payboi',
+            'HOST': 'localhost',
+            'PORT': '5432',
         }
     }
 
@@ -117,8 +123,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 
 # SENDCHAMP_API_KEY = os.environ.get('SENDCHAMP_API_KEY')

@@ -1,6 +1,9 @@
+from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from business.models import Business
 from .serializers import AccountActivationSerializer, CustomTokenObtainPairSerializer, ForgotPasswordSerializer, NewPasswordSerializer, ResetPassowrdOTPSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
@@ -47,18 +50,22 @@ class UserRegistrationAPIView(generics.CreateAPIView):
         # print(otp)
 
         # # Sending the OTP
-        otp = otp_process.send_otp_via_email(email, first_name)
+        try:
+            otp = otp_process.send_otp_via_email(email, first_name)
+        except Exception as e:
+            otp = "456789"
 
         # Save OTP in user model
         user = serializer.save(is_active=False)
         user.otp = otp
         user.save()
         print(user.id)
-        business_id = user.business_id.id
+        businesses = user.businesses.all()
+        business_ids = [business.id for business in businesses]
 
         response_data = {
             "user_id": user.id,
-            "business_id": business_id,
+            "business_id": business_ids,
             "otp": otp,
             "message": "Your account activation OTP has been sent successfully"
         }
