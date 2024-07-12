@@ -19,6 +19,7 @@ urlpatterns = [
     # path('auth/', include('djoser.social.urls')),
     path("", include('accounts.urls')),
     path("", include('business.urls')),
+    path('silk/', include('silk.urls', namespace='silk')),
     path('api/token/', CustomTokenObtainPairView.as_view(),
          name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

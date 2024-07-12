@@ -29,7 +29,8 @@ class OtpModule:
         email_message.send()
         return otp
 
-def send_invite_lint_email(email, link: str, access_code: str, campaign_name: str=""):
+
+def send_invite_lint_email(email, link: str, access_code: str, campaign_name: str):
     subject = "View Campaign Access"
     from_email = settings.EMAIL_HOST_USER
     to_email = [email]
@@ -39,12 +40,3 @@ def send_invite_lint_email(email, link: str, access_code: str, campaign_name: st
     email_message.attach_alternative(html_content, 'text/html')
     email_message.send()
 
-
-
-
-# def send_otp_via_email(email, otp):
-#     subject = 'Your OTP Code'
-#     message = f'Your OTP code is {otp}.'
-#     email_from = settings.EMAIL_HOST_USER
-#     recipient_list = [email]
-#     send_mail(subject, message, email_from, recipient_list)
