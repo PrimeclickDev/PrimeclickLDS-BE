@@ -47,9 +47,11 @@ class CampaignUploadView(generics.CreateAPIView):
         campaign = serializer.validated_data['campaign']
 
         if campaign.name.endswith('.csv'):
+            campaign_title = campaign.name[-3]
             # Read CSV file
             reader = pd.read_csv(campaign)
         elif campaign.name.endswith('.xlsx'):
+            campaign_title = campaign.name[-4]
             # Read Excel file
             reader = pd.read_excel(campaign, engine='openpyxl')
         else:
@@ -57,7 +59,7 @@ class CampaignUploadView(generics.CreateAPIView):
 
         # Create a new Campaign
         new_campaign = Campaign.objects.create(
-            title=campaign.name,
+            title=campaign_title,
             business=business,
             type_of='UPLOAD'
         )
