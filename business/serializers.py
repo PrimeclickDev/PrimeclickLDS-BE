@@ -117,12 +117,8 @@ class InviteEmailSerializer(serializers.Serializer):
                 link=link,
                 access_code=access_code
             )
-        current_site = get_current_site(request)
-        domain = current_site.domain
-        site_url = f"https://{domain}"
-        # Send email with link and access code
         try:
-            send_invite_lint_email(email, link, access_code, site_url, campaign_name=campaign.title)
+            send_invite_lint_email(email, link, access_code, campaign_name=campaign.title)
         except Exception as e:
             # Handle the exception (e.g., log it, retry sending the email, etc.)
             raise RuntimeError("Failed to send email.") from e
