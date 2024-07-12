@@ -103,6 +103,10 @@ if not DATABASE_URL:
             'PASSWORD': 'payboi',
             'HOST': 'localhost',
             'PORT': '5432',
+        },
+        'silk': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'silk_db.sqlite3',
         }
     }
 
@@ -116,6 +120,10 @@ else:
             'HOST': os.environ.get('HOST'),
             'PORT': os.environ.get('DB_PORT'),
             'OPTIONS': {'sslmode': 'require'}
+        },
+        'silk': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'silk_db.sqlite3',
         }
     }
 
@@ -216,6 +224,13 @@ SIMPLE_JWT = {
     # 'AUTH_HEADER_TYPES': ('Bearer',),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=90)
 }
+
+
+SILKY_PYTHON_PROFILER = True
+SILKY_PYTHON_PROFILER_BINARY = True
+SILKY_MAX_REQUEST_BODY_SIZE = -1  # or another appropriate value
+SILKY_MAX_RESPONSE_BODY_SIZE = 1024  # or another appropriate value
+
 
 # DJOSER = {
 #     'LOGIN_FIELD': 'email',
