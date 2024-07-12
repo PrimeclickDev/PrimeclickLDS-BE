@@ -32,7 +32,9 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           CampaignNameSerializer,
                           CampaginSerializer,
                           GoogleSheetURLSerializer, InviteEmailSerializer)
+
 logger = logging.getLogger(__name__)
+
 
 class CampaignUploadView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -482,11 +484,11 @@ class GoogleSheetWebhookView(APIView):
         return Response({"message": "Data processed successfully"})
 
 
-
 class CollectEmailView(APIView):
     permission_classes = [IsAuthenticated, ]
+
     def post(self, request):
-        serializer = InviteEmailSerializer(data=request.data)
+        serializer = InviteEmailSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Link sent successfully'}, status=status.HTTP_200_OK)
@@ -513,4 +515,3 @@ class LeadsViewOnlyView(generics.ListAPIView):
             return Response(response_data, status=status.HTTP_200_OK)
         else:
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
-
