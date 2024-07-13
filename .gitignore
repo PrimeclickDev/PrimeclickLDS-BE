@@ -1,6 +1,11 @@
 
 # misc
-/.env
+.env
 /test2.py
 /test_call.py
 /autolead.json
+db.sqlite3
+silk_db.sqlite3
+venv/
+*.prof
+__pycache__/
