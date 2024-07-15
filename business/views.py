@@ -389,11 +389,11 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
-            # record_url = request.data.get("recordingUrl")
+            record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
             lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
-            # print("RECORDING ---------- ", record_url)
+            print("RECORDING ---------- ", record_url)
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
