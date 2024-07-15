@@ -103,7 +103,6 @@ class Lead(models.Model):
         max_length=20, choices=STATUS_CHOICES, default='Pending')
     contacted_status = models.CharField(
         max_length=20, choices=CONTACTED_CHOICES, blank=True, null=True)
-    actions = models.CharField(max_length=255)
     session_id = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
