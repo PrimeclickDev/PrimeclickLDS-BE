@@ -49,58 +49,60 @@ class CampaignUploadView(generics.CreateAPIView):
         campaign = serializer.validated_data['campaign']
 
         if campaign.name.endswith('.csv'):
-            campaign_title = campaign.name[:-3]
+            campaign_title = campaign.name[:-4]
             # Read CSV file
             reader = pd.read_csv(campaign)
         elif campaign.name.endswith('.xlsx'):
-            campaign_title = campaign.name[:-4]
+            campaign_title = campaign.name[:-5]
             # Read Excel file
             reader = pd.read_excel(campaign, engine='openpyxl')
         else:
             return Response({"error": "Unsupported file format"}, status=status.HTTP_UNSUPPORTED_MEDIA_TYPE)
 
         # Create a new Campaign
-        new_campaign = Campaign.objects.create(
-            title=campaign_title,
-            business=business,
-            type_of='UPLOAD'
-        )
+        try:
+            with transaction.atomic():
+                new_campaign = Campaign.objects.create(
+                    title=campaign_title,
+                    business=business,
+                    type_of='UPLOAD'
+                )
 
-        total_lead_count = 0
+                total_lead_count = 0
 
-        # Iterate over each row in the CSV file
-        for _, row in reader.iterrows():
-            lead_data = {}
-            for column in reader.columns:
-                # Check if the column contains the keyword 'name' or 'phone' (case-insensitive)
-                if 'name' in column.lower():
-                    lead_data['full_name'] = row[column]
-                elif 'phone' in column.lower():
-                    # Process phone numbers
-                    phone_number = row[column]
+                # Iterate over each row in the CSV file
+                for _, row in reader.iterrows():
+                    lead_data = {}
+                    for column in reader.columns:
+                        # Check if the column contains the keyword 'name' or 'phone' (case-insensitive)
+                        if 'name' in column.lower():
+                            lead_data['full_name'] = row[column]
+                        elif 'phone' in column.lower():
+                            # Process phone numbers
+                            phone_number = row[column]
+                            processed_number = format_number_before_save(phone_number)
+                            if processed_number:
+                                lead_data['phone_number'] = processed_number
+                        elif 'email' in column.lower():
+                            lead_data['email'] = row[column]
+                        # Add more conditions for other keywords or fields as needed
 
-                    processed_number = format_number_before_save(phone_number)
-                    if processed_number:
-                        lead_data['phone_number'] = processed_number
+                    # Associate each lead with the newly created campaign
+                    lead_data['campaign'] = new_campaign
+                    lead = Lead(**lead_data)
+                    lead.save()
+                    total_lead_count += 1
 
-                elif 'email' in column.lower():
-                    lead_data['email'] = row[column]
-                # Add more conditions for other keywords or fields as needed
+                # Update the total_leads field in the campaign
+                new_campaign.leads = total_lead_count
+                new_campaign.save()
 
-            # Associate each lead with the newly created campaign
-            lead_data['campaign'] = new_campaign
-            lead = Lead(**lead_data)
-            lead.save()
-            # total_lead_count += 1
-
-        # Update the total_leads field in the campaign
-        new_campaign.leads = Lead.objects.filter(campaign=new_campaign).count()
-        new_campaign.save()
-
-        response_data = {"status": "success", "campaign_id": new_campaign.id}
-
-        return Response(response_data, status=status.HTTP_201_CREATED)
-
+            response_data = {"status": "success", "campaign_id": new_campaign.id}
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            # Handle the exception
+            print(f"An error occurred: {e}")
+            return Response({"error": "An error occurred while processing the campaign"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ContactOptionAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
@@ -501,7 +503,20 @@ class LeadsViewOnlyView(generics.ListAPIView):
 
     def get_queryset(self):
         campaign_id = self.kwargs.get('campaign_id')
-        return Lead.objects.filter(campaign__id=campaign_id).select_related('campaign')
+
+        if campaign_id is None:
+            raise ValueError("campaign_id is required")
+
+        try:
+            leads = Lead.objects.filter(campaign__id=campaign_id).select_related('campaign')
+        except Lead.DoesNotExist:
+            leads = Lead.objects.none()  # Return an empty queryset if no leads are found
+        except Exception as e:
+            # Log the exception, handle it appropriately or re-raise it
+            print(f"An error occurred: {e}")
+            leads = Lead.objects.none()  # Optionally return an empty queryset
+
+        return leads
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
