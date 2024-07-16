@@ -121,7 +121,12 @@ class CallCreateAPIView(generics.UpdateAPIView):
 
     def get_object(self):
         campaign_id = self.kwargs.get("campaign_id")
-        return Campaign.objects.get(id=campaign_id)
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+            return campaign
+        except Exception as e:
+            print(e)
+            return Response({"error": "Campaign doesn't exist"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def perform_update(self, serializer):
         user_data = self.request.data
@@ -378,7 +383,10 @@ class AITAPIView(APIView):
 
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
-            xml_data = intro_response(audio_link_1)
+            try:
+                xml_data = intro_response(audio_link_1)
+            except Exception as e:
+                print(e)
             return HttpResponse(xml_data, content_type='text/xml')
         else:
             return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
@@ -404,7 +412,10 @@ class AITFlowAPIView(APIView):
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
             if data == "1" or data == 1:
-                res = positive_flow(audio_link_2)
+                try:
+                    res = positive_flow(audio_link_2)
+                except Exception as e:
+                    print(e)
                 lead.contacted_status = "Converted"
                 lead.campaign.converted += 1
                 lead.save()
