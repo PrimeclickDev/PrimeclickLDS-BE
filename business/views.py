@@ -1,4 +1,6 @@
 import re
+
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -458,41 +460,60 @@ class GoogleSheetWebhookView(APIView):
         if 'data' not in data or not isinstance(data['data'], dict):
             return Response({"error": "Invalid data format"}, status=status.HTTP_400_BAD_REQUEST)
 
-        for campaign_id, rows in data['data'].items():
-            print("Campaign ID:", campaign_id)
+        try:
+            with transaction.atomic():
 
-            # Find or create the campaign based on campaign_id
-            campaign = Campaign.objects.filter(id=campaign_id).first()
-            if not campaign:
-                return Response({"error": f"Campaign '{campaign_id}' not found"}, status=status.HTTP_404_NOT_FOUND)
+                for campaign_id, rows in data['data'].items():
+                    print("Campaign ID:", campaign_id)
 
-            for row in rows:
-                full_name = row.get('FULL NAME', '').strip()
-                email = row.get('EMAIL', '').strip()
-                phone_number = row.get('PHONE NUMBER', '').strip()
+                    # Find or create the campaign based on campaign_id
+                    campaign = Campaign.objects.filter(id=campaign_id).first()
+                    if not campaign:
+                        return Response({"error": f"Campaign '{campaign_id}' not found"}, status=status.HTTP_404_NOT_FOUND)
 
-                # Validate and process each field as needed
-                processed_number = format_number_before_save(phone_number)
+                    for row in rows:
+                        full_name = row.get('FULL NAME', '').strip()
+                        email = row.get('EMAIL', '').strip()
+                        phone_number = row.get('PHONE NUMBER', '').strip()
 
-                # Create lead record
-                lead_data = {
-                    'campaign': campaign,
-                    'full_name': full_name,
-                    'email': email,
-                    'phone_number': processed_number if processed_number else None
-                }
-                Lead.objects.create(**lead_data)
+                        # Validate and process each field as needed
+                        processed_number = format_number_before_save(phone_number)
 
-                # Perform additional actions (e.g., making a voice call)
-                try:
-                    if processed_number:
-                        make_voice_call([processed_number], campaign.id)
-                except Exception as e:
-                    return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        check_lead = Lead.objects.filter(
+                            Q(campaign=campaign) & (Q(contacted="Pending") | Q(contacted_status="Pending"))
+                        )
+                        if check_lead:
+                            retry_nums = []
+                            for lead in check_lead:
+                                retry_nums.append(lead.phone_number)
+                            for num in retry_nums:
+                                try:
+                                    make_voice_call(num, campaign.id)
+                                except Exception as e:
+                                    print(e)
 
-                # Update campaign stats
-                campaign.leads = Lead.objects.filter(campaign=campaign).count()
-                campaign.save()
+                        # Create lead record
+                        lead_data = {
+                            'campaign': campaign,
+                            'full_name': full_name,
+                            'email': email,
+                            'phone_number': processed_number if processed_number else None
+                        }
+                        Lead.objects.create(**lead_data)
+
+                        # Perform additional actions (e.g., making a voice call)
+                        try:
+                            if processed_number:
+                                make_voice_call([processed_number], campaign.id)
+                        except Exception as e:
+                            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                        # Update campaign stats
+                        campaign.leads = Lead.objects.filter(campaign=campaign).count()
+                        campaign.save()
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
         return Response({"message": "Data processed successfully"})
 

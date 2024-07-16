@@ -86,6 +86,7 @@ class Lead(models.Model):
     )
 
     CONTACTED_CHOICES = (
+        ('Pending', 'Pending'),
         ('Converted', 'Converted'),
         ('Rejected', 'Rejected'),
     )
@@ -102,7 +103,7 @@ class Lead(models.Model):
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default='Pending')
     contacted_status = models.CharField(
-        max_length=20, choices=CONTACTED_CHOICES, blank=True, null=True)
+        max_length=20, choices=CONTACTED_CHOICES, default='Pending')
     session_id = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
