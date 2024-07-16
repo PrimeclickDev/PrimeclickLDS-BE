@@ -484,11 +484,11 @@ class GoogleSheetWebhookView(APIView):
                         )
                         if check_lead.exists():
                             retry_nums = [lead.phone_number for lead in check_lead]
-                            for num in retry_nums:
-                                try:
-                                    make_voice_call(num, campaign.id)
-                                except Exception as e:
-                                    print(f"Voice call error: {e}")
+
+                            try:
+                                make_voice_call(retry_nums, campaign.id)
+                            except Exception as e:
+                                print(f"Voice call error: {e}")
 
                         # Create lead record
                         lead_data = {
