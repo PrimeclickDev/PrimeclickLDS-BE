@@ -2,10 +2,8 @@ def intro_response(audio1):
     response = '<?xml version="1.0"?>'
     response += '<Response>'
     response += '<GetDigits numDigits="1" finishOnKey="#" timeout="5" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
-    response += '<Record>'
     response += f'<Play url="{audio1}">'
     response += '</Play>'
-    response += '</Record>'
     response += '</GetDigits>'
     response += '</Response>'
     return response
@@ -14,10 +12,8 @@ def intro_response(audio1):
 def positive_flow(audio2):
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<Record>'
     response += f'<Play url="{audio2}">'
     response += '</Play>'
-    response += '</Record>'
     response += '</Response>'
     return response
 
@@ -25,10 +21,8 @@ def positive_flow(audio2):
 def negative_flow(audio3):
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<Record>'
     response += f'<Play url="{audio3}">'
     response += '</Play>'
-    response += '</Record>'
     response += '</Response>'
     return response
 
