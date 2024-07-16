@@ -462,11 +462,10 @@ class GoogleSheetWebhookView(APIView):
 
         try:
             with transaction.atomic():
-
                 for campaign_id, rows in data['data'].items():
                     print("Campaign ID:", campaign_id)
 
-                    # Find or create the campaign based on campaign_id
+                    # Find the campaign based on campaign_id
                     campaign = Campaign.objects.filter(id=campaign_id).first()
                     if not campaign:
                         return Response({"error": f"Campaign '{campaign_id}' not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -478,19 +477,18 @@ class GoogleSheetWebhookView(APIView):
 
                         # Validate and process each field as needed
                         processed_number = format_number_before_save(phone_number)
+                        print(f"Processed Number: {processed_number}")
 
                         check_lead = Lead.objects.filter(
                             Q(campaign=campaign) & (Q(contacted="Pending") | Q(contacted_status="Pending"))
                         )
-                        if check_lead:
-                            retry_nums = []
-                            for lead in check_lead:
-                                retry_nums.append(lead.phone_number)
+                        if check_lead.exists():
+                            retry_nums = [lead.phone_number for lead in check_lead]
                             for num in retry_nums:
                                 try:
                                     make_voice_call(num, campaign.id)
                                 except Exception as e:
-                                    print(e)
+                                    print(f"Voice call error: {e}")
 
                         # Create lead record
                         lead_data = {
@@ -500,20 +498,23 @@ class GoogleSheetWebhookView(APIView):
                             'phone_number': processed_number if processed_number else None
                         }
                         Lead.objects.create(**lead_data)
+                        print(f"Created Lead: {lead_data}")
 
                         # Perform additional actions (e.g., making a voice call)
                         try:
                             if processed_number:
                                 make_voice_call([processed_number], campaign.id)
                         except Exception as e:
+                            print(f"Additional voice call error: {e}")
                             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                        # Update campaign stats
-                        campaign.leads = Lead.objects.filter(campaign=campaign).count()
-                        campaign.save()
+                    # Update campaign stats
+                    campaign.leads = Lead.objects.filter(campaign=campaign).count()
+                    campaign.save()
+                    print(f"Updated Campaign Leads: {campaign.leads}")
         except Exception as e:
+            print(f"Transaction error: {e}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
         return Response({"message": "Data processed successfully"})
 
