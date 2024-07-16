@@ -480,7 +480,7 @@ class GoogleSheetWebhookView(APIView):
                         print(f"Processed Number: {processed_number}")
 
                         check_lead = Lead.objects.filter(
-                            Q(campaign=campaign) & (Q(contacted="Pending") | Q(contacted_status="Pending"))
+                            Q(campaign=campaign) & (Q(status="Pending") | Q(contacted_status="Pending"))
                         )
                         if check_lead.exists():
                             retry_nums = [lead.phone_number for lead in check_lead]
