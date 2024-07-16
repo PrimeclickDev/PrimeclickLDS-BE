@@ -491,14 +491,21 @@ class GoogleSheetWebhookView(APIView):
                                 print(f"Voice call error: {e}")
 
                         # Create lead record
-                        lead_data = {
-                            'campaign': campaign,
-                            'full_name': full_name,
-                            'email': email,
-                            'phone_number': processed_number if processed_number else None
-                        }
-                        Lead.objects.create(**lead_data)
-                        print(f"Created Lead: {lead_data}")
+                        if not Lead.objects.filter(
+                            campaign=campaign,
+                            full_name=full_name,
+                            email=email,
+                            phone_number=processed_number
+                        ).exists():
+                            # Create lead record if it doesn't exist
+                            lead_data = {
+                                'campaign': campaign,
+                                'full_name': full_name,
+                                'email': email,
+                                'phone_number': processed_number if processed_number else None
+                            }
+                            Lead.objects.create(**lead_data)
+                            print(f"Created Lead: {lead_data}")
 
                         # Perform additional actions (e.g., making a voice call)
                         try:
