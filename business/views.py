@@ -438,7 +438,8 @@ class AITFlowAPIView(APIView):
                 except Exception as e:
                     print(e)
                 lead.contacted_status = "Converted"
-                lead.campaign.converted += 1
+                converted_count = Lead.objects.filter(campaign=lead.campaign, contacted_status="Converted").count()
+                lead.campaign.converted = converted_count
                 lead.campaign.save()
                 lead.save()
                 return HttpResponse(res, content_type='text/xml')
