@@ -284,7 +284,7 @@ class CampaignListAPIView(generics.ListAPIView):
         # Get the campaign_id from the URL
         business_id = self.kwargs.get('business_id')
         # business = get_object_or_404(Business, id=business_id)
-        campaigns = Campaign.objects.filter(business__id=business_id)
+        campaigns = Campaign.objects.filter(business__id=business_id, business__users=self.request.user)
         # print(campaigns)
 
         return campaigns
@@ -420,6 +420,7 @@ class AITFlowAPIView(APIView):
                     print(e)
                 lead.contacted_status = "Converted"
                 lead.campaign.converted += 1
+                lead.campaign.save()
                 lead.save()
                 return HttpResponse(res, content_type='text/xml')
             elif data == "2" or data == 2:
