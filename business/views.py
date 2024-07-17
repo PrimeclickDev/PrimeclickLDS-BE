@@ -3,6 +3,7 @@ import re
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics
+from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 import pandas as pd
 from AIT.xlm_res import intro_response, positive_flow, negative_flow, record_call
@@ -105,6 +106,7 @@ class CampaignUploadView(generics.CreateAPIView):
             # Handle the exception
             print(f"An error occurred: {e}")
             return Response({"error": "An error occurred while processing the campaign"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class ContactOptionAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
@@ -238,13 +240,23 @@ class LeadListAPIView(generics.ListAPIView):
         # Get the campaign_id from the URL
         campaign_id = self.kwargs.get('campaign_id')
 
-        # Get the leads for the specified campaign
+        # If the user is not staff, check if the campaign exists and the user is associated with the business
+        if not self.request.user.is_staff:
+            campaign_exists = Campaign.objects.filter(
+                id=campaign_id,
+                business__users=self.request.user
+            ).exists()
+
+            if not campaign_exists:
+                raise NotFound(detail="Campaign not found or you do not have permission to access it.")
+
+        # Filter leads by campaign_id
         leads = Lead.objects.filter(
-            campaign__id=campaign_id,
-            campaign__business__users=self.request.user
+            campaign__id=campaign_id
         ).select_related("campaign")
 
         return leads
+
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -284,11 +296,15 @@ class CampaignListAPIView(generics.ListAPIView):
     serializer_class = CampaginSerializer
 
     def get_queryset(self):
-        # Get the campaign_id from the URL
+        # Get the business_id from the URL
         business_id = self.kwargs.get('business_id')
-        # business = get_object_or_404(Business, id=business_id)
-        campaigns = Campaign.objects.filter(business__id=business_id, business__users=self.request.user)
-        # print(campaigns)
+
+        if self.request.user.is_staff:
+            # If the user is staff, return campaigns for the specified business
+            campaigns = Campaign.objects.filter(business__id=business_id)
+        else:
+            # If the user is not staff, return campaigns for the specified business only if the user is associated with the business
+            campaigns = Campaign.objects.filter(business__id=business_id, business__users=self.request.user)
 
         return campaigns
 
