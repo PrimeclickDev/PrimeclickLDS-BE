@@ -163,7 +163,8 @@ class LaunchCallAPIView(APIView):
 
         # Extract numbers from the Leads associated with the Campaign
         leads_phone_numbers = Lead.objects.filter(
-            campaign=campaign).values_list('phone_number', flat=True)
+            campaign=campaign).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
+            'phone_number', flat=True)
         nums = [number for number in leads_phone_numbers]
         print(nums)
 
@@ -413,7 +414,6 @@ class AITAPIView(APIView):
             return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
 
-from django.db import transaction
 
 class AITFlowAPIView(APIView):
     permission_classes = [AllowAny]
