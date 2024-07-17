@@ -239,7 +239,10 @@ class LeadListAPIView(generics.ListAPIView):
         campaign_id = self.kwargs.get('campaign_id')
 
         # Get the leads for the specified campaign
-        leads = Lead.objects.filter(campaign__id=campaign_id).select_related("campaign")
+        leads = Lead.objects.filter(
+            campaign__id=campaign_id,
+            campaign__business__users=self.request.user
+        ).select_related("campaign")
 
         return leads
 
