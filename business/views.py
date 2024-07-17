@@ -413,6 +413,8 @@ class AITAPIView(APIView):
             return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
 
+from django.db import transaction
+
 class AITFlowAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -420,41 +422,58 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
-            # record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
-            lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
-                                                                  phone_number=destination_number).first()
-            # print("RECORDING ---------- ", record_url)
-            dest_number_campaign = lead.campaign
-            if dest_number_campaign:
-                audio_link_2 = dest_number_campaign.audio_link_2
-                audio_link_3 = dest_number_campaign.audio_link_3
-            else:
-                return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-            if data == "1" or data == 1:
-                try:
-                    res = positive_flow(audio_link_2)
-                except Exception as e:
-                    print(e)
-                lead.contacted_status = "Converted"
-                converted_count = Lead.objects.filter(campaign=lead.campaign, contacted_status="Converted").count()
-                lead.campaign.converted = converted_count
-                lead.campaign.save()
-                lead.save()
-                return HttpResponse(res, content_type='text/xml')
-            elif data == "2" or data == 2:
-                res = negative_flow(audio_link_3)
-                lead.contacted_status = "Rejected"
-                lead.save()
-                return HttpResponse(res, content_type='text/xml')
-            else:
-                # Provide a default response if the condition isn't met
-                return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
+            # Use transaction to ensure consistency in database operations
+            with transaction.atomic():
+                lead = Lead.objects.select_related('campaign').filter(
+                    session_id=session_id,
+                    phone_number=destination_number
+                ).first()
+
+                if not lead:
+                    return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
+
+                dest_number_campaign = lead.campaign
+
+                if not dest_number_campaign:
+                    return Response({"error": "Campaign not found"}, status=status.HTTP_404_NOT_FOUND)
+
+                if data == "1" or data == 1:
+                    try:
+                        res = positive_flow(dest_number_campaign.audio_link_2)
+                    except Exception as e:
+                        print(e)
+
+                    lead.contacted_status = "Converted"
+                    lead.save()
+
+                    # Count converted leads within the same campaign
+                    converted_count = Lead.objects.filter(
+                        campaign=lead.campaign,
+                        contacted_status="Converted"
+                    ).count()
+
+                    # Update campaign's converted count
+                    dest_number_campaign.converted = converted_count
+                    dest_number_campaign.save()
+
+                    return HttpResponse(res, content_type='text/xml')
+
+                elif data == "2" or data == 2:
+                    res = negative_flow(dest_number_campaign.audio_link_3)
+                    lead.contacted_status = "Rejected"
+                    lead.save()
+                    return HttpResponse(res, content_type='text/xml')
+
+                else:
+                    # Provide a default response if the condition isn't met
+                    return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             # Handling other exceptions
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class AITRecordAPIView(APIView):
