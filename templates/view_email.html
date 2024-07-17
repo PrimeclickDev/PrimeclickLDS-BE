@@ -9,31 +9,21 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
       rel="stylesheet"
     />
-    <title>Dashboard Access</title>
+    <title>Autoleads Campaign Access</title>
     <style>
       body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
         font-family: "DM Sans", sans-serif;
       }
 
       .container {
         background: rgba(243, 243, 243, 1);
         max-width: 600px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         overflow: hidden;
       }
 
       .header {
         width: 100%;
         padding: 50px 30px 80px 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         background: rgba(0, 123, 255, 1);
         color: white;
         font-size: 40px;
@@ -46,6 +36,7 @@
         width: 80%;
         background: white;
         padding: 30px;
+        margin-inline: auto;
         position: relative;
         top: -30px;
         text-align: center;
@@ -70,6 +61,8 @@
 
       .logo {
         margin-bottom: 30px;
+        width: max-content;
+        margin-inline: auto;
       }
     </style>
   </head>
@@ -89,7 +82,7 @@
         </p>
 
         <p class="accent">
-            {{ link }}
+          {{ link }}
         </p>
 
         <p>Your access code is: <strong>{{ access_code }}</strong></p>
