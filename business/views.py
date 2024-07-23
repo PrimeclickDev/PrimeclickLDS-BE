@@ -273,8 +273,8 @@ class LeadListAPIView(generics.ListAPIView):
             #     leads_data.append(lead_data)
 
             response_data = {
-                'campaign_name': queryset[0].campaign.title,
-                'campaign_id': queryset[0].campaign.id,
+                'campaign_name': self.get_queryset[0].campaign.title,
+                'campaign_id':  self.get_queryset[0].campaign.id,
                 'leads': leads_data
             }
             print(response_data)
