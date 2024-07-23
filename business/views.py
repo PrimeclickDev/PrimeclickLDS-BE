@@ -244,12 +244,12 @@ class LeadListAPIView(generics.ListAPIView):
 
         # If the user is not staff, check if the campaign exists and the user is associated with the business
         if not self.request.user.is_staff:
-            campaign_exists = Campaign.objects.filter(
-                id=campaign_id,
-                business__users=self.request.user
-            ).exists()
+            # campaign_exists = Campaign.objects.filter(
+            #     id=campaign_id,
+            #     business__users=self.request.user
+            # ).exists()
 
-            if not campaign_exists:
+            if not (Campaign.objects.filter(id=campaign_id,business__users=self.request.user).exists()):
                 raise NotFound(detail="Campaign not found or you do not have permission to access it.")
 
         # Filter leads by campaign_id
@@ -267,7 +267,7 @@ class LeadListAPIView(generics.ListAPIView):
         if queryset := self.get_queryset().exists():
             leads_data = []
 
-            leads_data = [LeadListSerializer(lead).data  for lead in queryset ]
+            leads_data = [LeadListSerializer(lead).data  for lead in self.get_queryset()]
             # for lead in queryset:
             #     lead_data = LeadListSerializer(lead).data
             #     leads_data.append(lead_data)
@@ -603,7 +603,7 @@ class LeadsViewOnlyView(generics.ListAPIView):
         queryset = self.get_queryset()
         if queryset := self.get_queryset().exists():
         # if queryset.exists():
-            leads_data = [LeadListSerializer(lead).data for lead in queryset]
+            leads_data = [LeadListSerializer(lead).data for lead in self.get_queryset()]
             response_data = {
                 'campaign_name': queryset[0].campaign.title,
                 'leads': leads_data
