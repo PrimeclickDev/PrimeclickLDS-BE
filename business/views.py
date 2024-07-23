@@ -261,15 +261,16 @@ class LeadListAPIView(generics.ListAPIView):
 
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        # queryset = self.get_queryset()
 
         # Check if there are leads in the queryset
-        if queryset.exists():
+        if queryset := self.get_queryset().exists():
             leads_data = []
 
-            for lead in queryset:
-                lead_data = LeadListSerializer(lead).data
-                leads_data.append(lead_data)
+            leads_data = [LeadListSerializer(lead).data  for lead in queryset ]
+            # for lead in queryset:
+            #     lead_data = LeadListSerializer(lead).data
+            #     leads_data.append(lead_data)
 
             response_data = {
                 'campaign_name': queryset[0].campaign.title,
@@ -321,8 +322,7 @@ class FormDesignCreateAPIView(generics.CreateAPIView):
         campaign = get_object_or_404(Campaign, id=campaign_id)
 
         # Check if a record already exists for this campaign
-        existing_record = FormDesign.objects.filter(campaign=campaign).first()
-        if existing_record:
+        if FormDesign.objects.filter(campaign=campaign).exists():
             # If a record exists, inform the user
             raise serializers.ValidationError(
                 "A form design already exists for this campaign.", code=status.HTTP_409_CONFLICT)
@@ -601,8 +601,8 @@ class LeadsViewOnlyView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-
-        if queryset.exists():
+        if queryset := self.get_queryset().exists():
+        # if queryset.exists():
             leads_data = [LeadListSerializer(lead).data for lead in queryset]
             response_data = {
                 'campaign_name': queryset[0].campaign.title,
