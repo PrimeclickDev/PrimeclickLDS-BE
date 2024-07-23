@@ -273,8 +273,8 @@ class LeadListAPIView(generics.ListAPIView):
             #     leads_data.append(lead_data)
 
             response_data = {
-                'campaign_name': self.get_queryset[0].campaign.title,
-                'campaign_id':  self.get_queryset[0].campaign.id,
+                'campaign_name': self.get_queryset()[0].campaign.title,
+                'campaign_id':  self.get_queryset()[0].campaign.id,
                 'leads': leads_data
             }
             print(response_data)
@@ -605,7 +605,7 @@ class LeadsViewOnlyView(generics.ListAPIView):
         # if queryset.exists():
             leads_data = [LeadListSerializer(lead).data for lead in self.get_queryset()]
             response_data = {
-                'campaign_name': queryset[0].campaign.title,
+                'campaign_name': self.get_queryset()[0].campaign.title,
                 'leads': leads_data
             }
             return Response(response_data, status=status.HTTP_200_OK)
