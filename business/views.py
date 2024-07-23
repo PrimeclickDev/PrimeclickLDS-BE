@@ -218,11 +218,12 @@ class LeadFormAPIView(generics.CreateAPIView):
             lead_data['phone_number'] = processed_number
         else:
             pass
+        with transaction.atomic():
+            lead_instance = Lead.objects.create(campaign=campaign, **lead_data)
 
-        lead_instance = Lead.objects.create(campaign=campaign, **lead_data)
-
-        campaign.leads = Lead.objects.filter(campaign=campaign).count()
-        campaign.save()
+            # Safely update the lead count within the transaction
+            campaign.leads_count = Lead.objects.filter(campaign=campaign).count()
+            campaign.save()
 
         # Call the function
         num = [processed_number] if processed_number else []
