@@ -2,7 +2,7 @@ import re
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
-from rest_framework import generics
+from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 import pandas as pd
@@ -237,6 +237,8 @@ class LeadFormAPIView(generics.CreateAPIView):
 class LeadListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = LeadListSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["^first_name"]
 
     def get_queryset(self):
         # Get the campaign_id from the URL
@@ -581,6 +583,8 @@ class CollectEmailView(APIView):
 class LeadsViewOnlyView(generics.ListAPIView):
     serializer_class = LeadListSerializer
     permission_classes = [AllowAny, IsLinkValid]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["^first_name", "^last_name"]
 
     def get_queryset(self):
         campaign_id = self.kwargs.get('campaign_id')
