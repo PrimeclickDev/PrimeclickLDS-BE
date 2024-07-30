@@ -238,7 +238,7 @@ class LeadListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = LeadListSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ["^first_name"]
+    search_fields = ["first_name"]
 
     def get_queryset(self):
         # Get the campaign_id from the URL
@@ -584,7 +584,7 @@ class LeadsViewOnlyView(generics.ListAPIView):
     serializer_class = LeadListSerializer
     permission_classes = [AllowAny, IsLinkValid]
     filter_backends = [filters.SearchFilter]
-    search_fields = ["^first_name", "^last_name"]
+    search_fields = ["first_name", "last_name"]
 
     def get_queryset(self):
         campaign_id = self.kwargs.get('campaign_id')

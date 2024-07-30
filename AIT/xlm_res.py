@@ -12,8 +12,10 @@ def intro_response(audio1):
 def positive_flow(audio2):
     response = '<?xml version="1.0"?>'
     response += '<Response>'
+    response += '<Record finishOnKey="#" maxLength="15" trimSilence="true" playBeep="true" callBackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
     response += f'<Play url="{audio2}">'
     response += '</Play>'
+    response += '</Record>'
     response += '</Response>'
     return response
 
