@@ -386,6 +386,7 @@ class AITAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, format=None):
+        print("DID IT GET HERE AT ALL????????")
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
         print("SESSION ID HERE-------", session_id)
