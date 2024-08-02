@@ -4,7 +4,6 @@ def intro_response(audio1):
     response += '<GetDigits numDigits="1" finishOnKey="#" timeout="5" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
     response += f'<Play url="{audio1}">'
     response += '</Play>'
-    response += '<Record/>'
     response += '</GetDigits>'
     response += '</Response>'
     return response
@@ -15,6 +14,7 @@ def positive_flow(audio2):
     response += '<Response>'
     response += f'<Play url="{audio2}">'
     response += '</Play>'
+    response += '<Record/>'
     response += '</Response>'
     return response
 
