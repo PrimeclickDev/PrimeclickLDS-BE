@@ -12,10 +12,9 @@ def intro_response(audio1):
 def positive_flow(audio2):
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<Record finishOnKey="#" maxLength="10" trimSilence="true" playBeep="true">'
     response += f'<Play url="{audio2}">'
     response += '</Play>'
-    response += '</Record>'
+    response += '<Record/>'
     response += '</Response>'
     return response
 
