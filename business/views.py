@@ -485,9 +485,16 @@ class AITRecordAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, format=None):
-        xml_data = request.data
-        print(xml_data)
-        return Response({"message": "File data gotten!"})
+        # Extract form-encoded data from the request
+        recording_url = request.data.get('RecordingUrl', '')
+        recording_duration = request.data.get('RecordingDuration', '')
+
+        # Optionally, log the data for debugging
+        print(f"Recording URL: {recording_url}")
+        print(f"Recording Duration: {recording_duration}")
+
+        # Return a response to acknowledge receipt
+        return JsonResponse({'status': 'success', 'recording_url': recording_url, 'recording_duration': recording_duration})
 
 
 class GoogleSheetWebhookView(APIView):
