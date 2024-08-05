@@ -105,6 +105,7 @@ class Lead(models.Model):
     contacted_status = models.CharField(
         max_length=20, choices=CONTACTED_CHOICES, default='Pending')
     session_id = models.CharField(max_length=100, null=True, blank=True)
+    recording_url = models.CharField(max_length=256, null=True, blank=True)
 
     class Meta:
         ordering = ['-created']
