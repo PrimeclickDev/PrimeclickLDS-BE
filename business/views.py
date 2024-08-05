@@ -389,9 +389,7 @@ class AITAPIView(APIView):
         print("DID IT GET HERE AT ALL????????")
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
-        recording_utl = request.data.get("recordingUrl")
         print("SESSION ID HERE-------", session_id)
-        print("RECORDING UR HERE--------->>>>>", recording_utl)
 
         # if session_id:
         #     session_id = str(session_id).strip()
@@ -430,6 +428,8 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             session_id = request.data.get("sessionId")
+            recording_utl = request.data.get("recordingUrl")
+            print("RECORDING UR HERE--------->>>>>", recording_utl)
 
             # Use transaction to ensure consistency in database operations
             with transaction.atomic():
