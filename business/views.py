@@ -389,7 +389,9 @@ class AITAPIView(APIView):
         print("DID IT GET HERE AT ALL????????")
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
+        recording_utl = request.data.get("recordingUrl")
         print("SESSION ID HERE-------", session_id)
+        print("RECORDING UR HERE--------->>>>>", recording_utl)
 
         # if session_id:
         #     session_id = str(session_id).strip()
@@ -486,12 +488,12 @@ class AITRecordAPIView(APIView):
 
     def post(self, request, format=None):
         # Extract form-encoded data from the request
-        recording_url = request.data.get('RecordingUrl', '')
-        recording_duration = request.data.get('RecordingDuration', '')
+        recording_url = request.data.get('recordingUrl', '')
+        # recording_duration = request.data.get('RecordingDuration', '')
 
         # Optionally, log the data for debugging
         print(f"Recording URL: {recording_url}")
-        print(f"Recording Duration: {recording_duration}")
+        # print(f"Recording Duration: {recording_duration}")
 
         # Return a response to acknowledge receipt
         return JsonResponse({'status': 'success', 'recording_url': recording_url, 'recording_duration': recording_duration})
