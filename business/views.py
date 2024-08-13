@@ -6,7 +6,7 @@ from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response, positive_record
+from AIT.xlm_res import intro_response, positive_record, thank_you
 from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
@@ -448,11 +448,12 @@ class AITFlowAPIView(APIView):
 
                 if data == "1" or data == 1:
                     try:
-                        res = positive_record(dest_number_campaign.audio_link_2, dest_number_campaign.audio_link_3)
+                        res = positive_record(dest_number_campaign.audio_link_2)
                     except Exception as e:
                         print(e)
 
                     lead.contacted_status = "Converted"
+                    thank_you(dest_number_campaign.audio_link_3)
                     lead.save()
 
                     # Count converted leads within the same campaign
@@ -467,15 +468,14 @@ class AITFlowAPIView(APIView):
 
                     return HttpResponse(res, content_type='text/xml')
 
-                elif data != "1" or data != 1:
-                    res = negative_flow(dest_number_campaign.audio_link_3)
+                else:
                     lead.contacted_status = "Rejected"
                     lead.save()
-                    return HttpResponse(res, content_type='text/xml')
+                    return Response({"message": "Not interested"},status=status.HTTP_200_OK)
 
-                else:
-                    # Provide a default response if the condition isn't met
-                    return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
+                # else:
+                #     # Provide a default response if the condition isn't met
+                #     return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             # Handling other exceptions
@@ -488,15 +488,28 @@ class AITRecordAPIView(APIView):
 
     def post(self, request, format=None):
         # Extract form-encoded data from the request
+        destination_number = request.data.get("callerNumber")
+        session_id = request.data.get("sessionId")
         recording_url = request.data.get('recordingUrl', '')
         # recording_duration = request.data.get('RecordingDuration', '')
 
         # Optionally, log the data for debugging
         print(f"Recording URL: {recording_url}")
-        # print(f"Recording Duration: {recording_duration}")
+        with transaction.atomic():
+            lead = Lead.objects.select_related('campaign').filter(
+                session_id=session_id,
+                phone_number=destination_number
+            ).first()
+            if not lead:
+                return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
+            try:
+                lead.recording_url = recording_url
+                lead.save()
+            except Exception as e:
+                print(e)
 
         # Return a response to acknowledge receipt
-        return JsonResponse({'status': 'success', 'recording_url': recording_url})
+        return Response({'status': 'success', 'recording_url': recording_url})
 
 
 class GoogleSheetWebhookView(APIView):
