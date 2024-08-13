@@ -6,7 +6,7 @@ from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response, positive_flow, negative_flow, record_call
+from AIT.xlm_res import intro_response, positive_flow, negative_flow, record_call, positive_record
 from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
@@ -448,7 +448,7 @@ class AITFlowAPIView(APIView):
 
                 if data == "1" or data == 1:
                     try:
-                        res = positive_flow(dest_number_campaign.audio_link_2)
+                        res = positive_record(dest_number_campaign.audio_link_2, dest_number_campaign.audio_link_3)
                     except Exception as e:
                         print(e)
 
@@ -467,7 +467,7 @@ class AITFlowAPIView(APIView):
 
                     return HttpResponse(res, content_type='text/xml')
 
-                elif data == "2" or data == 2:
+                elif data != "1" or data != 1:
                     res = negative_flow(dest_number_campaign.audio_link_3)
                     lead.contacted_status = "Rejected"
                     lead.save()
@@ -496,7 +496,7 @@ class AITRecordAPIView(APIView):
         # print(f"Recording Duration: {recording_duration}")
 
         # Return a response to acknowledge receipt
-        return JsonResponse({'status': 'success', 'recording_url': recording_url, 'recording_duration': recording_duration})
+        return JsonResponse({'status': 'success', 'recording_url': recording_url})
 
 
 class GoogleSheetWebhookView(APIView):
