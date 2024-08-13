@@ -6,7 +6,7 @@ from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response, positive_flow, negative_flow, record_call, positive_record
+from AIT.xlm_res import intro_response, positive_record
 from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
