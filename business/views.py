@@ -447,12 +447,13 @@ class AITFlowAPIView(APIView):
                     return Response({"error": "Campaign not found"}, status=status.HTTP_404_NOT_FOUND)
 
                 if data == "1" or data == 1:
+                    lead.contacted_status = "Converted"
                     try:
                         res = positive_record(dest_number_campaign.audio_link_2)
                     except Exception as e:
                         print(e)
 
-                    lead.contacted_status = "Converted"
+                    lead.recording_url = recording_utl
                     thank_you(dest_number_campaign.audio_link_3)
                     lead.save()
 
@@ -489,7 +490,9 @@ class AITRecordAPIView(APIView):
     def post(self, request, format=None):
         # Extract form-encoded data from the request
         destination_number = request.data.get("callerNumber")
+        print("New Destination Number Here", destination_number)
         session_id = request.data.get("sessionId")
+        print("New Session Id Here", session_id)
         recording_url = request.data.get('recordingUrl', '')
         # recording_duration = request.data.get('RecordingDuration', '')
 
