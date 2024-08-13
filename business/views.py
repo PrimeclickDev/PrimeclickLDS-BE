@@ -428,8 +428,9 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             session_id = request.data.get("sessionId")
-            recording_utl = request.data.get("recordingUrl")
-            print("RECORDING UR HERE--------->>>>>", recording_utl)
+            recording_url = request.data.get("recordingUrl")
+            print("RECORDING URL HERE--------->>>>>", recording_url)
+            print("DTMF DIGITS:", data)
 
             # Use transaction to ensure consistency in database operations
             with transaction.atomic():
@@ -451,10 +452,15 @@ class AITFlowAPIView(APIView):
                     try:
                         res = positive_record(dest_number_campaign.audio_link_2)
                     except Exception as e:
-                        print(e)
+                        print("Error in positive_record:", e)
+                        res = None
 
-                    lead.recording_url = recording_utl
-                    thank_you(dest_number_campaign.audio_link_3)
+                    lead.recording_url = recording_url
+                    try:
+                        thank_you(dest_number_campaign.audio_link_3)
+                    except Exception as e:
+                        print("Error in thank_you:", e)
+
                     lead.save()
 
                     # Count converted leads within the same campaign
@@ -472,14 +478,11 @@ class AITFlowAPIView(APIView):
                 else:
                     lead.contacted_status = "Rejected"
                     lead.save()
-                    return Response({"message": "Not interested"},status=status.HTTP_200_OK)
-
-                # else:
-                #     # Provide a default response if the condition isn't met
-                #     return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"message": "Not interested"}, status=status.HTTP_200_OK)
 
         except Exception as e:
             # Handling other exceptions
+            print("General error:", e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
