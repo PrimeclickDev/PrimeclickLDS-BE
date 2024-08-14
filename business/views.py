@@ -443,6 +443,7 @@ class AITFlowAPIView(APIView):
             if data == "1" or data == 1:
                 res = positive_record(audio_link_2)
                 lead.contacted_status = "Converted"
+                lead.recording_url = record_url
                 lead.save()
                 thank_you(audio_link_3)
                 return HttpResponse(res, content_type='text/xml')
@@ -452,8 +453,9 @@ class AITFlowAPIView(APIView):
                 lead.save()
                 return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
             else:
+                lead.contacted_status = "Rejected"
                 # Provide a default response if the condition isn't met
-                return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Call Rejected Without DTMF"}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             # Handling other exceptions
