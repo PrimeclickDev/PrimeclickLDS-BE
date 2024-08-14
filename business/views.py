@@ -455,7 +455,7 @@ class AITFlowAPIView(APIView):
             else:
                 lead.contacted_status = "Rejected"
                 # Provide a default response if the condition isn't met
-                return Response({"message": "Call Rejected Without DTMF"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Call Rejected Without DTMF"}, status=status.HTTP_200_OK)
 
         except Exception as e:
             # Handling other exceptions
