@@ -429,7 +429,8 @@ class AITFlowAPIView(APIView):
             destination_number = request.data.get("callerNumber")
             session_id = request.data.get("sessionId")
             recording_url = request.data.get("recordingUrl")
-            print("RECORDING URL HERE--------->>>>>", recording_url)
+            if recording_url:
+                print("RECORDING URL HERE--------->>>>>", recording_url)
             print("DTMF DIGITS:", data)
 
             # Use transaction to ensure consistency in database operations
@@ -441,6 +442,7 @@ class AITFlowAPIView(APIView):
 
                 if not lead:
                     return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
+                print(lead.full_name.upper())
 
                 dest_number_campaign = lead.campaign
 
@@ -449,6 +451,7 @@ class AITFlowAPIView(APIView):
 
                 if data == "1" or data == 1:
                     lead.contacted_status = "Converted"
+                    lead.save()
                     try:
                         res = positive_record(dest_number_campaign.audio_link_2)
                     except Exception as e:
