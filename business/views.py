@@ -420,6 +420,7 @@ class AITAPIView(APIView):
 
 
 
+
 class AITFlowAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -427,67 +428,36 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
+            record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
-            recording_url = request.data.get("recordingUrl")
-            if recording_url:
-                print("RECORDING URL HERE--------->>>>>", recording_url)
-            print("DTMF DIGITS:", data)
+            lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
+                                                                  phone_number=destination_number).first()
+            print("RECORDING HERE---------- ", record_url)
+            dest_number_campaign = lead.campaign
+            if dest_number_campaign:
+                audio_link_2 = dest_number_campaign.audio_link_2
+                audio_link_3 = dest_number_campaign.audio_link_3
+            else:
+                return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-            # Use transaction to ensure consistency in database operations
-            with transaction.atomic():
-                lead = Lead.objects.select_related('campaign').filter(
-                    session_id=session_id,
-                    phone_number=destination_number
-                ).first()
-
-                if not lead:
-                    return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
-                print(lead.full_name.upper())
-
-                dest_number_campaign = lead.campaign
-
-                if not dest_number_campaign:
-                    return Response({"error": "Campaign not found"}, status=status.HTTP_404_NOT_FOUND)
-
-                if data == "1" or data == 1:
-                    lead.contacted_status = "Converted"
-                    lead.save()
-                    try:
-                        res = positive_record(dest_number_campaign.audio_link_2)
-                    except Exception as e:
-                        print("Error in positive_record:", e)
-                        res = None
-
-                    lead.recording_url = recording_url
-                    try:
-                        thank_you(dest_number_campaign.audio_link_3)
-                    except Exception as e:
-                        print("Error in thank_you:", e)
-
-                    lead.save()
-
-                    # Count converted leads within the same campaign
-                    converted_count = Lead.objects.filter(
-                        campaign=lead.campaign,
-                        contacted_status="Converted"
-                    ).count()
-
-                    # Update campaign's converted count
-                    dest_number_campaign.converted = converted_count
-                    dest_number_campaign.save()
-
-                    return HttpResponse(res, content_type='text/xml')
-
-                else:
-                    lead.contacted_status = "Rejected"
-                    lead.save()
-                    return Response({"message": "Not interested"}, status=status.HTTP_200_OK)
+            if data == "1" or data == 1:
+                res = positive_record(audio_link_2)
+                lead.contacted_status = "Converted"
+                lead.save()
+                thank_you(audio_link_3)
+                return HttpResponse(res, content_type='text/xml')
+            elif data == "2" or data == 2 or data == "":
+                # res = negative_flow(audio_link_3)
+                lead.contacted_status = "Rejected"
+                lead.save()
+                return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
+            else:
+                # Provide a default response if the condition isn't met
+                return Response({"message": "Invalid or missing dtmfDigits value"}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             # Handling other exceptions
-            print("General error:", e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 class AITRecordAPIView(APIView):
