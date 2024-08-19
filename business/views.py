@@ -441,13 +441,10 @@ class AITFlowAPIView(APIView):
 
             if data == "1" or data == 1:
                 lead.contacted_status = "Converted"
+                lead.save()
                 try:
                     res = positive_record(audio_link_2)
-                    print(res)
-                    record_url = request.data.get("recordingUrl")
-                    print("RECORDING HERE---------- ", record_url)
-                    lead.recording_url = record_url
-                    lead.save()
+
                 except Exception as e:
                     print("Something wrong with recording here>>>>>>>", e)
                 thank_you(audio_link_3)
@@ -478,6 +475,7 @@ class AITRecordAPIView(APIView):
         session_id = request.data.get("sessionId")
         print("New Session Id Here", session_id)
         recording_url = request.data.get('recordingUrl', '')
+        print("RECORDING HERE---------- ", recording_url)
         # recording_duration = request.data.get('RecordingDuration', '')
 
         # Optionally, log the data for debugging
