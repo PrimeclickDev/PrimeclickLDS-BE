@@ -451,7 +451,7 @@ class AITFlowAPIView(APIView):
                 lead.save()
                 try:
                     positive_record(audio_link_2)
-                    thank_you(audio_link_3)
+                    # thank_you(audio_link_3)
                 except Exception as e:
                     print("Something wrong with recording here>>>>>>>", e)
                     return Response({"error": "Failed during recording"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
