@@ -422,48 +422,43 @@ class AITAPIView(APIView):
 
 
 
-
 class AITFlowAPIView(APIView):
     permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
+            record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
             lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
-            print("DATA HERE---------- ", data)
-            print(f"Data received: {data} (type: {type(data)})")
-
-            # if lead.contacted_status == "Converted" or lead.contacted_status == "Rejected":
-            #     return Response({"message": "Lead already processed"}, status=status.HTTP_200_OK)
-
+            print("RECORDING HERE---------- ", record_url)
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
                 audio_link_3 = dest_number_campaign.audio_link_3
             else:
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
-
-            if data == "1":
-                positive_record(audio_link_2)
+            if data == "1" or data == 1:
+                res = positive_record(audio_link_2)
                 lead.contacted_status = "Converted"
-                # lead.recording_url = record_url
+                lead.recording_url = record_url
                 lead.save()
                 thank_you(audio_link_3)
-
-                return Response({"message": "Converted"}, status=status.HTTP_200_OK)
-
-
+                return HttpResponse(res, content_type='text/xml')
+            elif data == "2" or data == 2 or data == "":
+                # res = negative_flow(audio_link_3)
+                lead.contacted_status = "Rejected"
+                lead.save()
+                return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
             else:
                 lead.contacted_status = "Rejected"
+                # Provide a default response if the condition isn't met
                 return Response({"message": "Call Rejected Without DTMF"}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            print(f"Exception occurred: {e}")
+            # Handling other exceptions
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 class AITRecordAPIView(APIView):
