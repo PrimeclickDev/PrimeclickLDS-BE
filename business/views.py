@@ -436,8 +436,8 @@ class AITFlowAPIView(APIView):
             print("DATA HERE---------- ", data)
             print(f"Data received: {data} (type: {type(data)})")
 
-            if lead.contacted_status == "Converted" or lead.contacted_status == "Rejected":
-                return Response({"message": "Lead already processed"}, status=status.HTTP_200_OK)
+            # if lead.contacted_status == "Converted" or lead.contacted_status == "Rejected":
+            #     return Response({"message": "Lead already processed"}, status=status.HTTP_200_OK)
 
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
@@ -451,7 +451,7 @@ class AITFlowAPIView(APIView):
                 lead.save()
                 try:
                     positive_record(audio_link_2)
-                    # thank_you(audio_link_3)
+                    thank_you(audio_link_3)
                 except Exception as e:
                     print("Something wrong with recording here>>>>>>>", e)
                     return Response({"error": "Failed during recording"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
