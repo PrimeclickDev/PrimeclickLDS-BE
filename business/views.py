@@ -446,7 +446,7 @@ class AITFlowAPIView(APIView):
             else:
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-            if data == "1":
+            if data == "1" and lead.contacted_status != "Converted":
                 lead.contacted_status = "Converted"
                 lead.save()
                 try:
