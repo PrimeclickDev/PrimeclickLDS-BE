@@ -436,7 +436,7 @@ class AITFlowAPIView(APIView):
             print("DATA HERE---------- ", data)
             print(f"Data received: {data} (type: {type(data)})")
 
-            if lead.contacted_status in ["Converted", "Rejected"]:
+            if lead.contacted_status == "Converted" or lead.contacted_status == "Rejected":
                 return Response({"message": "Lead already processed"}, status=status.HTTP_200_OK)
 
             dest_number_campaign = lead.campaign
