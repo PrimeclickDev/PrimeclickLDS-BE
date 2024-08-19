@@ -465,8 +465,9 @@ class AITRecordAPIView(APIView):
         print(f"Recording URL: {recording_url}")
         try:
             lead = Lead.objects.get(session_id=session_id)
-            lead.recording_url = recording_url
-            lead.save()
+            if not lead.recording_url:
+                lead.recording_url = recording_url
+                lead.save()
         except Lead.DoesNotExist:
             return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
 
