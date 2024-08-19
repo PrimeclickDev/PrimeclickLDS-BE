@@ -454,6 +454,9 @@ class AITFlowAPIView(APIView):
                     thank_you(audio_link_3)
                 except Exception as e:
                     print("Something wrong with recording here>>>>>>>", e)
+                    return Response({"error": "Failed during recording"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                return Response({"message": "Converted"}, status=status.HTTP_200_OK)
 
             else:
                 lead.contacted_status = "Rejected"
@@ -461,6 +464,7 @@ class AITFlowAPIView(APIView):
                 return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
 
         except Exception as e:
+            print(f"Exception occurred: {e}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
