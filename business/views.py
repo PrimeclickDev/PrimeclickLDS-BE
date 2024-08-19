@@ -390,8 +390,6 @@ class AITAPIView(APIView):
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
         print("SESSION ID HERE-------", session_id)
-        recording_url = request.data.get('recordingUrl', '')
-        print("RECORDING HERE---------- ", recording_url)
 
         # if session_id:
         #     session_id = str(session_id).strip()
@@ -428,7 +426,6 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
-            record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
             lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
@@ -441,15 +438,9 @@ class AITFlowAPIView(APIView):
             if data == "1":
                 res = positive_record(audio_link_2)
                 lead.contacted_status = "Converted"
-                lead.recording_url = record_url
                 lead.save()
                 thank_you(audio_link_3)
                 return HttpResponse(res, content_type='text/xml')
-            # elif data == "2" or data == "":
-            #     # res = negative_flow(audio_link_3)
-            #     lead.contacted_status = "Rejected"
-            #     lead.save()
-            #     return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
             else:
                 lead.contacted_status = "Rejected"
                 # Provide a default response if the condition isn't met
@@ -464,29 +455,20 @@ class AITRecordAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        # Extract form-encoded data from the request
         destination_number = request.data.get("callerNumber")
         print("New Destination Number Here", destination_number)
         session_id = request.data.get("sessionId")
         print("New Session Id Here", session_id)
         recording_url = request.data.get('recordingUrl', '')
-        print("RECORDING HERE---------- ", recording_url)
-        # recording_duration = request.data.get('RecordingDuration', '')
 
         # Optionally, log the data for debugging
         print(f"Recording URL: {recording_url}")
-        with transaction.atomic():
-            lead = Lead.objects.select_related('campaign').filter(
-                session_id=session_id,
-                phone_number=destination_number
-            ).first()
-            if not lead:
-                return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
-            try:
-                lead.recording_url = recording_url
-                lead.save()
-            except Exception as e:
-                print(e)
+        try:
+            lead = Lead.objects.get(session_id=session_id)
+            lead.recording_url = recording_url
+            lead.save()
+        except Lead.DoesNotExist:
+            return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Return a response to acknowledge receipt
         return Response({'status': 'success', 'recording_url': recording_url})
