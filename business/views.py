@@ -428,11 +428,10 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
-            record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
             lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
-            print("RECORDING HERE---------- ", record_url)
+            # print("RECORDING HERE---------- ", record_url)
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
@@ -441,17 +440,23 @@ class AITFlowAPIView(APIView):
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
             if data == "1" or data == 1:
-                res = positive_record(audio_link_2)
                 lead.contacted_status = "Converted"
-                lead.recording_url = record_url
-                lead.save()
+                try:
+                    res = positive_record(audio_link_2)
+                    print(res)
+                    record_url = request.data.get("recordingUrl")
+                    lead.recording_url = record_url
+                    lead.save()
+                except Exception as e:
+                    print("Something wrong with recording here>>>>>>>", e)
                 thank_you(audio_link_3)
                 return HttpResponse(res, content_type='text/xml')
-            elif data == "2" or data == 2 or data == "":
-                # res = negative_flow(audio_link_3)
+
+            elif data != "1" and data != 1:
                 lead.contacted_status = "Rejected"
                 lead.save()
                 return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
+
             else:
                 lead.contacted_status = "Rejected"
                 # Provide a default response if the condition isn't met
