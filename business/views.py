@@ -433,9 +433,11 @@ class AITFlowAPIView(APIView):
             session_id = request.data.get("sessionId")
             lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
+            print("DATA HERE---------- ", data)
+            print(f"Data received: {data} (type: {type(data)})")
 
-            if not lead:
-                return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
+            if lead.contacted_status in ["Converted", "Rejected"]:
+                return Response({"message": "Lead already processed"}, status=status.HTTP_200_OK)
 
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
@@ -444,25 +446,23 @@ class AITFlowAPIView(APIView):
             else:
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-            if lead.contacted_status not in ["Converted", "Rejected"]:
-                if data == "1":
-                    lead.contacted_status = "Converted"
-                    lead.save()
-                    try:
-                        positive_record(audio_link_2)
-                        thank_you(audio_link_3)
-                    except Exception as e:
-                        print("Something wrong with recording here>>>>>>>", e)
-                        return Response({"error": "Failed to process recording"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                else:
-                    lead.contacted_status = "Rejected"
-                    lead.save()
-                    return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
+            if data == "1":
+                lead.contacted_status = "Converted"
+                lead.save()
+                try:
+                    positive_record(audio_link_2)
+                    thank_you(audio_link_3)
+                except Exception as e:
+                    print("Something wrong with recording here>>>>>>>", e)
 
-            return Response({"message": "Lead already processed"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                lead.contacted_status = "Rejected"
+                lead.save()
+                return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class AITRecordAPIView(APIView):
