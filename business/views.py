@@ -428,7 +428,7 @@ class AITFlowAPIView(APIView):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
-            # record_url = request.data.get("recordingUrl")
+            record_url = request.data.get("recordingUrl")
             session_id = request.data.get("sessionId")
             lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
@@ -441,8 +441,6 @@ class AITFlowAPIView(APIView):
             if data == "1":
                 res = positive_record(audio_link_2)
                 lead.contacted_status = "Converted"
-                record_url = request.data.get("recordingUrl")
-                print("RECORDING HERE NOW---------- ", record_url)
                 lead.recording_url = record_url
                 lead.save()
                 thank_you(audio_link_3)
