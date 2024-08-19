@@ -390,6 +390,8 @@ class AITAPIView(APIView):
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
         print("SESSION ID HERE-------", session_id)
+        recording_url = request.data.get('recordingUrl', '')
+        print("RECORDING HERE---------- ", recording_url)
 
         # if session_id:
         #     session_id = str(session_id).strip()
@@ -432,6 +434,8 @@ class AITFlowAPIView(APIView):
             lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
             # print("RECORDING HERE---------- ", record_url)
+            print("DATA HERE---------- ", data)
+            print(f"Data received: {data} (type: {type(data)})")
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
