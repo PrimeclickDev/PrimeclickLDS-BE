@@ -445,6 +445,7 @@ class AITFlowAPIView(APIView):
                     res = positive_record(audio_link_2)
                     print(res)
                     record_url = request.data.get("recordingUrl")
+                    print("RECORDING HERE---------- ", record_url)
                     lead.recording_url = record_url
                     lead.save()
                 except Exception as e:
