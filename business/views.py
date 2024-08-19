@@ -470,8 +470,12 @@ class AITRecordAPIView(APIView):
         except Lead.DoesNotExist:
             return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        # Log response data before returning it
+        response_data = {'status': 'success', 'recording_url': recording_url}
+        print(f"Response Data: {response_data}")
+
         # Return a response to acknowledge receipt
-        return Response({'status': 'success', 'recording_url': recording_url})
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class GoogleSheetWebhookView(APIView):
