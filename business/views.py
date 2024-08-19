@@ -464,12 +464,25 @@ class AITRecordAPIView(APIView):
         # Optionally, log the data for debugging
         print(f"Recording URL: {recording_url}")
         try:
-            lead = Lead.objects.get(session_id=session_id)
+            lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
+                                                                  phone_number=destination_number).first()
+            if lead is None:
+                return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            dest_number_campaign = lead.campaign
+            if dest_number_campaign:
+                audio_link_3 = dest_number_campaign.audio_link_3
+                try:
+                    thank_you(audio_link_3)
+                except Exception as e:
+                    print(e)
+
             if not lead.recording_url:
                 lead.recording_url = recording_url
                 lead.save()
-        except Lead.DoesNotExist:
-            return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Log response data before returning it
         response_data = {'status': 'success', 'recording_url': recording_url}
