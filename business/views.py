@@ -446,22 +446,19 @@ class AITFlowAPIView(APIView):
             else:
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-            if data == "1" and lead.contacted_status != "Converted":
+            if data == "1":
+                positive_record(audio_link_2)
                 lead.contacted_status = "Converted"
+                # lead.recording_url = record_url
                 lead.save()
-                try:
-                    positive_record(audio_link_2)
-                    thank_you(audio_link_3)
-                except Exception as e:
-                    print("Something wrong with recording here>>>>>>>", e)
-                    return Response({"error": "Failed during recording"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                thank_you(audio_link_3)
 
                 return Response({"message": "Converted"}, status=status.HTTP_200_OK)
 
+
             else:
                 lead.contacted_status = "Rejected"
-                lead.save()
-                return Response({"message": "Rejected"}, status=status.HTTP_200_OK)
+                return Response({"message": "Call Rejected Without DTMF"}, status=status.HTTP_200_OK)
 
         except Exception as e:
             print(f"Exception occurred: {e}")
