@@ -6,6 +6,7 @@ def format_number_before_save(phone_number):
     if phone_number is not None:
         # Convert to string and remove spaces
         phone_number_str = str(phone_number).replace(" ", "")
+        print("The number before formatting here", phone_number_str)
         pattern = re.compile(r'^(\+?\d{1,3})?(\d{10})$')
 
         # Check if the phone number matches the pattern
