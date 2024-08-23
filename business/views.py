@@ -64,41 +64,41 @@ class CampaignUploadView(generics.CreateAPIView):
 
         # Create a new Campaign
         try:
-            with transaction.atomic():
-                new_campaign = Campaign.objects.create(
-                    title=campaign_title,
-                    business=business,
-                    type_of='UPLOAD'
-                )
+            # with transaction.atomic():
+            new_campaign = Campaign.objects.create(
+                title=campaign_title,
+                business=business,
+                type_of='UPLOAD'
+            )
 
-                total_lead_count = 0
+            total_lead_count = 0
 
-                # Iterate over each row in the CSV file
-                for _, row in reader.iterrows():
-                    lead_data = {}
-                    for column in reader.columns:
-                        # Check if the column contains the keyword 'name' or 'phone' (case-insensitive)
-                        if 'name' in column.lower():
-                            lead_data['full_name'] = row[column]
-                        elif 'phone' in column.lower():
-                            # Process phone numbers
-                            phone_number = row[column]
-                            processed_number = format_number_before_save(phone_number)
-                            if processed_number:
-                                lead_data['phone_number'] = processed_number
-                        elif 'email' in column.lower():
-                            lead_data['email'] = row[column]
-                        # Add more conditions for other keywords or fields as needed
+            # Iterate over each row in the CSV file
+            for _, row in reader.iterrows():
+                lead_data = {}
+                for column in reader.columns:
+                    # Check if the column contains the keyword 'name' or 'phone' (case-insensitive)
+                    if 'name' in column.lower():
+                        lead_data['full_name'] = row[column]
+                    elif 'phone' in column.lower():
+                        # Process phone numbers
+                        phone_number = row[column]
+                        processed_number = format_number_before_save(phone_number)
+                        if processed_number:
+                            lead_data['phone_number'] = processed_number
+                    elif 'email' in column.lower():
+                        lead_data['email'] = row[column]
+                    # Add more conditions for other keywords or fields as needed
 
-                    # Associate each lead with the newly created campaign
-                    lead_data['campaign'] = new_campaign
-                    lead = Lead(**lead_data)
-                    lead.save()
-                    total_lead_count += 1
+                # Associate each lead with the newly created campaign
+                lead_data['campaign'] = new_campaign
+                lead = Lead(**lead_data)
+                lead.save()
+                total_lead_count += 1
 
-                # Update the total_leads field in the campaign
-                new_campaign.leads = total_lead_count
-                new_campaign.save()
+            # Update the total_leads field in the campaign
+            new_campaign.leads = total_lead_count
+            new_campaign.save()
 
             response_data = {"status": "success", "campaign_id": new_campaign.id}
             return Response(response_data, status=status.HTTP_201_CREATED)
