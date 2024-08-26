@@ -18,7 +18,7 @@ from infobip_utils.create_call import call
 from infobip_utils.delete_call import call_delete
 from infobip_utils.launch_call import launch
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory
+from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory, random_id
 from django.db import transaction
 # from launch_call import arrange_nums, launch
 import time
@@ -90,6 +90,7 @@ class CampaignUploadView(generics.CreateAPIView):
                             lead_data['email'] = row[column]
 
                     lead_data['campaign'] = new_campaign
+                    lead_data['id'] = random_id()
                     lead = Lead(**lead_data)
                     leads_batch.append(lead)
                     total_lead_count += 1
@@ -97,7 +98,7 @@ class CampaignUploadView(generics.CreateAPIView):
                     # Once the batch size is reached, bulk create leads
                     if len(leads_batch) >= batch_size:
                         Lead.objects.bulk_create(leads_batch)
-                        leads_batch = []  # Reset the batch list
+                        leads_batch = []  #
 
                 # Create remaining leads if any
                 if leads_batch:
