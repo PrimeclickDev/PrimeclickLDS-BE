@@ -114,6 +114,8 @@ class Lead(models.Model):
             self.id = random_id()
             while Lead.objects.filter(id=self.id).exists():
                 self.id = random_id()
+        if not self.id:
+            raise ValueError("ID is not being set correctly")
         super(Lead, self).save(*args, **kwargs)
 
     def __str__(self):
