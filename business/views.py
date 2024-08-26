@@ -171,17 +171,26 @@ class LaunchCallAPIView(APIView):
 
         # Extract numbers from the Leads associated with the Campaign
         leads_phone_numbers = Lead.objects.filter(
-            campaign=campaign).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
-            'phone_number', flat=True)
+            campaign=campaign
+        ).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
+            'phone_number', flat=True
+        )
         nums = [number for number in leads_phone_numbers]
         print(nums)
 
-        try:
-            make_voice_call(nums, campaign_id)
-            return Response({"message": "Call launched successfully"})
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
+        # Define batch size
+        batch_size = 20
 
+        # Process numbers in batches
+        for i in range(0, len(nums), batch_size):
+            batch_nums = nums[i:i + batch_size]
+            try:
+                # Call the make_voice_call function with the current batch
+                make_voice_call(batch_nums, campaign_id)
+            except Exception as e:
+                return Response({"error": str(e)}, status=500)
+
+        return Response({"message": "Calls launched successfully"}, status=200)
 
 class CampaignNameAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
