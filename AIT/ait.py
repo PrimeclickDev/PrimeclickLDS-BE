@@ -3,7 +3,8 @@ import requests
 from backend import settings
 from business.models import Campaign, Lead
 
-def make_voice_call(nums, camp_id, batch_size=20):
+def make_voice_call(nums, camp_id):
+    from business.models import Campaign, Lead
     url = 'https://voice.africastalking.com/call'
     headers = {
         'Accept': 'application/json',
@@ -12,8 +13,11 @@ def make_voice_call(nums, camp_id, batch_size=20):
     }
 
     session_ids = []
+    batch_size = 20
+
     try:
         campaign = Campaign.objects.get(id=camp_id)
+        print("----------CAMPAIGN HERE_________", campaign)
     except Campaign.DoesNotExist:
         print(f"Campaign with id {camp_id} does not exist.")
         return session_ids
@@ -35,9 +39,14 @@ def make_voice_call(nums, camp_id, batch_size=20):
                         if session_id:
                             if lead.session_id:
                                 print(f"Existing call session ID: {lead.session_id}")
-                            lead.session_id = session_id
-                            lead.save()
-                            print("New session ID saved to campaign:", lead.session_id)
+                                lead.session_id = session_id
+                                lead.save()
+                                print("New session ID saved to campaign:", lead.session_id)
+                            else:
+                                lead.session_id = session_id
+                                lead.save()
+                                print("New session ID saved to campaign:", lead.session_id)
+                            session_ids.append(session_id)
                         else:
                             print(f"No session ID found in the response for {num}")
                     except (IndexError, KeyError, TypeError) as e:
@@ -47,7 +56,7 @@ def make_voice_call(nums, camp_id, batch_size=20):
             except requests.RequestException as e:
                 print(f"Encountered an error while making the call for {num}: {e}")
 
-    # Process the phone numbers in batches
+    # Process in batches
     for i in range(0, len(nums), batch_size):
         batch_nums = nums[i:i+batch_size]
         process_batch(batch_nums)
