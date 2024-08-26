@@ -287,7 +287,7 @@ class LeadListAPIView(generics.ListAPIView):
                 'campaign_id':  self.get_queryset()[0].campaign.id,
                 'leads': leads_data
             }
-            print(response_data)
+            # print(response_data)
 
             return Response(response_data, status=status.HTTP_200_OK)
         else:
