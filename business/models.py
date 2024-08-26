@@ -112,6 +112,8 @@ class Lead(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = random_id()
+            while Lead.objects.filter(id=self.id).exists():
+                self.id = random_id()
         super(Lead, self).save(*args, **kwargs)
 
     def __str__(self):
