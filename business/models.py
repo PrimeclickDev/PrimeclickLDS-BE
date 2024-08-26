@@ -16,7 +16,7 @@ def generate_random_id(length=4):
     return 'B' + ''.join(random.choice(characters) for _ in range(length - 1))
 
 
-def random_id(length=4):
+def random_id(length=8):
     characters = string.ascii_uppercase + string.digits
     return 'C' + ''.join(random.choice(characters) for _ in range(length - 1))
 
@@ -91,8 +91,7 @@ class Lead(models.Model):
         ('Rejected', 'Rejected'),
     )
 
-    id = models.CharField(max_length=4, primary_key=True,
-                          unique=True, editable=False)
+    id = models.CharField(max_length=8, primary_key=True, unique=True, editable=False)
     campaign = models.ForeignKey(
         Campaign, on_delete=models.CASCADE, related_name='campaign_lead', to_field='id')
     full_name = models.CharField(max_length=255)
