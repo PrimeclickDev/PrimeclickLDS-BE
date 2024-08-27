@@ -188,7 +188,7 @@ class LaunchCallAPIView(APIView):
             except Exception as e:
                 print(f"Error processing batch: {e}")
 
-        with ThreadPoolExecutor(max_workers=8) as executor:
+        with ThreadPoolExecutor(max_workers=5) as executor:
             for i in range(0, len(nums), batch_size):
                 batch_nums = nums[i:i + batch_size]
                 executor.submit(process_batch, batch_nums)
