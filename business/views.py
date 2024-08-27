@@ -483,9 +483,12 @@ class AITRecordAPIView(APIView):
         session_id = request.data.get("sessionId")
         print("New Session Id Here", session_id)
         recording_url = request.data.get('recordingUrl', '')
+        call_start_time = request.data.get('callStartTime')
+        call_duration = request.data.get('durationInSeconds')
 
         # Optionally, log the data for debugging
-        print(f"Recording URL: {recording_url}")
+        print(f"Received Data: session_id={session_id}, destination_number={destination_number}, "
+              f"recording_url={recording_url}, call_start_time={call_start_time}, call_duration={call_duration}")
         try:
             lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                                   phone_number=destination_number).first()
@@ -502,7 +505,14 @@ class AITRecordAPIView(APIView):
 
             if not lead.recording_url:
                 lead.recording_url = recording_url
-                lead.save()
+
+            if not lead.call_time:
+                lead.call_time = call_start_time
+
+            if not lead.call_duration:
+                lead.call_duration = call_duration
+
+            lead.save()
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
