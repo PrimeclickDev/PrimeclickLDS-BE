@@ -143,6 +143,10 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+# Optional Celery settings
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_TASK_SOFT_TIME_LIMIT = 300  # Soft time limit for tasks
+CELERY_TASK_TIME_LIMIT = 600  # Hard time limit for tasks
 
 
 # SENDCHAMP_API_KEY = os.environ.get('SENDCHAMP_API_KEY')

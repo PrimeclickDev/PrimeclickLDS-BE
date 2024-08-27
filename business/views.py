@@ -26,7 +26,7 @@ import time
 import io
 import csv
 from django.http import HttpResponse, JsonResponse
-from business.tasks import process_voice_calls
+from business.tasks import process_voice_calls, launch_calls
 from .permissions import IsLinkValid
 from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer,
                           FormDesignSerializer,
@@ -165,38 +165,22 @@ class LaunchCallAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, campaign_id, *args, **kwargs):
-        start_time = time.time()
+        campaign = get_object_or_404(Campaign, id=campaign_id)
 
-        try:
-            campaign = Campaign.objects.get(id=campaign_id)
-        except Campaign.DoesNotExist:
-            return Response({"message": "Campaign not found"}, status=404)
-
+        # Extract numbers from the Leads associated with the Campaign
         leads_phone_numbers = Lead.objects.filter(
             campaign=campaign
         ).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
             'phone_number', flat=True
         )
         nums = [number for number in leads_phone_numbers]
-        print(f"Processing {len(nums)} numbers")
+        print(nums)
 
-        batch_size = 20
+        # Launch Celery task to process calls
+        launch_calls.delay(nums, campaign_id)
 
-        def process_batch(batch_nums):
-            try:
-                process_voice_calls.delay(batch_nums, campaign_id)
-            except Exception as e:
-                print(f"Error processing batch: {e}")
+        return Response({"message": "Calls are being processed in the background"}, status=200)
 
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            for i in range(0, len(nums), batch_size):
-                batch_nums = nums[i:i + batch_size]
-                executor.submit(process_batch, batch_nums)
-
-        elapsed_time = time.time() - start_time
-        print(f"Total time for processing: {elapsed_time} seconds")
-
-        return Response({"message": "Calls launched successfully"}, status=200)
 
 class CampaignNameAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
