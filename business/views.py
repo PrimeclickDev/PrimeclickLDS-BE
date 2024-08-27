@@ -26,7 +26,7 @@ import time
 import io
 import csv
 from django.http import HttpResponse, JsonResponse
-
+from business.tasks import process_voice_calls
 from .permissions import IsLinkValid
 from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer,
                           FormDesignSerializer,
@@ -184,7 +184,7 @@ class LaunchCallAPIView(APIView):
 
         def process_batch(batch_nums):
             try:
-                make_voice_call(batch_nums, campaign_id)
+                process_voice_calls.delay(batch_nums, campaign_id)
             except Exception as e:
                 print(f"Error processing batch: {e}")
 
