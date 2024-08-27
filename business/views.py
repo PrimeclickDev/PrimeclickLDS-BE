@@ -26,7 +26,7 @@ import time
 import io
 import csv
 from django.http import HttpResponse, JsonResponse
-from business.tasks import process_voice_calls, launch_calls
+from business.tasks import launch_calls
 from .permissions import IsLinkValid
 from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer,
                           FormDesignSerializer,
