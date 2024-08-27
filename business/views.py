@@ -1,4 +1,5 @@
 import re
+from concurrent.futures import ThreadPoolExecutor
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
@@ -164,31 +165,36 @@ class LaunchCallAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, campaign_id, *args, **kwargs):
+        start_time = time.time()
+
         try:
             campaign = Campaign.objects.get(id=campaign_id)
         except Campaign.DoesNotExist:
             return Response({"message": "Campaign not found"}, status=404)
 
-        # Extract numbers from the Leads associated with the Campaign
         leads_phone_numbers = Lead.objects.filter(
             campaign=campaign
         ).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
             'phone_number', flat=True
         )
         nums = [number for number in leads_phone_numbers]
-        print(nums)
+        print(f"Processing {len(nums)} numbers")
 
-        # Define batch size
         batch_size = 20
 
-        # Process numbers in batches
-        for i in range(0, len(nums), batch_size):
-            batch_nums = nums[i:i + batch_size]
+        def process_batch(batch_nums):
             try:
-                # Call the make_voice_call function with the current batch
                 make_voice_call(batch_nums, campaign_id)
             except Exception as e:
-                return Response({"error": str(e)}, status=500)
+                print(f"Error processing batch: {e}")
+
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            for i in range(0, len(nums), batch_size):
+                batch_nums = nums[i:i + batch_size]
+                executor.submit(process_batch, batch_nums)
+
+        elapsed_time = time.time() - start_time
+        print(f"Total time for processing: {elapsed_time} seconds")
 
         return Response({"message": "Calls launched successfully"}, status=200)
 
