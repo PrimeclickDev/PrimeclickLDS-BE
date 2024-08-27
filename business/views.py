@@ -414,7 +414,7 @@ class AITAPIView(APIView):
         # Fetch the lead with the related campaign in a single query
         lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
                                                               phone_number=destination_number).first()
-        print("CHECK IF SESSION ID:", session_id==lead.session_id)
+        # print("CHECK IF SESSION ID:", session_id==lead.session_id)
         print("LEAD HERE-------", lead)
 
         if lead:
