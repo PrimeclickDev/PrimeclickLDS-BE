@@ -408,6 +408,7 @@ class AITAPIView(APIView):
         destination_number = request.data.get("callerNumber")
         session_id = request.data.get("sessionId")
         print("SESSION ID HERE-------", session_id)
+        print("PHONE NUMBER HERE---------", destination_number)
 
         # if session_id:
         #     session_id = str(session_id).strip()
