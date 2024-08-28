@@ -446,7 +446,7 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             session_id = request.data.get("sessionId")
-            lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
+            lead = Lead.objects.select_related('campaign').filter(
                                                                   phone_number=destination_number).first()
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
@@ -486,7 +486,7 @@ class AITRecordAPIView(APIView):
         print(f"Received Data: session_id={session_id}, destination_number={destination_number}, "
               f"recording_url={recording_url}, call_start_time={call_start_time}, call_duration={call_duration}")
         try:
-            lead = Lead.objects.select_related('campaign').filter(session_id=session_id,
+            lead = Lead.objects.select_related('campaign').filter(
                                                                   phone_number=destination_number).first()
             if lead is None:
                 return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
