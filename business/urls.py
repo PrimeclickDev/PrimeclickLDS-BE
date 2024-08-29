@@ -3,7 +3,7 @@ from .views import (AITAPIView, AITFlowAPIView, AITRecordAPIView, CallCreateAPIV
                     ContactOptionAPIView, FormDesignCreateAPIView, FormDesignRetrieveAPIView, FormDesignUpdateAPIView,
                     LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView,
                     LeadListAPIView, CampaignNameAPIView, CampaignListAPIView, GoogleSheetWebhookView, CollectEmailView,
-                    LeadsViewOnlyView)
+                    LeadsViewOnlyView, RecordingProxyAPIView)
 
 
 urlpatterns = [
@@ -34,6 +34,7 @@ urlpatterns = [
     path('intro/', AITAPIView.as_view(), name='ait-call-trigger'),
     path('call/user/input/', AITFlowAPIView.as_view(), name='call-user-input'),
     path('record/call/', AITRecordAPIView.as_view(), name='record-call'),
+    path('recording/<str:lead_id>/', RecordingProxyAPIView.as_view(), name='recording_proxy_api'),
     path('google-sheet-webhook/', GoogleSheetWebhookView.as_view(), name='google_sheet_webhook'),
     path('collect-email/', CollectEmailView.as_view(), name='collect-email'),
     path('dashboard/<str:campaign_id>/<str:access_code>/', LeadsViewOnlyView.as_view(), name='campaign-leads'),

@@ -1,6 +1,7 @@
 import re
 from concurrent.futures import ThreadPoolExecutor
 
+import requests
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, filters
@@ -519,6 +520,27 @@ class AITRecordAPIView(APIView):
 
         # Return a response to acknowledge receipt
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+class RecordingProxyAPIView(APIView):
+    def get(self, request, lead_id):
+        # Fetch the Lead object
+        lead = get_object_or_404(Lead, id=lead_id)
+
+        # Get the raw HTTP URL from the Lead object
+        recording_url = lead.recording_url
+        if not recording_url:
+            return Response({"detail": "No recording URL found for this lead."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch the content from the original URL
+        response = requests.get(recording_url)
+
+        if response.status_code == 200:
+            content_type = response.headers.get('Content-Type', 'audio/mpeg')
+            return Response(response.content, content_type=content_type)
+        else:
+            return Response({"detail": f"Failed to fetch the content from {recording_url}"},
+                            status=response.status_code)
 
 
 class GoogleSheetWebhookView(APIView):
