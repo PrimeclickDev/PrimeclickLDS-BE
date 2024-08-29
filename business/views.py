@@ -523,6 +523,7 @@ class AITRecordAPIView(APIView):
 
 
 class RecordingProxyAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, lead_id):
         # Fetch the Lead object
         lead = get_object_or_404(Lead, id=lead_id)
