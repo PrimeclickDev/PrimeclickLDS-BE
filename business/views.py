@@ -530,17 +530,16 @@ class RecordingProxyAPIView(APIView):
         # Get the raw HTTP URL from the Lead object
         recording_url = lead.recording_url
         if not recording_url:
-            return Response({"detail": "No recording URL found for this lead."}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse("No recording URL found for this lead.", status=400)
 
         # Fetch the content from the original URL
-        response = requests.get(recording_url)
+        response = requests.get(recording_url, stream=True)
 
         if response.status_code == 200:
             content_type = response.headers.get('Content-Type', 'audio/mpeg')
-            return Response(response.content, content_type=content_type)
+            return HttpResponse(response.content, content_type=content_type)
         else:
-            return Response({"detail": f"Failed to fetch the content from {recording_url}"},
-                            status=response.status_code)
+            return HttpResponse(f"Failed to fetch the content from {recording_url}", status=response.status_code)
 
 
 class GoogleSheetWebhookView(APIView):
