@@ -533,11 +533,19 @@ class RecordingProxyAPIView(APIView):
             return HttpResponse("No recording URL found for this lead.", status=400)
 
         # Fetch the content from the original URL
-        response = requests.get(recording_url, stream=True)
+        response = requests.get(recording_url)
 
         if response.status_code == 200:
+            # Set the correct content type
             content_type = response.headers.get('Content-Type', 'audio/mpeg')
-            return HttpResponse(response.content, content_type=content_type)
+
+            # Adding Content-Disposition to ensure proper file naming
+            response_headers = {
+                'Content-Type': content_type,
+                'Content-Disposition': 'attachment; filename="recording.mp3"',
+            }
+
+            return HttpResponse(response.content, headers=response_headers)
         else:
             return HttpResponse(f"Failed to fetch the content from {recording_url}", status=response.status_code)
 
