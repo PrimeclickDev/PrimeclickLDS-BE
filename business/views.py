@@ -114,7 +114,8 @@ class CampaignUploadView(generics.CreateAPIView):
         except Exception as e:
             # Handle the exception
             print(f"An error occurred: {e}")
-            return Response({"error": "An error occurred while processing the campaign"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": "An error occurred while processing the campaign"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ContactOptionAPIView(generics.UpdateAPIView):
@@ -163,6 +164,7 @@ class CallCreateAPIView(generics.UpdateAPIView):
 
 class LaunchCallAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, campaign_id, *args, **kwargs):
         start_time = time.time()
         try:
@@ -191,7 +193,6 @@ class LaunchCallAPIView(APIView):
         elapsed_time = time.time() - start_time
         print(f"Total time for processing: {elapsed_time} seconds")
         return Response({"message": "Calls launched successfully"}, status=200)
-
 
 
 class CampaignNameAPIView(generics.CreateAPIView):
@@ -270,7 +271,7 @@ class LeadListAPIView(generics.ListAPIView):
             #     business__users=self.request.user
             # ).exists()
 
-            if not (Campaign.objects.filter(id=campaign_id,business__users=self.request.user).exists()):
+            if not (Campaign.objects.filter(id=campaign_id, business__users=self.request.user).exists()):
                 raise NotFound(detail="Campaign not found or you do not have permission to access it.")
 
         # Filter leads by campaign_id
@@ -280,7 +281,6 @@ class LeadListAPIView(generics.ListAPIView):
 
         return leads
 
-
     def list(self, request, *args, **kwargs):
         # queryset = self.get_queryset()
 
@@ -288,14 +288,14 @@ class LeadListAPIView(generics.ListAPIView):
         if queryset := self.get_queryset().exists():
             leads_data = []
 
-            leads_data = [LeadListSerializer(lead).data  for lead in self.get_queryset()]
+            leads_data = [LeadListSerializer(lead).data for lead in self.get_queryset()]
             # for lead in queryset:
             #     lead_data = LeadListSerializer(lead).data
             #     leads_data.append(lead_data)
 
             response_data = {
                 'campaign_name': self.get_queryset()[0].campaign.title,
-                'campaign_id':  self.get_queryset()[0].campaign.id,
+                'campaign_id': self.get_queryset()[0].campaign.id,
                 'leads': leads_data
             }
             # print(response_data)
@@ -416,7 +416,7 @@ class AITAPIView(APIView):
 
         # Fetch the lead with the related campaign in a single query
         lead = Lead.objects.select_related('campaign').filter(
-                                                              phone_number=destination_number).first()
+            phone_number=destination_number).first()
         # print("CHECK IF SESSION ID:", session_id==lead.session_id)
         print("LEAD HERE-------", lead)
 
@@ -439,16 +439,16 @@ class AITAPIView(APIView):
             return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
 
-
 class AITFlowAPIView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         try:
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             session_id = request.data.get("sessionId")
             lead = Lead.objects.select_related('campaign').filter(
-                                                                  phone_number=destination_number).first()
+                phone_number=destination_number).first()
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
@@ -488,7 +488,7 @@ class AITRecordAPIView(APIView):
               f"recording_url={recording_url}, call_start_time={call_start_time}, call_duration={call_duration}")
         try:
             lead = Lead.objects.select_related('campaign').filter(
-                                                                  phone_number=destination_number).first()
+                phone_number=destination_number).first()
             if lead is None:
                 return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -524,6 +524,7 @@ class AITRecordAPIView(APIView):
 
 class RecordingProxyAPIView(APIView):
     permission_classes = [AllowAny]
+
     def get(self, request, lead_id):
         # Fetch the Lead object
         lead = get_object_or_404(Lead, id=lead_id)
@@ -537,13 +538,13 @@ class RecordingProxyAPIView(APIView):
         response = requests.get(recording_url)
 
         if response.status_code == 200:
-            # Set the correct content type
+            # Set the correct content type for the audio file
             content_type = response.headers.get('Content-Type', 'audio/mpeg')
 
-            # Adding Content-Disposition to ensure proper file naming
+            # Set the response headers to allow streaming
             response_headers = {
                 'Content-Type': content_type,
-                'Content-Disposition': 'attachment; filename="recording.mp3"',
+                'Content-Disposition': 'inline',  # This tells the browser to display/play the content
             }
 
             return HttpResponse(response.content, headers=response_headers)
@@ -574,7 +575,8 @@ class GoogleSheetWebhookView(APIView):
                     # Find the campaign based on campaign_id
                     campaign = Campaign.objects.filter(id=campaign_id).first()
                     if not campaign:
-                        return Response({"error": f"Campaign '{campaign_id}' not found"}, status=status.HTTP_404_NOT_FOUND)
+                        return Response({"error": f"Campaign '{campaign_id}' not found"},
+                                        status=status.HTTP_404_NOT_FOUND)
 
                     for row in rows:
                         full_name = row.get('FULL NAME', '').strip()
@@ -598,10 +600,10 @@ class GoogleSheetWebhookView(APIView):
 
                         # Create lead record
                         if not Lead.objects.filter(
-                            campaign=campaign,
-                            full_name=full_name,
-                            email=email,
-                            phone_number=processed_number
+                                campaign=campaign,
+                                full_name=full_name,
+                                email=email,
+                                phone_number=processed_number
                         ).exists():
                             # Create lead record if it doesn't exist
                             lead_data = {
@@ -669,7 +671,7 @@ class LeadsViewOnlyView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         if queryset := self.get_queryset().exists():
-        # if queryset.exists():
+            # if queryset.exists():
             leads_data = [LeadListSerializer(lead).data for lead in self.get_queryset()]
             response_data = {
                 'campaign_name': self.get_queryset()[0].campaign.title,
