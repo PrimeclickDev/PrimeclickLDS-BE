@@ -280,7 +280,7 @@ class LeadListAPIView(generics.ListAPIView):
             leads = Lead.objects.filter(campaign__id=campaign_id).select_related("campaign")
 
             # Cache the queryset results for 15 minutes
-            cache.set(cache_key, leads, timeout=60 * 15)
+            cache.set(cache_key, leads, timeout=60 * 10080)
 
         return leads
 
