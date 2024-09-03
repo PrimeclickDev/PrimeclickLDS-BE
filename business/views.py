@@ -187,7 +187,7 @@ class LaunchCallAPIView(APIView):
             ).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
                 'phone_number', flat=True
             )
-            nums = [number for number in leads_phone_numbers]
+            nums = [number for number in leads_phone_numbers if number is not None]
             cache.set(cache_key, nums, timeout=60 * 10080)  # Cache for 10 minutes (adjust as needed)
 
         print(f"Processing {len(nums)} numbers")
