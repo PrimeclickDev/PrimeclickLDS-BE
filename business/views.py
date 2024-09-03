@@ -167,16 +167,29 @@ class LaunchCallAPIView(APIView):
 
     def post(self, request, campaign_id, *args, **kwargs):
         start_time = time.time()
+
+        # Try to get the campaign
         try:
             campaign = Campaign.objects.get(id=campaign_id)
         except Campaign.DoesNotExist:
             return Response({"message": "Campaign not found"}, status=404)
-        leads_phone_numbers = Lead.objects.filter(
-            campaign=campaign
-        ).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
-            'phone_number', flat=True
-        )
-        nums = [number for number in leads_phone_numbers]
+
+        # Define the cache key based on the campaign_id
+        cache_key = f'leads_phone_numbers_{campaign_id}'
+
+        # Try to get phone numbers from the cache
+        nums = cache.get(cache_key)
+
+        # If not cached, query the database and cache the results
+        if nums is None:
+            leads_phone_numbers = Lead.objects.filter(
+                campaign=campaign
+            ).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
+                'phone_number', flat=True
+            )
+            nums = [number for number in leads_phone_numbers]
+            cache.set(cache_key, nums, timeout=60 * 10080)  # Cache for 10 minutes (adjust as needed)
+
         print(f"Processing {len(nums)} numbers")
         batch_size = 20
 
@@ -190,8 +203,10 @@ class LaunchCallAPIView(APIView):
             for i in range(0, len(nums), batch_size):
                 batch_nums = nums[i:i + batch_size]
                 executor.submit(process_batch, batch_nums)
+
         elapsed_time = time.time() - start_time
         print(f"Total time for processing: {elapsed_time} seconds")
+
         return Response({"message": "Calls launched successfully"}, status=200)
 
 
