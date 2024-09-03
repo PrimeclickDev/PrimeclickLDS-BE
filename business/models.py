@@ -1,4 +1,6 @@
 import uuid
+
+from django.core.cache import cache
 from django.utils import timezone
 from accounts.models import User
 from cloudinary.models import CloudinaryField
@@ -163,5 +165,11 @@ def recount_leads(sender, instance, **kwargs):
     with transaction.atomic():
         campaign = instance.campaign
         if campaign:
+            # Invalidate the cache for this campaign
+            cache_key = f"leads_{campaign.id}"
+            cache.delete(cache_key)
+
+            # Recount leads and save the campaign
             campaign.leads = Lead.objects.filter(campaign=campaign).count()
             campaign.save()
+

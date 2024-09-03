@@ -1,6 +1,6 @@
 import re
 from concurrent.futures import ThreadPoolExecutor
-
+from django.core.cache import cache
 import requests
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
@@ -264,41 +264,37 @@ class LeadListAPIView(generics.ListAPIView):
         # Get the campaign_id from the URL
         campaign_id = self.kwargs.get('campaign_id')
 
-        # If the user is not staff, check if the campaign exists and the user is associated with the business
-        if not self.request.user.is_staff:
-            # campaign_exists = Campaign.objects.filter(
-            #     id=campaign_id,
-            #     business__users=self.request.user
-            # ).exists()
+        # Generate a cache key based on campaign_id
+        cache_key = f"leads_{campaign_id}"
 
-            if not (Campaign.objects.filter(id=campaign_id, business__users=self.request.user).exists()):
-                raise NotFound(detail="Campaign not found or you do not have permission to access it.")
+        # Try to get the cached queryset
+        leads = cache.get(cache_key)
 
-        # Filter leads by campaign_id
-        leads = Lead.objects.filter(
-            campaign__id=campaign_id
-        ).select_related("campaign")
+        if leads is None:
+            # If the user is not staff, check if the campaign exists and the user is associated with the business
+            if not self.request.user.is_staff:
+                if not Campaign.objects.filter(id=campaign_id, business__users=self.request.user).exists():
+                    raise NotFound(detail="Campaign not found or you do not have permission to access it.")
+
+            # Filter leads by campaign_id
+            leads = Lead.objects.filter(campaign__id=campaign_id).select_related("campaign")
+
+            # Cache the queryset results for 15 minutes
+            cache.set(cache_key, leads, timeout=60 * 15)
 
         return leads
 
     def list(self, request, *args, **kwargs):
-        # queryset = self.get_queryset()
-
         # Check if there are leads in the queryset
-        if queryset := self.get_queryset().exists():
-            leads_data = []
-
-            leads_data = [LeadListSerializer(lead).data for lead in self.get_queryset()]
-            # for lead in queryset:
-            #     lead_data = LeadListSerializer(lead).data
-            #     leads_data.append(lead_data)
+        queryset = self.get_queryset()
+        if queryset.exists():
+            leads_data = [LeadListSerializer(lead).data for lead in queryset]
 
             response_data = {
-                'campaign_name': self.get_queryset()[0].campaign.title,
-                'campaign_id': self.get_queryset()[0].campaign.id,
+                'campaign_name': queryset[0].campaign.title,
+                'campaign_id': queryset[0].campaign.id,
                 'leads': leads_data
             }
-            # print(response_data)
 
             return Response(response_data, status=status.HTTP_200_OK)
         else:
