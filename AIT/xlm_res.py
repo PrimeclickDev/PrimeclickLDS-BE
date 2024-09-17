@@ -6,29 +6,37 @@ def intro_response(): #testing
     # response += f'<Play url="{audio1}">'
     # response += '</Play>'
     response += '<Say voice="man">'
-    response += "Welcome to Voice Memo. Press 1 followed by the pound sign. Press 2 followed by the pound sign to exit."
+    response += "Welcome to Autoleads. We are happy to have you here. Please press 1 to proceed"
     response += '</Say>'
     response += '</GetDigits>'
     response += '</Response>'
     return response
 
 
-def positive_record(audio2):
+# def positive_record(audio2):
+def positive_record():
     response = '<?xml version="1.0"?>'
     response += '<Response>'
     response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callbackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
-    response += f'<Play url="{audio2}">'
-    response += '</Play>'
+    # response += f'<Play url="{audio2}">'
+    # response += '</Play>'
+    response += '<Say voice="man">'
+    response += "At the beep please start talking."
+    response += '</Say>'
     response += '</Record>'
     response += '</Response>'
     return response
 
 
-def thank_you(audio3):
+# def thank_you(audio3):
+def thank_you():
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += f'<Play url="{audio3}">'
-    response += '</Play>'
+    # response += f'<Play url="{audio3}">'
+    # response += '</Play>'
+    response += '<Say voice="man">'
+    response += "Thank you very much."
+    response += '</Say>'
     response += '</Response>'
     return response
 

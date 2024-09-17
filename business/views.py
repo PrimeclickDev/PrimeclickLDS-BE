@@ -468,10 +468,11 @@ class AITFlowAPIView(APIView):
             else:
                 return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
             if data == "1":
-                res = positive_record(audio_link_2)
+                # res = positive_record(audio_link_2)
+                res = positive_record()
                 lead.contacted_status = "Converted"
                 lead.save()
-                thank_you(audio_link_3)
+                # thank_you(audio_link_3)
                 return HttpResponse(res, content_type='text/xml')
             else:
                 lead.contacted_status = "Rejected"
@@ -508,7 +509,7 @@ class AITRecordAPIView(APIView):
             if dest_number_campaign:
                 audio_link_3 = dest_number_campaign.audio_link_3
                 try:
-                    thank_you(audio_link_3)
+                    thank_you()
                 except Exception as e:
                     print(e)
 
