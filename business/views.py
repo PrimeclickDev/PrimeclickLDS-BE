@@ -442,8 +442,8 @@ class AITAPIView(APIView):
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
             try:
-                xml_data = intro_response(audio_link_1)
-                # xml_data = intro_response() #test
+                # xml_data = intro_response(audio_link_1)
+                xml_data = intro_response() #test
                 return HttpResponse(xml_data, content_type='text/xml')
             except Exception as e:
                 print(e)
