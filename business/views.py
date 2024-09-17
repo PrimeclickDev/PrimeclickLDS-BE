@@ -489,16 +489,15 @@ class AITRecordAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         destination_number = request.data.get("callerNumber")
-        print("New Destination Number Here", destination_number)
         session_id = request.data.get("sessionId")
-        print("New Session Id Here", session_id)
         recording_url = request.data.get('recordingUrl', '')
         call_start_time = request.data.get('callStartTime')
         call_duration = request.data.get('durationInSeconds')
 
-        # Optionally, log the data for debugging
+        # Log incoming data
         print(f"Received Data: session_id={session_id}, destination_number={destination_number}, "
               f"recording_url={recording_url}, call_start_time={call_start_time}, call_duration={call_duration}")
+
         try:
             lead = Lead.objects.select_related('campaign').filter(
                 phone_number=destination_number).first()
@@ -507,9 +506,8 @@ class AITRecordAPIView(APIView):
 
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
-                audio_link_3 = dest_number_campaign.audio_link_3
                 try:
-                    thank_you()
+                    thank_you_response = thank_you(status="success", recording_url=recording_url)
                 except Exception as e:
                     print(e)
 
@@ -527,12 +525,10 @@ class AITRecordAPIView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Log response data before returning it
-        response_data = {'status': 'success', 'recording_url': recording_url}
-        print(f"Response Data: {response_data}")
+        # Use thank_you response and return it as XML
+        xml_response = thank_you(status="success", recording_url=recording_url)
 
-        # Return a response to acknowledge receipt
-        return Response(response_data, status=status.HTTP_200_OK)
+        return Response(xml_response, content_type="application/xml", status=status.HTTP_200_OK)
 
 
 class RecordingProxyAPIView(APIView):
