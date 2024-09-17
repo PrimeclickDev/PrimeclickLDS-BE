@@ -28,11 +28,9 @@ def positive_record():
     return response
 
 
-def thank_you(status="success", recording_url=""):
+def thank_you():
     response = '<?xml version="1.0" encoding="UTF-8"?>'
     response += '<Response>'
-    response += f'<Status>{status}</Status>'
-    response += f'<RecordingUrl>{recording_url}</RecordingUrl>'
     response += '<Say voice="man">Thank you very much.</Say>'
     response += '</Response>'
     return response

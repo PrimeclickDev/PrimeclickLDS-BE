@@ -526,9 +526,9 @@ class AITRecordAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Use thank_you response and return it as XML
-        xml_response = thank_you(status="success", recording_url=recording_url)
-
-        return Response(xml_response, content_type="application/xml", status=status.HTTP_200_OK)
+        xml_response = thank_you()
+        print(f"XML Response: {xml_response}")  # Debugging output
+        return HttpResponse(xml_response, content_type="application/xml")
 
 
 class RecordingProxyAPIView(APIView):
