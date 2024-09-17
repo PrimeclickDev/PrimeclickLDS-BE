@@ -472,6 +472,8 @@ class AITFlowAPIView(APIView):
                 res = positive_record()
                 lead.contacted_status = "Converted"
                 lead.save()
+                cache_key = f"leads_{lead.campaign.id}"
+                cache.delete(cache_key)
                 # thank_you(audio_link_3)
                 return HttpResponse(res, content_type='text/xml')
             else:
