@@ -28,23 +28,25 @@ def positive_record():
     return response
 
 
-# def thank_you(audio3):
 def thank_you(status="success", recording_url=""):
-    response = '<?xml version="1.0"?>'
+    response = '<?xml version="1.0" encoding="UTF-8"?>'
     response += '<Response>'
-
-    # Add the status and recording_url to the response
     response += f'<Status>{status}</Status>'
     response += f'<RecordingUrl>{recording_url}</RecordingUrl>'
-
-    # Original response content
-    response += '<Say voice="man">'
-    response += "Thank you very much."
-    response += '</Say>'
+    response += '<Say voice="man">Thank you very much.</Say>'
     response += '</Response>'
-
     return response
 
+
+
+def handle_inbound():
+    response = '<?xml version="1.0"?>'
+    response += '<Response>'
+    response += '<Say voice="man">'
+    response += "Thank you for calling Autoleads. Our customer support will be in touch. Thanks again!"
+    response += '</Say>'
+    response += '</Response>'
+    return response
 
 
 # def record_call():

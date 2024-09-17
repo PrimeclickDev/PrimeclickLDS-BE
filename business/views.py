@@ -8,7 +8,7 @@ from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response, positive_record, thank_you
+from AIT.xlm_res import intro_response, positive_record, thank_you, handle_inbound
 from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
@@ -466,7 +466,7 @@ class AITFlowAPIView(APIView):
                 audio_link_2 = dest_number_campaign.audio_link_2
                 audio_link_3 = dest_number_campaign.audio_link_3
             else:
-                return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
+                return handle_inbound()
             if data == "1":
                 # res = positive_record(audio_link_2)
                 res = positive_record()
