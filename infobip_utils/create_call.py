@@ -1,7 +1,7 @@
 import http.client
 import json
 
-from backend import settings
+# from backend import settings
 
 
 def call(audio1=None, audio2=None, audio3=None):
@@ -179,5 +179,5 @@ def call(audio1=None, audio2=None, audio3=None):
     conn.close()
 
 
-# call("https://od.lk/s/NTZfMjg0MzYwNjdf/Confirmation%20final.m4a",
-#      "https://od.lk/s/NTZfMjg0MzYwNzhf/Positive%20repsonse..m4a", "https://od.lk/s/NTZfMjg0MzYwOTJf/negative%20response.m4a")
+call("https://od.lk/s/NTZfMjg0MzYwNjdf/Confirmation%20final.m4a",
+     "https://od.lk/s/NTZfMjg0MzYwNzhf/Positive%20repsonse..m4a", "https://od.lk/s/NTZfMjg0MzYwOTJf/negative%20response.m4a")

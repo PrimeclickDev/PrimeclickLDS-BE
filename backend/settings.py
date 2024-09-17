@@ -96,14 +96,19 @@ DATABASE_URL = os.environ.get('DATABASE_URL', None)
 if not DATABASE_URL:
 
     DATABASES = {
+        # 'default': {
+        #     'ENGINE': 'django.db.backends.postgresql',
+        #     'NAME': 'autolead_local',
+        #     'USER': 'postgres',
+        #     'PASSWORD': 'payboi',
+        #     'HOST': 'localhost',
+        #     'PORT': '5432',
+        # },
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'autolead_local',
-            'USER': 'postgres',
-            'PASSWORD': 'payboi',
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         },
+
         'silk': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'silk_db.sqlite3',

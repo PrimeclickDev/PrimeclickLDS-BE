@@ -1,7 +1,7 @@
 import http.client
 import json
 from datetime import datetime, timedelta
-from backend import settings
+# from backend import settings
 
 
 conn = http.client.HTTPSConnection("8g4mnr.api.infobip.com", timeout=30)
@@ -73,4 +73,4 @@ def launch(scenario_id):
 
     conn.close()
 
-# launch("02DDC0C250D37CA9EA0A6E09C2765CCD")
+launch("4DF03FAC0238986686D3C5397E1258E8")

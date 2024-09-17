@@ -1,6 +1,7 @@
 
 # misc
 .env
+ait_tst.py
 /test2.py
 /test_call.py
 /autolead.json
