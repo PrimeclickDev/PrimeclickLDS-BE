@@ -442,8 +442,8 @@ class AITAPIView(APIView):
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
             try:
-                # xml_data = intro_response(audio_link_1)
-                xml_data = intro_response() #test
+                xml_data = intro_response(audio_link_1)
+                # xml_data = intro_response() #test
                 return HttpResponse(xml_data, content_type='text/xml')
             except Exception as e:
                 print(e)
@@ -468,8 +468,8 @@ class AITFlowAPIView(APIView):
             else:
                 return handle_inbound()
             if data == "1":
-                # res = positive_record(audio_link_2)
-                res = positive_record()
+                res = positive_record(audio_link_2)
+                # res = positive_record()
                 lead.contacted_status = "Converted"
                 lead.save()
                 cache_key = f"leads_{lead.campaign.id}"
@@ -507,11 +507,12 @@ class AITRecordAPIView(APIView):
                 return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
 
             dest_number_campaign = lead.campaign
-            if dest_number_campaign:
-                try:
-                    thank_you_response = thank_you(status="success", recording_url=recording_url)
-                except Exception as e:
-                    print(e)
+            audio3 = dest_number_campaign.audio_link_3
+            # if dest_number_campaign:
+            #     try:
+            #         thank_you_response = thank_you(status="success", recording_url=recording_url)
+            #     except Exception as e:
+            #         print(e)
 
             if not lead.recording_url:
                 lead.recording_url = recording_url
@@ -528,7 +529,7 @@ class AITRecordAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Use thank_you response and return it as XML
-        xml_response = thank_you()
+        xml_response = thank_you(audio3)
         print(f"XML Response: {xml_response}")  # Debugging output
         return HttpResponse(xml_response, content_type="application/xml")
 
