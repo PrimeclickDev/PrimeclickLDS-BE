@@ -445,7 +445,7 @@ class AITAPIView(APIView):
             try:
                 # xml_data = intro_response(audio_link_1)
                 xml_data = intro_response() #test
-                return Response(xml_data, content_type='application/xml')
+                return HttpResponse(xml_data, content_type='application/xml')
             except Exception as e:
                 print(e)
         else:
@@ -476,7 +476,7 @@ class AITFlowAPIView(APIView):
                 cache_key = f"leads_{lead.campaign.id}"
                 cache.delete(cache_key)
                 # thank_you(audio_link_3)
-                return Response(res, content_type='application/xml')
+                return HttpResponse(res, content_type='application/xml')
             else:
                 lead.contacted_status = "Rejected"
                 # Provide a default response if the condition isn't met
@@ -529,7 +529,7 @@ class AITRecordAPIView(APIView):
         print(f"XML Response: {xml_response}")  # Debugging output
 
         # Return the XML response using DRF's Response
-        return Response(xml_response, content_type="application/xml")
+        return HttpResponse(xml_response, content_type="application/xml")
 
 
 class RecordingProxyAPIView(APIView):
