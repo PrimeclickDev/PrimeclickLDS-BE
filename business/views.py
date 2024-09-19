@@ -422,6 +422,7 @@ class AITAPIView(APIView):
         session_id = request.data.get("sessionId")
         print("SESSION ID HERE-------", session_id)
         print("PHONE NUMBER HERE---------", destination_number)
+        direction = request.data.get("direction")
 
         # if session_id:
         #     session_id = str(session_id).strip()
@@ -431,6 +432,10 @@ class AITAPIView(APIView):
             phone_number=destination_number).first()
         # print("CHECK IF SESSION ID:", session_id==lead.session_id)
         print("LEAD HERE-------", lead)
+
+        if direction == "Inbound":
+            inb_xml_data = handle_inbound()
+            return HttpResponse(inb_xml_data, content_type='application/xml')
 
         if lead:
             # Access the related campaign from the lead object
@@ -463,8 +468,6 @@ class AITFlowAPIView(APIView):
             direction = request.data.get("direction")
             lead = Lead.objects.select_related('campaign').filter(
                 phone_number=destination_number).first()
-            if direction == "Inbound":
-                return handle_inbound()
 
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
