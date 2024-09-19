@@ -16,9 +16,9 @@ from rest_framework import serializers
 import logging
 from backend import settings
 from backend.utils import format_number_before_save
-from infobip_utils.create_call import call
-from infobip_utils.delete_call import call_delete
-from infobip_utils.launch_call import launch
+# from infobip_utils.create_call import call
+# from infobip_utils.delete_call import call_delete
+# from infobip_utils.launch_call import launch
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory, random_id
 from django.db import transaction
@@ -333,6 +333,7 @@ class CampaignListAPIView(generics.ListAPIView):
     def get_queryset(self):
         # Get the business_id from the URL
         business_id = self.kwargs.get('business_id')
+        # cache_key = f"leads_{campaign_id}"
 
         if self.request.user.is_staff:
             # If the user is staff, return campaigns for the specified business
@@ -442,9 +443,9 @@ class AITAPIView(APIView):
         if dest_number_campaign:
             audio_link_1 = dest_number_campaign.audio_link_1
             try:
-                xml_data = intro_response(audio_link_1)
-                # xml_data = intro_response() #test
-                return HttpResponse(xml_data, content_type='text/xml')
+                # xml_data = intro_response(audio_link_1)
+                xml_data = intro_response() #test
+                return Response(xml_data, content_type='text/xml')
             except Exception as e:
                 print(e)
         else:
@@ -468,14 +469,14 @@ class AITFlowAPIView(APIView):
             else:
                 return handle_inbound()
             if data == "1":
-                res = positive_record(audio_link_2)
-                # res = positive_record()
+                # res = positive_record(audio_link_2)
+                res = positive_record()
                 lead.contacted_status = "Converted"
                 lead.save()
                 cache_key = f"leads_{lead.campaign.id}"
                 cache.delete(cache_key)
                 # thank_you(audio_link_3)
-                return HttpResponse(res, content_type='text/xml')
+                return Response(res, content_type='text/xml')
             else:
                 lead.contacted_status = "Rejected"
                 # Provide a default response if the condition isn't met
@@ -508,11 +509,6 @@ class AITRecordAPIView(APIView):
 
             dest_number_campaign = lead.campaign
             audio3 = dest_number_campaign.audio_link_3
-            # if dest_number_campaign:
-            #     try:
-            #         thank_you_response = thank_you(status="success", recording_url=recording_url)
-            #     except Exception as e:
-            #         print(e)
 
             if not lead.recording_url:
                 lead.recording_url = recording_url
@@ -529,9 +525,11 @@ class AITRecordAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Use thank_you response and return it as XML
-        xml_response = thank_you(audio3)
+        xml_response = thank_you()
         print(f"XML Response: {xml_response}")  # Debugging output
-        return HttpResponse(xml_response, content_type="application/xml")
+
+        # Return the XML response using DRF's Response
+        return Response(xml_response, content_type="application/xml")
 
 
 class RecordingProxyAPIView(APIView):
@@ -544,25 +542,28 @@ class RecordingProxyAPIView(APIView):
         # Get the raw HTTP URL from the Lead object
         recording_url = lead.recording_url
         if not recording_url:
-            return HttpResponse("No recording URL found for this lead.", status=400)
+            return Response({"error": "No recording URL found for this lead."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Fetch the content from the original URL
-        response = requests.get(recording_url)
+        external_response = requests.get(recording_url)
 
-        if response.status_code == 200:
+        if external_response.status_code == 200:
             # Set the correct content type for the audio file
-            content_type = response.headers.get('Content-Type', 'audio/mpeg')
+            content_type = external_response.headers.get('Content-Type', 'audio/mpeg')
 
-            # Set the response headers to allow streaming
+            # Set the response headers for the audio file
             response_headers = {
                 'Content-Type': content_type,
                 'Content-Disposition': 'inline',  # This tells the browser to display/play the content
             }
 
-            return HttpResponse(response.content, headers=response_headers)
+            # Return the response with binary content and headers
+            return Response(external_response.content, headers=response_headers)
         else:
-            return HttpResponse(f"Failed to fetch the content from {recording_url}", status=response.status_code)
-
+            return Response(
+                {"error": f"Failed to fetch the content from {recording_url}"},
+                status=external_response.status_code
+            )
 
 class GoogleSheetWebhookView(APIView):
     permission_classes = [AllowAny]
