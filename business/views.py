@@ -463,7 +463,7 @@ class AITFlowAPIView(APIView):
             direction = request.data.get("direction")
             lead = Lead.objects.select_related('campaign').filter(
                 phone_number=destination_number).first()
-            if direction == "Outbound":
+            if direction == "Inbound":
                 return handle_inbound()
 
             dest_number_campaign = lead.campaign
