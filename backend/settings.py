@@ -132,6 +132,10 @@ else:
         }
     }
 
+
+if not DEBUG:
+    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+
 # EMAIL BACKEND SETUP
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

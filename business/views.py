@@ -460,14 +460,17 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             session_id = request.data.get("sessionId")
+            direction = request.data.get("direction")
             lead = Lead.objects.select_related('campaign').filter(
                 phone_number=destination_number).first()
+            if direction == "Outbound":
+                return handle_inbound()
+
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
                 audio_link_2 = dest_number_campaign.audio_link_2
                 audio_link_3 = dest_number_campaign.audio_link_3
-            else:
-                return handle_inbound()
+
             if data == "1":
                 # res = positive_record(audio_link_2)
                 res = positive_record()
