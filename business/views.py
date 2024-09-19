@@ -558,7 +558,7 @@ class RecordingProxyAPIView(APIView):
             }
 
             # Return the response with binary content and headers
-            return Response(external_response.content, headers=response_headers)
+            return HttpResponse(external_response.content, headers=response_headers)
         else:
             return Response(
                 {"error": f"Failed to fetch the content from {recording_url}"},
