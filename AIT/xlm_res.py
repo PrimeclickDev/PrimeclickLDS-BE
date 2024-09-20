@@ -2,7 +2,7 @@
 def intro_response(): #testing
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<GetDigits numDigits="1" finishOnKey="#" timeout="5" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
+    response += '<GetDigits numDigits="1" finishOnKey="#" timeout="8" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
     # response += f'<Play url="{audio1}">'
     # response += '</Play>'
     response += '<Say voice="man">'
@@ -17,11 +17,11 @@ def intro_response(): #testing
 def positive_record():
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callbackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
+    response += '<Record finishOnKey="#" maxLength="20" trimSilence="true" playBeep="true" callbackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
     # response += f'<Play url="{audio2}">'
     # response += '</Play>'
     response += '<Say voice="man">'
-    response += "At the beep please start talking."
+    response += "Please start talking."
     response += '</Say>'
     response += '</Record>'
     response += '</Response>'
