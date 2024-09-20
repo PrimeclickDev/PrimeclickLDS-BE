@@ -181,7 +181,7 @@ class LaunchCallAPIView(APIView):
         nums = cache.get(cache_key)
 
         # If not cached, query the database and cache the results
-        if nums is not None: # Added the not just to bypass the cache for testing
+        if nums is None:
             leads_phone_numbers = Lead.objects.filter(
                 campaign=campaign
             ).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
@@ -285,7 +285,7 @@ class LeadListAPIView(generics.ListAPIView):
         # Try to get the cached queryset
         leads = cache.get(cache_key)
 
-        if leads is not None: # Added the not just to bypass the cache for now
+        if leads is None:
             # If the user is not staff, check if the campaign exists and the user is associated with the business
             if not self.request.user.is_staff:
                 if not Campaign.objects.filter(id=campaign_id, business__users=self.request.user).exists():
