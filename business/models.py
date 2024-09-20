@@ -168,7 +168,6 @@ def recount_leads(sender, instance, **kwargs):
             # Invalidate the cache for this campaign
             cache_key = f"leads_{campaign.id}"
             cache.delete(cache_key)
-
             # Recount leads and save the campaign
             campaign.leads = Lead.objects.filter(campaign=campaign).count()
             campaign.save()
