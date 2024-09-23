@@ -35,7 +35,7 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           LeadUploadSerializer,
                           CampaignNameSerializer,
                           CampaginSerializer,
-                          GoogleSheetURLSerializer, InviteEmailSerializer)
+                          GoogleSheetURLSerializer, InviteEmailSerializer, ContentOptionSerializer, CallTextSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -128,36 +128,51 @@ class ContactOptionAPIView(generics.UpdateAPIView):
         return Campaign.objects.get(id=campaign_id)
 
 
+class ContentOptionAPIView(generics.UpdateAPIView):
+    queryset = Campaign.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ContentOptionSerializer
+
+    def get_object(self):
+        campaign_id = self.kwargs.get("campaign_id")
+        return Campaign.objects.get(id=campaign_id)
+
+
 class CallCreateAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
     permission_classes = [IsAuthenticated]
-    serializer_class = CallAudioLinksSerializer
+
+    def get_serializer_class(self):
+        # Get the campaign to check its content type
+        campaign = self.get_object()
+
+        # Assuming content_type is a field that determines if it's 'audio' or 'text'
+        if campaign.content_type == "Audio":
+            return CallAudioLinksSerializer
+        elif campaign.content_type == "Text":
+            return CallTextSerializer
+        else:
+            return Response(
+                {"error": "Invalid content type"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
     def get_object(self):
         campaign_id = self.kwargs.get("campaign_id")
         try:
             campaign = Campaign.objects.get(id=campaign_id)
             return campaign
-        except Exception as e:
-            print(e)
-            return Response({"error": "Campaign doesn't exist"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Campaign.DoesNotExist:
+            return Response(
+                {"error": "Campaign doesn't exist"}, status=status.HTTP_404_NOT_FOUND
+            )
 
     def perform_update(self, serializer):
-        user_data = self.request.data
-        audio1 = user_data.get('audio_link_1')
-        print("CHECKING---------", audio1)
-        audio2 = user_data.get('audio_link_2')
-        audio3 = user_data.get('audio_link_3')
-
         campaign = self.get_object()
-        serializer.save(
-            audio_link_1=audio1,
-            audio_link_2=audio2,
-            audio_link_3=audio3
-        )
+        # The serializer already knows which fields to handle based on the content type
+        serializer.save()
 
         return Response(
-            {"message": "Update successful", "campaign_id": campaign.id},  # Use campaign.id
+            {"message": "Update successful", "campaign_id": campaign.id},
             status=status.HTTP_200_OK
         )
 
