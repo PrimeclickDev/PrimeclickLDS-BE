@@ -8,7 +8,7 @@ from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response, positive_record, thank_you, handle_inbound
+from AIT.xlm_res import intro_response, positive_record, thank_you, handle_inbound, default_handle_inbound
 from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
@@ -449,7 +449,11 @@ class AITAPIView(APIView):
         print("LEAD HERE-------", lead)
 
         if direction == "Inbound":
-            inb_xml_data = handle_inbound()
+            if lead:
+                content4 = lead.campaign.audio_link_4 if lead.campaign.content_option == "Audio" else lead.campaign.text_4
+                inb_xml_data = handle_inbound(content4)
+            else:
+                inb_xml_data = default_handle_inbound()
             return HttpResponse(inb_xml_data, content_type='application/xml')
 
         if lead:
