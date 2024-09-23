@@ -147,13 +147,13 @@ class CallCreateAPIView(generics.UpdateAPIView):
         campaign = self.get_object()
 
         # Assuming content_type is a field that determines if it's 'audio' or 'text'
-        if campaign.content_type == "Audio":
+        if campaign.content_option == "Audio":
             return CallAudioLinksSerializer
-        elif campaign.content_type == "Text":
+        elif campaign.content_option == "Text":
             return CallTextSerializer
         else:
             return Response(
-                {"error": "Invalid content type"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid content option"}, status=status.HTTP_400_BAD_REQUEST
             )
 
     def get_object(self):
