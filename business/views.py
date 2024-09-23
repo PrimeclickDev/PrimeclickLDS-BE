@@ -461,10 +461,10 @@ class AITAPIView(APIView):
             dest_number_campaign = None
 
         if dest_number_campaign:
-            audio_link_1 = dest_number_campaign.audio_link_1
+            content_1 = dest_number_campaign.audio_link_1 if dest_number_campaign.content_option == "Audio" else dest_number_campaign.text_1
             try:
                 # xml_data = intro_response(audio_link_1)
-                xml_data = intro_response() #test
+                xml_data = intro_response(content_1) #test
                 return HttpResponse(xml_data, content_type='application/xml')
             except Exception as e:
                 print(e)
@@ -486,12 +486,11 @@ class AITFlowAPIView(APIView):
 
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
-                audio_link_2 = dest_number_campaign.audio_link_2
-                audio_link_3 = dest_number_campaign.audio_link_3
+                content_2 = dest_number_campaign.audio_link_2 if dest_number_campaign.content_option == "Audio" else dest_number_campaign.text_2
 
             if data == "1":
                 # res = positive_record(audio_link_2)
-                res = positive_record()
+                res = positive_record(content_2)
                 lead.contacted_status = "Converted"
                 lead.save()
                 cache_key = f"leads_{lead.campaign.id}"
@@ -529,8 +528,7 @@ class AITRecordAPIView(APIView):
                 return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
 
             dest_number_campaign = lead.campaign
-            audio3 = dest_number_campaign.audio_link_3
-
+            content_3 = dest_number_campaign.audio_link_3 if dest_number_campaign.content_option == "Audio" else dest_number_campaign.text_3
             if not lead.recording_url:
                 lead.recording_url = recording_url
 
@@ -546,7 +544,7 @@ class AITRecordAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Use thank_you response and return it as XML
-        xml_response = thank_you()
+        xml_response = thank_you(content_3)
         print(f"XML Response: {xml_response}")  # Debugging output
 
         # Return the XML response using DRF's Response
