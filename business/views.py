@@ -304,7 +304,7 @@ class BusinessLeadListAPIView(generics.ListAPIView):
 
         if campaigns is None:
             # Filter campaigns that belong to the business and prefetch leads related to each campaign
-            campaigns = Campaign.objects.filter(business_id=business_id).prefetch_related('leads')
+            campaigns = Campaign.objects.filter(business_id=business_id).prefetch_related('campaign_leads')
 
             # Cache the queryset results for 1 week (7 days)
             cache.set(cache_key, campaigns, timeout=60 * 10080)
@@ -319,7 +319,7 @@ class BusinessLeadListAPIView(generics.ListAPIView):
             campaigns_data = []
 
             for campaign in queryset:
-                leads = campaign.leads.all()  # Assuming `related_name="leads"` in the Campaign model's ForeignKey in Lead
+                leads = campaign.campaign_leads.all()  # Assuming `related_name="leads"` in the Campaign model's ForeignKey in Lead
                 leads_data = LeadListSerializer(leads, many=True).data
 
                 campaigns_data.append({
