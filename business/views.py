@@ -47,6 +47,7 @@ class CampaignUploadView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         business_id = self.kwargs.get('business_id')
         business = get_object_or_404(Business, id=business_id)
+        cache_key = f"leads_{business_id}"
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -108,6 +109,7 @@ class CampaignUploadView(generics.CreateAPIView):
                 # Update the total_leads field in the campaign
                 new_campaign.leads = total_lead_count
                 new_campaign.save()
+                cache.delete(cache_key)
 
             response_data = {"status": "success", "campaign_id": new_campaign.id}
             return Response(response_data, status=status.HTTP_201_CREATED)
@@ -258,6 +260,8 @@ class LeadFormAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         campaign_id = self.kwargs.get('campaign_id')
         campaign = get_object_or_404(Campaign, id=campaign_id)
+        business_id = campaign.business.id
+        cache_key = f"leads_{business_id}"
 
         lead_data = serializer.validated_data
         phone_number = lead_data.get('phone_number')
@@ -274,6 +278,7 @@ class LeadFormAPIView(generics.CreateAPIView):
             # Safely update the lead count within the transaction
             campaign.leads_count = Lead.objects.filter(campaign=campaign).count()
             campaign.save()
+            cache.delete(cache_key)
 
         # Call the function
         num = [processed_number] if processed_number else []
@@ -282,6 +287,55 @@ class LeadFormAPIView(generics.CreateAPIView):
             return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+
+class BusinessLeadListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = LeadListSerializer
+    # filter_backends = [filters.SearchFilter]
+    # search_fields = ["first_name"]
+
+    def get_queryset(self):
+        # Get the campaign_id from the URL
+        business_id = self.kwargs.get('business_id')
+
+        # Generate a cache key based on campaign_id
+        cache_key = f"leads_{business_id}"
+
+        # Try to get the cached queryset
+        leads = cache.get(cache_key)
+
+        if leads is None:
+            # If the user is not staff, check if the campaign exists and the user is associated with the business
+            # if not self.request.user.is_staff:
+            #     if not Business.objects.filter(id=business_id, users=self.request.user).exists():
+            #         raise NotFound(detail=" not found or you do not have permission to access it.")
+
+            # Filter leads by campaign_id
+            leads = Lead.objects.filter(campaign__business=business_id).select_related("campaign")
+
+            # Cache the queryset results for 15 minutes
+            cache.set(cache_key, leads, timeout=60 * 10080)
+
+        return leads
+
+    def list(self, request, *args, **kwargs):
+        # Check if there are leads in the queryset
+        queryset = self.get_queryset()
+        if queryset.exists():
+            leads_data = [LeadListSerializer(lead).data for lead in queryset]
+
+            response_data = {
+                'campaign_name': queryset[0].campaign.title,
+                'campaign_id': queryset[0].campaign.id,
+                'leads': leads_data
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            # Handle the case where there are no leads
+            return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
+
 
 
 class LeadListAPIView(generics.ListAPIView):
