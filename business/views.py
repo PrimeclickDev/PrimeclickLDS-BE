@@ -325,10 +325,15 @@ class BusinessLeadListAPIView(generics.ListAPIView):
         if queryset.exists():
             leads_data = [LeadListSerializer(lead).data for lead in queryset]
 
-            response_data = {
+            campaign_data = {
                 'campaign_name': queryset[0].campaign.title,
                 'campaign_id': queryset[0].campaign.id,
                 'leads': leads_data
+            }
+            response_data = {
+                'business': queryset[0].campaign.business.name,
+                'business_id': queryset[0].campaign.business.id
+                'campaigns': campaign_data
             }
 
             return Response(response_data, status=status.HTTP_200_OK)
