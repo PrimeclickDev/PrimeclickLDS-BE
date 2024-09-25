@@ -294,50 +294,42 @@ class BusinessLeadListAPIView(generics.ListAPIView):
     serializer_class = LeadListSerializer
 
     def get_queryset(self):
+        # Get the business_id from the URL
         business_id = self.kwargs.get('business_id')
-        
+
         # Generate a cache key based on business_id
-        cache_key = f"business_campaigns_leads_{business_id}"
+        cache_key = f"business_leads_{business_id}"
 
         # Try to get the cached queryset
-        campaigns = cache.get(cache_key)
+        leads = cache.get(cache_key)
 
-        if campaigns is None:
-            # Filter campaigns that belong to the business and prefetch leads related to each campaign
-            campaigns = Campaign.objects.filter(business_id=business_id).prefetch_related('campaign_lead')
+        if leads is None:
+            # Filter leads that belong to any campaign under the given business
+            leads = Lead.objects.filter(campaign__business_id=business_id)
 
             # Cache the queryset results for 1 week (7 days)
-            cache.set(cache_key, campaigns, timeout=60 * 10080)
+            cache.set(cache_key, leads, timeout=60 * 10080)
 
-        return campaigns
+        return leads
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
-        # Check if there are campaigns under the business
+        # Check if there are leads under the business
         if queryset.exists():
-            campaigns_data = []
-
-            for campaign in queryset:
-                leads = campaign.campaign_lead.all()  # Assuming `related_name="campaign_lead"` in the Campaign model's ForeignKey in Lead
-                leads_data = LeadListSerializer(leads, many=True).data
-
-                campaigns_data.append({
-                    'campaign_name': campaign.title,
-                    'campaign_id': campaign.id,
-                    'leads': leads_data
-                })
+            # Serialize all the leads in one list
+            leads_data = LeadListSerializer(queryset, many=True).data
 
             response_data = {
-                'business_name': queryset[0].business.name,
-                'business_id': queryset[0].business.id,
-                'campaigns': campaigns_data
+                'business_name': queryset[0].campaign.business.name,
+                'business_id': queryset[0].campaign.business.id,
+                'leads': leads_data
             }
 
             return Response(response_data, status=status.HTTP_200_OK)
         else:
-            # Handle the case where there are no campaigns or leads
-            return Response({'status': 'success', 'message': 'No campaigns or leads found'}, status=status.HTTP_200_OK)
+            # Handle the case where there are no leads
+            return Response({'status': 'success', 'message': 'No leads found for this business'}, status=status.HTTP_200_OK)
 
 
 class LeadListAPIView(generics.ListAPIView):
