@@ -332,7 +332,7 @@ class BusinessLeadListAPIView(generics.ListAPIView):
             }
             response_data = {
                 'business': queryset[0].campaign.business.name,
-                'business_id': queryset[0].campaign.business.id
+                'business_id': queryset[0].campaign.business.id,
                 'campaigns': campaign_data
             }
 
