@@ -641,6 +641,8 @@ class GoogleSheetWebhookView(APIView):
 
     def post(self, request, *args, **kwargs):
         api_key = request.headers.get('Api-Key')
+        print("API KEY FROM APP SCRIPT", api_key)
+        print("KEY SET FROM ENIRONMENT VARIABLE", settings.GOOGLE_SHEET_EXTRACT_KEY)
         if api_key != settings.GOOGLE_SHEET_EXTRACT_KEY:
             return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
