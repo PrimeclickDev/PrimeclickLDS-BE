@@ -123,7 +123,7 @@ class InviteEmailSerializer(serializers.Serializer):
             access_code = generate_random_token(6)
 
             # Create link with path token
-            link = f"https://autoleads.primeclickmedia.com/forms/{campaign_id}"
+            link = f"https://autoleads.primeclickmedia.com/guest/campaigns/{campaign_id}"
 
             view_link_time = ViewTimeHistory.objects.create(
                 campaign=campaign,
