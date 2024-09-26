@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECRET_KEY = config('SECRET_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY')
+GOOGLE_SHEET_EXTRACT_KEY = os.getenv('GOOGLE_SHEET_EXTRACT_KEY')
 
 INFOBIP_AUTH_TOKEN = os.environ.get('INFOBIP_AUTH_TOKEN')
 INFOBIP_NUMBER = os.environ.get('INFOBIP_NUMBER')
