@@ -44,10 +44,12 @@ class LeadListSerializer(serializers.ModelSerializer):
 
 
 class CampaginSerializer(serializers.ModelSerializer):
+    contacted_leads = serializers.IntegerField(read_only=True)
+    converted_leads = serializers.IntegerField(read_only=True)
     class Meta:
         model = Campaign
         fields = ('id', 'title', 'leads',
-                  'type_of', 'created', 'converted')
+                  'type_of', 'created', 'converted', 'contacted_leads', 'converted_leads')
 
 
 class GoogleSheetURLSerializer(serializers.Serializer):
