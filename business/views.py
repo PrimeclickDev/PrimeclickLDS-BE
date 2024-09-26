@@ -2,7 +2,7 @@ import re
 from concurrent.futures import ThreadPoolExecutor
 from django.core.cache import cache
 import requests
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
@@ -400,10 +400,16 @@ class CampaignListAPIView(generics.ListAPIView):
 
         if self.request.user.is_staff:
             # If the user is staff, return campaigns for the specified business
-            campaigns = Campaign.objects.filter(business__id=business_id)
+            campaigns = Campaign.objects.filter(business__id=business_id).annotate(
+                contacted_leads=Count('campaign_lead', filter=Q(campaign_lead__status="Contacted")),
+                converted_leads=Count('campaign_lead', filter=Q(campaign_lead__contacted_status="Converted"))
+            )
         else:
             # If the user is not staff, return campaigns for the specified business only if the user is associated with the business
-            campaigns = Campaign.objects.filter(business__id=business_id, business__users=self.request.user)
+            campaigns = Campaign.objects.filter(business__id=business_id, business__users=self.request.user).annotate(
+                contacted_leads=Count('campaign_lead', filter=Q(campaign_lead__status="Contacted")),
+                converted_leads=Count('campaign_lead', filter=Q(campaign_lead__contacted_status="Converted"))
+            )
 
         return campaigns
 
