@@ -319,6 +319,8 @@ class BusinessLeadListAPIView(generics.ListAPIView):
         if queryset.exists():
             # Serialize all the leads in one list
             leads_data = LeadListSerializer(queryset, many=True).data
+            for lead in leads_data:
+                lead['campaign_name'] = queryset.get(id=lead['id']).campaign.title
 
             response_data = {
                 'business_name': queryset[0].campaign.business.name,
