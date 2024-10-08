@@ -78,7 +78,6 @@ class Campaign(models.Model):
     text_3 = models.TextField(null=True, blank=True)
     text_4 = models.TextField(null=True, blank=True)
 
-
     class Meta:
         ordering = ['-created']
 
@@ -170,6 +169,25 @@ class ViewTimeHistory(models.Model):
         return self.email
 
 
+class ActivityLog(models.Model):
+    LOGS_ENUMS = (
+        ("CREATION", "CREATION"),
+        ("MODIFICATION", "MODIFICATION"),
+        ("LAUNCH", "LAUNCH")
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="activitylog")
+    campaign = models.ForeignKey(Campaign, on_delete=models.DO_NOTHING, related_name="campaign_activity")
+    action = models.CharField(max_length=100, choices=LOGS_ENUMS, default="CREATION")
+    description = models.TextField(null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="user_activities")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.action} by {self.user.first_name} on {self.campaign.title} of {self.business.name}"
+
+
 @receiver(post_delete, sender=Lead)
 def recount_leads(sender, instance, **kwargs):
     with transaction.atomic():
@@ -181,4 +199,3 @@ def recount_leads(sender, instance, **kwargs):
             # Recount leads and save the campaign
             campaign.leads = Lead.objects.filter(campaign=campaign).count()
             campaign.save()
-

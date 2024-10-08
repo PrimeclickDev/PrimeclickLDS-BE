@@ -6,7 +6,7 @@ from django.db import transaction
 from rest_framework import serializers
 from urllib.parse import urlencode
 from accounts.utils import send_invite_lint_email
-from .models import Business, CallReport, Campaign, FormDesign, Lead, ViewTimeHistory
+from .models import Business, CallReport, Campaign, FormDesign, Lead, ViewTimeHistory, ActivityLog
 from django.contrib.sites.shortcuts import get_current_site
 
 
@@ -139,3 +139,8 @@ class InviteEmailSerializer(serializers.Serializer):
 
         return view_link_time
 
+
+class ActivityLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityLog
+        fields = "__all__"

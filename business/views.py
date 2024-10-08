@@ -20,7 +20,7 @@ from backend.utils import format_number_before_save
 # from infobip_utils.delete_call import call_delete
 # from infobip_utils.launch_call import launch
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory, random_id
+from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory, random_id, ActivityLog
 from django.db import transaction
 # from launch_call import arrange_nums, launch
 import time
@@ -35,7 +35,11 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           LeadUploadSerializer,
                           CampaignNameSerializer,
                           CampaginSerializer,
-                          GoogleSheetURLSerializer, InviteEmailSerializer, ContentOptionSerializer, CallTextSerializer)
+                          ActivityLogSerializer,
+                          GoogleSheetURLSerializer, 
+                          InviteEmailSerializer, 
+                          ContentOptionSerializer, 
+                          CallTextSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +75,14 @@ class CampaignUploadView(generics.CreateAPIView):
                     title=campaign_title,
                     business=business,
                     type_of='UPLOAD'
+                )
+
+                activitylog = ActivityLog.objects.create(
+                    business=business,
+                    campaign=new_campaign,
+                    action="CREATION",
+                    description= f"{request.user.first_name} created a new campaign {campaign_title}",
+                    user=request.user
                 )
 
                 total_lead_count = 0
@@ -173,6 +185,14 @@ class CallCreateAPIView(generics.UpdateAPIView):
         # The serializer already knows which fields to handle based on the content type
         serializer.save()
 
+        activitylog = ActivityLog.objects.create(
+            business=campaign.business,
+            campaign=campaign,
+            action="MODIFICATION",
+            description=f"{self.request.user.first_name} added content options to the campaign {campaign.title}",
+            user=self.request.user
+        )
+
         return Response(
             {"message": "Update successful", "campaign_id": campaign.id},
             status=status.HTTP_200_OK
@@ -224,6 +244,14 @@ class LaunchCallAPIView(APIView):
         elapsed_time = time.time() - start_time
         print(f"Total time for processing: {elapsed_time} seconds")
 
+        activitylog = ActivityLog.objects.create(
+            business=campaign.business,
+            campaign=campaign,
+            action="LAUNCH",
+            description=f"{self.request.user.first_name} launched the campaign {campaign.title}",
+            user=self.request.user
+        )
+
         return Response({"message": "Calls launched successfully"}, status=200)
 
 
@@ -244,6 +272,15 @@ class CampaignNameAPIView(generics.CreateAPIView):
             business=business,
             type_of='DIRECT'
         )
+
+        activitylog = ActivityLog.objects.create(
+            business=business,
+            campaign=campaign,
+            action="CREATION",
+            description=f"{self.request.user.first_name} created the campaign {campaign.title}",
+            user=self.request.user
+        )
+
 
         response_data = {
             "campaign_id": campaign.id,
@@ -774,3 +811,16 @@ class LeadsViewOnlyView(generics.ListAPIView):
             return Response(response_data, status=status.HTTP_200_OK)
         else:
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
+
+
+class BusinessActivityLogListAPIView(generics.ListAPIView):
+    serializer_class = ActivityLogSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Get the business_id from the URL kwargs
+        business_id = self.kwargs.get('business_id')
+        user = self.request.user
+
+        # Filter logs for the authenticated user and the specific business
+        return ActivityLog.objects.filter(business__id=business_id).order_by('-created_at')
