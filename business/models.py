@@ -51,6 +51,11 @@ class Campaign(models.Model):
         ("SMS", "Sms")
     )
 
+    CONTENT_OPTION = (
+        ("Audio", "Audio"),
+        ("Text", "Text")
+    )
+
     id = models.CharField(max_length=4, primary_key=True,
                           unique=True, editable=False)
     business = models.ForeignKey(
@@ -63,10 +68,15 @@ class Campaign(models.Model):
         max_length=30, choices=TYPE_OF_CAMPAIGN)
     converted = models.IntegerField(default=0)
     contact_option = models.CharField(max_length=30, choices=CONTACT_OPTION)
+    content_option = models.CharField(max_length=30, choices=CONTENT_OPTION)
     audio_link_1 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_2 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_3 = models.CharField(max_length=100, null=True, blank=True)
     audio_link_4 = models.CharField(max_length=100, null=True, blank=True)
+    text_1 = models.TextField(null=True, blank=True)
+    text_2 = models.TextField(null=True, blank=True)
+    text_3 = models.TextField(null=True, blank=True)
+    text_4 = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created']
@@ -186,7 +196,6 @@ def recount_leads(sender, instance, **kwargs):
             # Invalidate the cache for this campaign
             cache_key = f"leads_{campaign.id}"
             cache.delete(cache_key)
-
             # Recount leads and save the campaign
             campaign.leads = Lead.objects.filter(campaign=campaign).count()
             campaign.save()

@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECRET_KEY = config('SECRET_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY')
+GOOGLE_SHEET_EXTRACT_KEY = os.getenv('GOOGLE_SHEET_EXTRACT_KEY')
 
 INFOBIP_AUTH_TOKEN = os.environ.get('INFOBIP_AUTH_TOKEN')
 INFOBIP_NUMBER = os.environ.get('INFOBIP_NUMBER')
@@ -96,14 +97,19 @@ DATABASE_URL = os.environ.get('DATABASE_URL', None)
 if not DATABASE_URL:
 
     DATABASES = {
+        # 'default': {
+        #     'ENGINE': 'django.db.backends.postgresql',
+        #     'NAME': 'autolead_local',
+        #     'USER': 'postgres',
+        #     'PASSWORD': 'payboi',
+        #     'HOST': 'localhost',
+        #     'PORT': '5432',
+        # },
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'autolead_local',
-            'USER': 'postgres',
-            'PASSWORD': 'payboi',
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         },
+
         'silk': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'silk_db.sqlite3',
@@ -126,6 +132,10 @@ else:
             'NAME': BASE_DIR / 'silk_db.sqlite3',
         }
     }
+
+
+if not DEBUG:
+    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # EMAIL BACKEND SETUP
 

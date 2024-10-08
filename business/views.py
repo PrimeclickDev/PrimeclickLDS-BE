@@ -2,13 +2,13 @@ import re
 from concurrent.futures import ThreadPoolExecutor
 from django.core.cache import cache
 import requests
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 import pandas as pd
-from AIT.xlm_res import intro_response, positive_record, thank_you
+from AIT.xlm_res import intro_response, positive_record, thank_you, handle_inbound, default_handle_inbound
 from AIT.ait import make_voice_call
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,9 +16,9 @@ from rest_framework import serializers
 import logging
 from backend import settings
 from backend.utils import format_number_before_save
-from infobip_utils.create_call import call
-from infobip_utils.delete_call import call_delete
-from infobip_utils.launch_call import launch
+# from infobip_utils.create_call import call
+# from infobip_utils.delete_call import call_delete
+# from infobip_utils.launch_call import launch
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory, random_id, ActivityLog
 from django.db import transaction
@@ -35,7 +35,11 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           LeadUploadSerializer,
                           CampaignNameSerializer,
                           CampaginSerializer,
-                          GoogleSheetURLSerializer, InviteEmailSerializer, ActivityLogSerializer)
+                          ActivityLogSerializer,
+                          GoogleSheetURLSerializer, 
+                          InviteEmailSerializer, 
+                          ContentOptionSerializer, 
+                          CallTextSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +51,7 @@ class CampaignUploadView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         business_id = self.kwargs.get('business_id')
         business = get_object_or_404(Business, id=business_id)
+        cache_key = f"business_campaigns_leads_{business_id}"
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -116,6 +121,7 @@ class CampaignUploadView(generics.CreateAPIView):
                 # Update the total_leads field in the campaign
                 new_campaign.leads = total_lead_count
                 new_campaign.save()
+                cache.delete(cache_key)
 
             response_data = {"status": "success", "campaign_id": new_campaign.id}
             return Response(response_data, status=status.HTTP_201_CREATED)
@@ -136,33 +142,48 @@ class ContactOptionAPIView(generics.UpdateAPIView):
         return Campaign.objects.get(id=campaign_id)
 
 
+class ContentOptionAPIView(generics.UpdateAPIView):
+    queryset = Campaign.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ContentOptionSerializer
+
+    def get_object(self):
+        campaign_id = self.kwargs.get("campaign_id")
+        return Campaign.objects.get(id=campaign_id)
+
+
 class CallCreateAPIView(generics.UpdateAPIView):
     queryset = Campaign.objects.all()
     permission_classes = [IsAuthenticated]
-    serializer_class = CallAudioLinksSerializer
+
+    def get_serializer_class(self):
+        # Get the campaign to check its content type
+        campaign = self.get_object()
+
+        # Assuming content_type is a field that determines if it's 'audio' or 'text'
+        if campaign.content_option == "Audio":
+            return CallAudioLinksSerializer
+        elif campaign.content_option == "Text":
+            return CallTextSerializer
+        else:
+            return Response(
+                {"error": "Invalid content option"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
     def get_object(self):
         campaign_id = self.kwargs.get("campaign_id")
         try:
             campaign = Campaign.objects.get(id=campaign_id)
             return campaign
-        except Exception as e:
-            print(e)
-            return Response({"error": "Campaign doesn't exist"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Campaign.DoesNotExist:
+            return Response(
+                {"error": "Campaign doesn't exist"}, status=status.HTTP_404_NOT_FOUND
+            )
 
     def perform_update(self, serializer):
-        user_data = self.request.data
-        audio1 = user_data.get('audio_link_1')
-        print("CHECKING---------", audio1)
-        audio2 = user_data.get('audio_link_2')
-        audio3 = user_data.get('audio_link_3')
-
         campaign = self.get_object()
-        serializer.save(
-            audio_link_1=audio1,
-            audio_link_2=audio2,
-            audio_link_3=audio3
-        )
+        # The serializer already knows which fields to handle based on the content type
+        serializer.save()
 
         activitylog = ActivityLog.objects.create(
             business=campaign.business,
@@ -173,7 +194,7 @@ class CallCreateAPIView(generics.UpdateAPIView):
         )
 
         return Response(
-            {"message": "Update successful", "campaign_id": campaign.id},  # Use campaign.id
+            {"message": "Update successful", "campaign_id": campaign.id},
             status=status.HTTP_200_OK
         )
 
@@ -276,6 +297,8 @@ class LeadFormAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         campaign_id = self.kwargs.get('campaign_id')
         campaign = get_object_or_404(Campaign, id=campaign_id)
+        business_id = campaign.business.id
+        cache_key = f"business_campaigns_leads_{business_id}"
 
         lead_data = serializer.validated_data
         phone_number = lead_data.get('phone_number')
@@ -292,6 +315,7 @@ class LeadFormAPIView(generics.CreateAPIView):
             # Safely update the lead count within the transaction
             campaign.leads_count = Lead.objects.filter(campaign=campaign).count()
             campaign.save()
+            cache.delete(cache_key)
 
         # Call the function
         num = [processed_number] if processed_number else []
@@ -300,6 +324,51 @@ class LeadFormAPIView(generics.CreateAPIView):
             return Response({"message": "Call launched and scenario deleted successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+
+class BusinessLeadListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = LeadListSerializer
+
+    def get_queryset(self):
+        # Get the business_id from the URL
+        business_id = self.kwargs.get('business_id')
+
+        # Generate a cache key based on business_id
+        cache_key = f"business_leads_{business_id}"
+
+        # Try to get the cached queryset
+        leads = cache.get(cache_key)
+
+        if leads is None:
+            # Filter leads that belong to any campaign under the given business
+            leads = Lead.objects.filter(campaign__business_id=business_id)
+
+            # Cache the queryset results for 1 week (7 days)
+            cache.set(cache_key, leads, timeout=60 * 10080)
+
+        return leads
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        # Check if there are leads under the business
+        if queryset.exists():
+            # Serialize all the leads in one list
+            leads_data = LeadListSerializer(queryset, many=True).data
+            for lead in leads_data:
+                lead['campaign_name'] = queryset.get(id=lead['id']).campaign.title
+
+            response_data = {
+                'business_name': queryset[0].campaign.business.name,
+                'business_id': queryset[0].campaign.business.id,
+                'leads': leads_data
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            # Handle the case where there are no leads
+            return Response({'status': 'success', 'message': 'No leads found for this business'}, status=status.HTTP_200_OK)
 
 
 class LeadListAPIView(generics.ListAPIView):
@@ -366,13 +435,20 @@ class CampaignListAPIView(generics.ListAPIView):
     def get_queryset(self):
         # Get the business_id from the URL
         business_id = self.kwargs.get('business_id')
+        # cache_key = f"leads_{campaign_id}"
 
         if self.request.user.is_staff:
             # If the user is staff, return campaigns for the specified business
-            campaigns = Campaign.objects.filter(business__id=business_id)
+            campaigns = Campaign.objects.filter(business__id=business_id).annotate(
+                contacted_leads=Count('campaign_lead', filter=Q(campaign_lead__status="Contacted")),
+                converted_leads=Count('campaign_lead', filter=Q(campaign_lead__contacted_status="Converted"))
+            )
         else:
             # If the user is not staff, return campaigns for the specified business only if the user is associated with the business
-            campaigns = Campaign.objects.filter(business__id=business_id, business__users=self.request.user)
+            campaigns = Campaign.objects.filter(business__id=business_id, business__users=self.request.user).annotate(
+                contacted_leads=Count('campaign_lead', filter=Q(campaign_lead__status="Contacted")),
+                converted_leads=Count('campaign_lead', filter=Q(campaign_lead__contacted_status="Converted"))
+            )
 
         return campaigns
 
@@ -454,6 +530,7 @@ class AITAPIView(APIView):
         session_id = request.data.get("sessionId")
         print("SESSION ID HERE-------", session_id)
         print("PHONE NUMBER HERE---------", destination_number)
+        direction = request.data.get("direction")
 
         # if session_id:
         #     session_id = str(session_id).strip()
@@ -464,6 +541,14 @@ class AITAPIView(APIView):
         # print("CHECK IF SESSION ID:", session_id==lead.session_id)
         print("LEAD HERE-------", lead)
 
+        if direction == "Inbound":
+            if lead:
+                content4 = lead.campaign.audio_link_4 if lead.campaign.content_option == "Audio" else lead.campaign.text_4
+                inb_xml_data = handle_inbound(content4)
+            else:
+                inb_xml_data = default_handle_inbound()
+            return HttpResponse(inb_xml_data, content_type='application/xml')
+
         if lead:
             # Access the related campaign from the lead object
             dest_number_campaign = lead.campaign
@@ -473,10 +558,11 @@ class AITAPIView(APIView):
             dest_number_campaign = None
 
         if dest_number_campaign:
-            audio_link_1 = dest_number_campaign.audio_link_1
+            content_1 = dest_number_campaign.audio_link_1 if dest_number_campaign.content_option == "Audio" else dest_number_campaign.text_1
             try:
-                xml_data = intro_response(audio_link_1)
-                return HttpResponse(xml_data, content_type='text/xml')
+                # xml_data = intro_response(audio_link_1)
+                xml_data = intro_response(content_1) #test
+                return HttpResponse(xml_data, content_type='application/xml')
             except Exception as e:
                 print(e)
         else:
@@ -491,20 +577,23 @@ class AITFlowAPIView(APIView):
             data = request.data.get("dtmfDigits")
             destination_number = request.data.get("callerNumber")
             session_id = request.data.get("sessionId")
+            direction = request.data.get("direction")
             lead = Lead.objects.select_related('campaign').filter(
                 phone_number=destination_number).first()
+
             dest_number_campaign = lead.campaign
             if dest_number_campaign:
-                audio_link_2 = dest_number_campaign.audio_link_2
-                audio_link_3 = dest_number_campaign.audio_link_3
-            else:
-                return Response({"error": "Requested campaign does not exist"}, status=status.HTTP_404_NOT_FOUND)
+                content_2 = dest_number_campaign.audio_link_2 if dest_number_campaign.content_option == "Audio" else dest_number_campaign.text_2
+
             if data == "1":
-                res = positive_record(audio_link_2)
+                # res = positive_record(audio_link_2)
+                res = positive_record(content_2)
                 lead.contacted_status = "Converted"
                 lead.save()
-                thank_you(audio_link_3)
-                return HttpResponse(res, content_type='text/xml')
+                cache_key = f"leads_{lead.campaign.id}"
+                cache.delete(cache_key)
+                # thank_you(audio_link_3)
+                return HttpResponse(res, content_type='application/xml')
             else:
                 lead.contacted_status = "Rejected"
                 # Provide a default response if the condition isn't met
@@ -520,16 +609,15 @@ class AITRecordAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         destination_number = request.data.get("callerNumber")
-        print("New Destination Number Here", destination_number)
         session_id = request.data.get("sessionId")
-        print("New Session Id Here", session_id)
         recording_url = request.data.get('recordingUrl', '')
         call_start_time = request.data.get('callStartTime')
         call_duration = request.data.get('durationInSeconds')
 
-        # Optionally, log the data for debugging
+        # Log incoming data
         print(f"Received Data: session_id={session_id}, destination_number={destination_number}, "
               f"recording_url={recording_url}, call_start_time={call_start_time}, call_duration={call_duration}")
+
         try:
             lead = Lead.objects.select_related('campaign').filter(
                 phone_number=destination_number).first()
@@ -537,13 +625,7 @@ class AITRecordAPIView(APIView):
                 return Response({"error": "Lead not found"}, status=status.HTTP_404_NOT_FOUND)
 
             dest_number_campaign = lead.campaign
-            if dest_number_campaign:
-                audio_link_3 = dest_number_campaign.audio_link_3
-                try:
-                    thank_you(audio_link_3)
-                except Exception as e:
-                    print(e)
-
+            content_3 = dest_number_campaign.audio_link_3 if dest_number_campaign.content_option == "Audio" else dest_number_campaign.text_3
             if not lead.recording_url:
                 lead.recording_url = recording_url
 
@@ -558,12 +640,12 @@ class AITRecordAPIView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Log response data before returning it
-        response_data = {'status': 'success', 'recording_url': recording_url}
-        print(f"Response Data: {response_data}")
+        # Use thank_you response and return it as XML
+        xml_response = thank_you(content_3)
+        print(f"XML Response: {xml_response}")  # Debugging output
 
-        # Return a response to acknowledge receipt
-        return Response(response_data, status=status.HTTP_200_OK)
+        # Return the XML response using DRF's Response
+        return HttpResponse(xml_response, content_type="application/xml")
 
 
 class RecordingProxyAPIView(APIView):
@@ -576,32 +658,37 @@ class RecordingProxyAPIView(APIView):
         # Get the raw HTTP URL from the Lead object
         recording_url = lead.recording_url
         if not recording_url:
-            return HttpResponse("No recording URL found for this lead.", status=400)
+            return Response({"error": "No recording URL found for this lead."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Fetch the content from the original URL
-        response = requests.get(recording_url)
+        external_response = requests.get(recording_url)
 
-        if response.status_code == 200:
+        if external_response.status_code == 200:
             # Set the correct content type for the audio file
-            content_type = response.headers.get('Content-Type', 'audio/mpeg')
+            content_type = external_response.headers.get('Content-Type', 'audio/mpeg')
 
-            # Set the response headers to allow streaming
+            # Set the response headers for the audio file
             response_headers = {
                 'Content-Type': content_type,
                 'Content-Disposition': 'inline',  # This tells the browser to display/play the content
             }
 
-            return HttpResponse(response.content, headers=response_headers)
+            # Return the response with binary content and headers
+            return HttpResponse(external_response.content, headers=response_headers)
         else:
-            return HttpResponse(f"Failed to fetch the content from {recording_url}", status=response.status_code)
-
+            return Response(
+                {"error": f"Failed to fetch the content from {recording_url}"},
+                status=external_response.status_code
+            )
 
 class GoogleSheetWebhookView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         api_key = request.headers.get('Api-Key')
-        if api_key != settings.SECRET_KEY:
+        print("API KEY FROM APP SCRIPT", api_key)
+        print("KEY SET FROM ENIRONMENT VARIABLE", settings.GOOGLE_SHEET_EXTRACT_KEY)
+        if api_key != settings.GOOGLE_SHEET_EXTRACT_KEY:
             return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
         data = request.data

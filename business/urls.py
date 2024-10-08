@@ -3,7 +3,7 @@ from .views import (AITAPIView, AITFlowAPIView, AITRecordAPIView, CallCreateAPIV
                     ContactOptionAPIView, FormDesignCreateAPIView, FormDesignRetrieveAPIView, FormDesignUpdateAPIView,
                     LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView,
                     LeadListAPIView, CampaignNameAPIView, CampaignListAPIView, GoogleSheetWebhookView, CollectEmailView,
-                    LeadsViewOnlyView, RecordingProxyAPIView, BusinessActivityLogListAPIView)
+                    LeadsViewOnlyView, RecordingProxyAPIView, ContentOptionAPIView, BusinessLeadListAPIView,  BusinessActivityLogListAPIView)
 
 
 urlpatterns = [
@@ -11,6 +11,8 @@ urlpatterns = [
          CampaignUploadView.as_view(), name='campaign-upload'),
     path('campaign/add/contact/<str:campaign_id>/',
          ContactOptionAPIView.as_view(), name='contact-option'),
+    path('campaign/content-option/<str:campaign_id>/',
+         ContentOptionAPIView.as_view(), name='content-option'),
     path('campaign/call/create/<str:campaign_id>/',
          CallCreateAPIView.as_view(), name='campaign-call-create'),
     path('campaign/call/launch/<str:campaign_id>/',
@@ -39,4 +41,5 @@ urlpatterns = [
     path('collect-email/', CollectEmailView.as_view(), name='collect-email'),
     path('dashboard/<str:campaign_id>/<str:access_code>/', LeadsViewOnlyView.as_view(), name='campaign-leads'),
     path('business/<uuid:business_id>/logs/', BusinessActivityLogListAPIView.as_view(), name='business-activity-logs'),
+    path('business/leads/<uuid:business_id>/', BusinessLeadListAPIView.as_view(), name='business-leads' )
 ]

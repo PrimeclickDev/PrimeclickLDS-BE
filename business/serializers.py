@@ -44,10 +44,12 @@ class LeadListSerializer(serializers.ModelSerializer):
 
 
 class CampaginSerializer(serializers.ModelSerializer):
+    contacted_leads = serializers.IntegerField(read_only=True)
+    converted_leads = serializers.IntegerField(read_only=True)
     class Meta:
         model = Campaign
         fields = ('id', 'title', 'leads',
-                  'type_of', 'created', 'converted')
+                  'type_of', 'created', 'converted', 'contacted_leads', 'converted_leads')
 
 
 class GoogleSheetURLSerializer(serializers.Serializer):
@@ -65,12 +67,24 @@ class ContactOptionSerializer(serializers.ModelSerializer):
         model = Campaign
         fields = ("contact_option",)
 
+class ContentOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = ("content_option",)
+
 
 class CallAudioLinksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Campaign
         fields = ("audio_link_1",
                   "audio_link_2", "audio_link_3", "audio_link_4")
+
+
+class CallTextSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = ("text_1",
+                  "text_2", "text_3", "text_4")
 
 
 class FormDesignSerializer(serializers.ModelSerializer):
