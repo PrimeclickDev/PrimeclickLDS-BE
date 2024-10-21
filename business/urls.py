@@ -3,7 +3,9 @@ from .views import (AITAPIView, AITFlowAPIView, AITRecordAPIView, CallCreateAPIV
                     ContactOptionAPIView, FormDesignCreateAPIView, FormDesignRetrieveAPIView, FormDesignUpdateAPIView,
                     LaunchCallAPIView, LeadDetailAPIView, LeadFormAPIView,
                     LeadListAPIView, CampaignNameAPIView, CampaignListAPIView, GoogleSheetWebhookView, CollectEmailView,
-                    LeadsViewOnlyView, RecordingProxyAPIView, ContentOptionAPIView, BusinessLeadListAPIView,  BusinessActivityLogListAPIView)
+                    LeadsViewOnlyView, RecordingProxyAPIView, ContentOptionAPIView, BusinessLeadListAPIView,
+                    BusinessActivityLogListAPIView, GetAllInvitedUsers, RevokeAccessAPIView, UserSubmitSupportAPIView,
+                    AdminViewUpdateSupportAPIView, ListAllSupportIssuesAPIView)
 
 
 urlpatterns = [
@@ -41,5 +43,10 @@ urlpatterns = [
     path('collect-email/', CollectEmailView.as_view(), name='collect-email'),
     path('dashboard/<str:campaign_id>/<str:access_code>/', LeadsViewOnlyView.as_view(), name='campaign-leads'),
     path('business/<uuid:business_id>/logs/', BusinessActivityLogListAPIView.as_view(), name='business-activity-logs'),
-    path('business/leads/<uuid:business_id>/', BusinessLeadListAPIView.as_view(), name='business-leads' )
+    path('business/leads/<uuid:business_id>/', BusinessLeadListAPIView.as_view(), name='business-leads' ),
+    path('business/<uuid:business_id>/invited-users/', GetAllInvitedUsers.as_view(), name='invited-users'),
+    path('revoke-access/<uuid:id>/', RevokeAccessAPIView.as_view(), name='revoke-access'),
+    path('support/', UserSubmitSupportAPIView.as_view(), name='submit-support'),
+    path('admin/support/<uuid:id>/', AdminViewUpdateSupportAPIView.as_view(), name='admin-support-update'),
+    path('admin/support/issues/', ListAllSupportIssuesAPIView.as_view(), name='list-support-issues'),
 ]

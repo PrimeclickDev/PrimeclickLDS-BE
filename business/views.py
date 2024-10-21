@@ -6,6 +6,7 @@ from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
+from rest_framework.generics import UpdateAPIView, ListAPIView, RetrieveUpdateAPIView, CreateAPIView
 from rest_framework.views import APIView
 import pandas as pd
 from AIT.xlm_res import intro_response, positive_record, thank_you, handle_inbound, default_handle_inbound
@@ -20,14 +21,14 @@ from backend.utils import format_number_before_save
 # from infobip_utils.delete_call import call_delete
 # from infobip_utils.launch_call import launch
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory, random_id, ActivityLog
+from .models import FormDesign, Lead, Campaign, Business, ViewTimeHistory, random_id, ActivityLog, Support
 from django.db import transaction
 # from launch_call import arrange_nums, launch
 import time
 import io
 import csv
 from django.http import HttpResponse, JsonResponse
-from .permissions import IsLinkValid
+from .permissions import IsLinkValid, IsAdminOrSuperadmin
 from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, ContactOptionSerializer,
                           FormDesignSerializer,
                           LeadFormSerializer,
@@ -36,10 +37,10 @@ from .serializers import (CallAudioLinksSerializer, CampaignUploadSerializer, Co
                           CampaignNameSerializer,
                           CampaginSerializer,
                           ActivityLogSerializer,
-                          GoogleSheetURLSerializer, 
-                          InviteEmailSerializer, 
-                          ContentOptionSerializer, 
-                          CallTextSerializer)
+                          GoogleSheetURLSerializer,
+                          InviteEmailSerializer,
+                          ContentOptionSerializer,
+                          CallTextSerializer, ViewAccessSerializer, SupportSerializer, AdminSupportSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -813,6 +814,36 @@ class LeadsViewOnlyView(generics.ListAPIView):
             return Response({'status': 'success', 'message': 'No leads found'}, status=status.HTTP_200_OK)
 
 
+class GetAllInvitedUsers(ListAPIView):
+    serializer_class = ViewAccessSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Get business ID from URL parameters or request data
+        business_id = self.kwargs.get('business_id')
+
+        if not business_id:
+            return ViewTimeHistory.objects.none()  # No business ID, return empty queryset
+
+        return ViewTimeHistory.objects.filter(
+            campaign__business_id=business_id
+        )
+
+
+class RevokeAccessAPIView(RetrieveUpdateAPIView):
+    serializer_class = ViewAccessSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'  # Use 'id' as the lookup field (UUIDField)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Set has_access to false to revoke access
+        instance.has_access = False
+        instance.save()
+
+        return Response({'message': 'Access has been revoked successfully.'})
+
+
 class BusinessActivityLogListAPIView(generics.ListAPIView):
     serializer_class = ActivityLogSerializer
     permission_classes = [IsAuthenticated]
@@ -824,3 +855,40 @@ class BusinessActivityLogListAPIView(generics.ListAPIView):
 
         # Filter logs for the authenticated user and the specific business
         return ActivityLog.objects.filter(business__id=business_id).order_by('-created_at')
+
+
+class UserSubmitSupportAPIView(CreateAPIView):
+    queryset = Support.objects.all()
+    serializer_class = SupportSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Automatically set the user who is submitting the issue
+        serializer.save(user=self.request.user, email=self.request.user.email)
+
+
+class AdminViewUpdateSupportAPIView(RetrieveUpdateAPIView):
+    queryset = Support.objects.all()
+    serializer_class = AdminSupportSerializer
+    permission_classes = [IsAuthenticated]  # Add your custom admin/superadmin permission class
+    lookup_field = 'id'
+
+    def perform_update(self, serializer):
+        # Automatically set the resolved_by field to the admin updating the issue
+        serializer.save(resolved_by=self.request.user)
+
+
+class ListAllSupportIssuesAPIView(ListAPIView):
+    serializer_class = AdminSupportSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrSuperadmin]
+
+    def get_queryset(self):
+        queryset = Support.objects.all()
+        resolved = self.request.query_params.get('resolved')
+
+        if resolved is not None:
+            queryset = queryset.filter(resolved=(resolved.lower() == 'true'))
+
+        return queryset
+
+
