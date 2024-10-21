@@ -48,5 +48,5 @@ urlpatterns = [
     path('revoke-access/<uuid:id>/', RevokeAccessAPIView.as_view(), name='revoke-access'),
     path('support/', UserSubmitSupportAPIView.as_view(), name='submit-support'),
     path('admin/support/<uuid:id>/', AdminViewUpdateSupportAPIView.as_view(), name='admin-support-update'),
-    path('admin/support/issues/', ListAllSupportIssuesAPIView.as_view(), name='list-support-issues'),
+    path('support-issues/', ListAllSupportIssuesAPIView.as_view(), name='support-issues-list'),
 ]

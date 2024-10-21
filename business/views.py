@@ -880,7 +880,7 @@ class AdminViewUpdateSupportAPIView(RetrieveUpdateAPIView):
 
     def perform_update(self, serializer):
         # Automatically set the resolved_by field to the admin updating the issue
-        serializer.save(resolved_by=self.request.user)
+        serializer.save()
 
 
 class ListAllSupportIssuesAPIView(ListAPIView):
@@ -894,6 +894,7 @@ class ListAllSupportIssuesAPIView(ListAPIView):
         if resolved is not None:
             queryset = queryset.filter(resolved=(resolved.lower() == 'true'))
 
+        print(queryset)  # Debug to check what is being returned
         return queryset
 
 
