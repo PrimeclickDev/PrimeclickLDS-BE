@@ -875,12 +875,20 @@ class UserSubmitSupportAPIView(CreateAPIView):
 class AdminViewUpdateSupportAPIView(RetrieveUpdateAPIView):
     queryset = Support.objects.all()
     serializer_class = AdminSupportSerializer
-    permission_classes = [IsAuthenticated]  # Add your custom admin/superadmin permission class
+    permission_classes = [IsAuthenticated, IsAdminOrSuperadmin]  # Add your custom admin/superadmin permission class
     lookup_field = 'id'
 
     def perform_update(self, serializer):
         # Automatically set the resolved_by field to the admin updating the issue
         serializer.save()
+
+    def get_object(self):
+        try:
+            obj = super().get_object()
+            return obj
+        except Support.DoesNotExist:
+            logger.error("Support instance does not exist.")
+            raise NotFound("Support issue not found.")
 
 
 class ListAllSupportIssuesAPIView(ListAPIView):
