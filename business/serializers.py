@@ -6,7 +6,7 @@ from django.db import transaction
 from rest_framework import serializers
 from urllib.parse import urlencode
 from accounts.utils import send_invite_lint_email
-from .models import Business, CallReport, Campaign, FormDesign, Lead, ViewTimeHistory, ActivityLog
+from .models import Business, CallReport, Campaign, FormDesign, Lead, ViewTimeHistory, ActivityLog, Support
 from django.contrib.sites.shortcuts import get_current_site
 
 
@@ -129,7 +129,8 @@ class InviteEmailSerializer(serializers.Serializer):
                 campaign=campaign,
                 email=email,
                 link=link,
-                access_code=access_code
+                access_code=access_code,
+                has_access=True
             )
         try:
             send_invite_lint_email(email, link, access_code, campaign_name=campaign.title)
@@ -140,7 +141,28 @@ class InviteEmailSerializer(serializers.Serializer):
         return view_link_time
 
 
+class ViewAccessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ViewTimeHistory
+        fields = "__all__"
+
+
 class ActivityLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityLog
         fields = "__all__"
+
+
+class SupportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Support
+        fields = ['id', 'user', 'email', 'issue', 'resolved']
+        read_only_fields = ['resolved']  # Users can't change the resolved status
+
+
+class AdminSupportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Support
+        fields = ['id', 'user', 'email', 'issue', 'resolved']
+        read_only_fields = ['user', 'email', 'issue']  # Admin cannot change issue details
+

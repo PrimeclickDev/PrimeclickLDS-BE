@@ -164,6 +164,7 @@ class ViewTimeHistory(models.Model):
     sent_time = models.DateTimeField(default=timezone.now)
     link = models.CharField(max_length=255, null=True, blank=True)
     access_code = models.CharField(max_length=255, null=True, blank=True)
+    has_access = models.BooleanField(default=True)
 
     def __str__(self):
         return self.email
@@ -186,6 +187,17 @@ class ActivityLog(models.Model):
 
     def __str__(self):
         return f"{self.action} by {self.user.first_name} on {self.campaign.title} of {self.business.name}"
+
+
+class Support(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_support")
+    email = models.CharField(max_length=255, null=True, blank=True)
+    issue = models.TextField(null=True, blank=True)
+    resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.first_name}'s support request"
 
 
 @receiver(post_delete, sender=Lead)
