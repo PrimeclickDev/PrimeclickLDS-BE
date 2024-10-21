@@ -835,6 +835,10 @@ class RevokeAccessAPIView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'  # Use 'id' as the lookup field (UUIDField)
 
+    def get_queryset(self):
+        # Optionally filter queryset (e.g., for specific business or user)
+        return ViewTimeHistory.objects.all()
+
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         # Set has_access to false to revoke access
@@ -842,6 +846,7 @@ class RevokeAccessAPIView(RetrieveUpdateAPIView):
         instance.save()
 
         return Response({'message': 'Access has been revoked successfully.'})
+
 
 
 class BusinessActivityLogListAPIView(generics.ListAPIView):
