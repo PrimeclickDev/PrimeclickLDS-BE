@@ -1,12 +1,13 @@
 
-def intro_response(content1): #testing
+def intro_response(content1, user_name): #testing
+    full_content = content1.replace("{user_name}", user_name) if "{user_name}" in content1 else content1
     response = '<?xml version="1.0"?>'
     response += '<Response>'
     response += '<GetDigits numDigits="1" finishOnKey="#" timeout="8" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
     if content1.endswith(('.mp3', '.wav', '.ogg')):
         response += f'<Play>{content1}</Play>'
     else:
-        response += f'<Say voice="man">{content1}</Say>'
+        response += f'<Say voice="man">{full_content}</Say>'
     response += '</GetDigits>'
     response += '</Response>'
     return response
