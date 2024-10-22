@@ -14,21 +14,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Remove the issue field from the Support model
-        migrations.RemoveField(
-            model_name='support',
-            name='issue',
-        ),
-
-        # Add new fields to the Support model
-        migrations.AddField(
-            model_name='support',
-            name='subject',
-            field=models.CharField(blank=True, max_length=355, null=True),
-        ),
-        migrations.AddField(
-            model_name='support',
-            name='description',
-            field=models.TextField(blank=True, null=True),
+        migrations.CreateModel(
+            name='Support',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('email', models.CharField(blank=True, max_length=255, null=True)),
+                ('issue', models.CharField(blank=True, max_length=355, null=True)),  # This should match the initial state
+                ('resolved', models.BooleanField(default=False)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_support', to=settings.AUTH_USER_MODEL)),
+            ],
         ),
     ]
