@@ -14,11 +14,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='viewtimehistory',
-            name='has_access',
-            field=models.BooleanField(default=True),
-        ),
+        # migrations.AddField(
+        #     model_name='viewtimehistory',
+        #     name='has_access',
+        #     field=models.BooleanField(default=True),
+        # ),
         migrations.CreateModel(
             name='Support',
             fields=[
