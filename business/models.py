@@ -193,11 +193,12 @@ class Support(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_support")
     email = models.CharField(max_length=255, null=True, blank=True)
-    issue = models.TextField(null=True, blank=True)
+    subject = models.CharField(max_length=355, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     resolved = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.first_name}'s support request"
+        return f"{self.subject}'s support request"
 
 
 @receiver(post_delete, sender=Lead)

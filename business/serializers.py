@@ -156,7 +156,7 @@ class ActivityLogSerializer(serializers.ModelSerializer):
 class SupportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Support
-        fields = ['id', 'user', 'email', 'issue', 'resolved']
+        fields = ['id', 'user', 'email', 'subject', 'description', 'resolved']
         read_only_fields = ['resolved']  # Users can't change the resolved status
 
 
@@ -164,5 +164,5 @@ class AdminSupportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Support
         fields = ['id', 'user', 'email', 'issue', 'resolved']
-        read_only_fields = ['user', 'email', 'issue']  # Admin cannot change issue details
+        read_only_fields = ['user', 'email', 'subject', 'description']  # Admin cannot change issue details
 
