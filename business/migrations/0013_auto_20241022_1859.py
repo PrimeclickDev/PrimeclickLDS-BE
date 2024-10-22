@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('business', '0012_viewtimehistory_has_access_supportt'),
+        ('business', '0011_merge_20241021_1101'),
     ]
 
     operations = [
