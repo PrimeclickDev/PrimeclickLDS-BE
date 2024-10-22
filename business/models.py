@@ -194,7 +194,6 @@ class Support(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_support")
     email = models.CharField(max_length=255, null=True, blank=True)
     subject = models.CharField(max_length=355, null=True, blank=True)
-    links = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     resolved = models.BooleanField(default=False)
 
