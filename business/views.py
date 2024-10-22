@@ -560,7 +560,7 @@ class AITAPIView(APIView):
 
         if dest_number_campaign:
             content_1 = dest_number_campaign.audio_link_1 if dest_number_campaign.content_option == "Audio" else dest_number_campaign.text_1
-            user_name = lead.fullname.strip().split(' ')[0] if lead.fullname else "Unknown"
+            user_name = lead.fullname.strip().split(' ')[0] if lead.full_name else "Customer"
             try:
                 # xml_data = intro_response(audio_link_1)
                 xml_data = intro_response(content_1, user_name) #test
