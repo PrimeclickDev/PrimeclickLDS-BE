@@ -218,7 +218,7 @@ class LaunchCallAPIView(APIView):
         # Try to get phone numbers from the cache
         nums = cache.get(cache_key)
 
-        # If not cached, query the database and cache the results
+        # If cache is empty, query the database and store the phone numbers in the cache
         if nums is None:
             leads_phone_numbers = Lead.objects.filter(
                 campaign=campaign
@@ -226,7 +226,17 @@ class LaunchCallAPIView(APIView):
                 'phone_number', flat=True
             )
             nums = [number for number in leads_phone_numbers if number is not None]
-            cache.set(cache_key, nums, timeout=60 * 10080)  # Cache for 10 minutes (adjust as needed)
+            cache.set(cache_key, nums, timeout=60 * 10080)  # Cache for 1 week (adjust as needed)
+
+        else:
+            # Filter cached numbers against the latest status to exclude "Converted" or "Rejected"
+            latest_leads = Lead.objects.filter(
+                campaign=campaign,
+                phone_number__in=nums
+            ).exclude(Q(contacted_status="Converted") | Q(contacted_status="Rejected")).values_list(
+                'phone_number', flat=True
+            )
+            nums = list(latest_leads)
 
         print(f"Processing {len(nums)} numbers")
         batch_size = 20
@@ -254,6 +264,7 @@ class LaunchCallAPIView(APIView):
         )
 
         return Response({"message": "Calls launched successfully"}, status=200)
+
 
 
 class CampaignNameAPIView(generics.CreateAPIView):
