@@ -1,7 +1,7 @@
 def intro_response(content1, user_name):  # Accepting content and the user's name
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<GetDigits numDigits="1" finishOnKey="#" timeout="8" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
+    response += '<GetDigits numDigits="1" finishOnKey="#" timeout="5" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
 
     # Check if the content is an audio file or text
     if content1.endswith(('.mp3', '.wav', '.ogg')):
