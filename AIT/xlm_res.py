@@ -1,15 +1,20 @@
-
-def intro_response(content1, user_name): #testing
-    full_content = content1.replace("{user_name}", user_name) if "{user_name}" in content1 else content1
+def intro_response(content1, user_name):  # Accepting content and the user's name
     response = '<?xml version="1.0"?>'
     response += '<Response>'
     response += '<GetDigits numDigits="1" finishOnKey="#" timeout="8" callbackUrl="https://coral-app-kajof.ondigitalocean.app/call/user/input/">'
+
+    # Check if the content is an audio file or text
     if content1.endswith(('.mp3', '.wav', '.ogg')):
+        # If it's an audio file, just play it
         response += f'<Play>{content1}</Play>'
     else:
-        response += f'<Say voice="man">{full_content}</Say>'
+        # If it's text, replace the {user_name} placeholder if present
+        full_content = content1.replace("{user_name}", user_name) if "{user_name}" in content1 else content1
+        response += f'<Say voice="woman">{full_content}</Say>'
+
     response += '</GetDigits>'
     response += '</Response>'
+
     return response
 
 
