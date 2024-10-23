@@ -179,10 +179,10 @@ class ActivityLog(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="activitylog")
-    campaign = models.ForeignKey(Campaign, on_delete=models.DO_NOTHING, related_name="campaign_activity")
+    campaign = models.ForeignKey(Campaign, on_delete=models.SET_NULL, null=True, blank=True, related_name="campaign_activity")
     action = models.CharField(max_length=100, choices=LOGS_ENUMS, default="CREATION")
     description = models.TextField(null=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="user_activities")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,  related_name="user_activities")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
