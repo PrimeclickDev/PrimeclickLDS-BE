@@ -21,7 +21,7 @@ def intro_response(content1, user_name):  # Accepting content and the user's nam
 def positive_record(content2):
     response = '<?xml version="1.0"?>'
     response += '<Response>'
-    response += '<Record finishOnKey="#" maxLength="20" trimSilence="true" playBeep="true" callbackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
+    response += '<Record finishOnKey="#" maxLength="25" trimSilence="true" playBeep="true" callbackUrl="https://coral-app-kajof.ondigitalocean.app/record/call/">'
 
     # Check if content2 is an audio file
     if content2.endswith(('.mp3', '.wav', '.ogg')):
